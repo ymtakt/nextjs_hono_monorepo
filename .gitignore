@@ -10,7 +10,7 @@ apps/api/generated/
 .env*
 
 # next.js
-/.next/
+.next/
 /out/
 
 # production
