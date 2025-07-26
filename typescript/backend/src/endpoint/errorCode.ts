@@ -12,8 +12,7 @@ const MIDDLEWARE_ERROR_CODES = {
     /** パラメータが設定されていない場合のエラーコード。 */
     MIDDLEWARE: {
       code: "middleware.parameter.1",
-      descriptionForOpenAPISpec:
-        "ミドルウェアが要求するパラメータが設定されていません。",
+      descriptionForOpenAPISpec: "ミドルウェアが要求するパラメータが設定されていません。",
     },
   },
 } as const;

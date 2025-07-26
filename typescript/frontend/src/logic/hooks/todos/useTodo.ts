@@ -4,7 +4,7 @@ import { fetchTodo } from "@/core/services/todo.service";
 import { TodoEntity } from "@/logic/data/todo";
 
 export const useTodo = (
-  id: number
+  id: number,
 ): {
   todo: TodoEntity | null;
   loading: boolean;

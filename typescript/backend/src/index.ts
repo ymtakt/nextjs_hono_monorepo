@@ -61,13 +61,10 @@ const routes = app
           },
         },
       },
-    })
+    }),
   )
   // 開発環境向け：API リファレンスを生成する。
-  .get(
-    "/development/docs",
-    Scalar({ theme: "saturn", url: "/development/spec" })
-  );
+  .get("/development/docs", Scalar({ theme: "saturn", url: "/development/spec" }));
 
 export type AppType = typeof routes;
 

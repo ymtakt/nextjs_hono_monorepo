@@ -7,10 +7,7 @@ import { match } from "ts-pattern";
 import type { EnvironmentVariables } from "../../../env";
 import { fetchTodosUseCase } from "../../../use-case/todo/fetchTodosUseCase";
 import { ENDPOINT_ERROR_CODES } from "../../errorCode";
-import {
-  AppHTTPException,
-  getErrorResponseForOpenAPISpec,
-} from "../../errorResponse";
+import { AppHTTPException, getErrorResponseForOpenAPISpec } from "../../errorResponse";
 
 /** レスポンスデータのスキーマ。 */
 const responseSchema = z
@@ -23,7 +20,7 @@ const responseSchema = z
         description: z.string(),
         createdAt: z.string(),
         updatedAt: z.string(),
-      })
+      }),
     ),
   })
   .openapi({
@@ -48,56 +45,53 @@ export type TodosResponse = z.infer<typeof responseSchema>;
  *
  * @returns Todo 一覧を返却する。
  */
-export const getTodosHandlers =
-  createFactory<EnvironmentVariables>().createHandlers(
-    describeRoute({
-      description: "Todo 一覧を取得する",
-      tags: ["todos"],
-      responses: {
-        200: {
-          description: "Todo 一覧の取得に成功",
-          content: {
-            "application/json": {
-              schema: resolver(responseSchema),
-            },
+export const getTodosHandlers = createFactory<EnvironmentVariables>().createHandlers(
+  describeRoute({
+    description: "Todo 一覧を取得する",
+    tags: ["todos"],
+    responses: {
+      200: {
+        description: "Todo 一覧の取得に成功",
+        content: {
+          "application/json": {
+            schema: resolver(responseSchema),
           },
         },
-        400: getErrorResponseForOpenAPISpec(ENDPOINT_ERROR_CODES.GET_TODOS),
       },
-    }),
+      400: getErrorResponseForOpenAPISpec(ENDPOINT_ERROR_CODES.GET_TODOS),
+    },
+  }),
 
-    async (c) => {
-      // 認証済みユーザー ID を取得する。
-      const userId = c.get("userId");
+  async (c) => {
+    // 認証済みユーザー ID を取得する。
+    const userId = c.get("userId");
 
-      // UseCase を呼び出す。
-      const result = await fetchTodosUseCase({
-        userId,
-      });
+    // UseCase を呼び出す。
+    const result = await fetchTodosUseCase({
+      userId,
+    });
 
-      // エラーが発生した場合は、エラーの種類を網羅的にマッチングし、
-      // 対応するエラーコード AppHTTPException に設定してスローする。
-      if (result.isErr()) {
-        const error = result.error;
-        match(error)
-          .with({ type: "TODO_FETCH_FAILED" }, () => {
-            throw new AppHTTPException(
-              ENDPOINT_ERROR_CODES.GET_TODOS.FETCH_FAILED.code
-            );
-          })
-          .exhaustive();
-        return c.json({ error: "not found" }, 500);
-      }
-
-      // レスポンスデータを作成する。
-      const responseData = {
-        todos: result.value,
-      };
-
-      // レスポンスデータをバリデーションする。
-      const validatedResponse = responseSchema.parse(responseData);
-
-      // レスポンスを生成する。
-      return c.json(validatedResponse);
+    // エラーが発生した場合は、エラーの種類を網羅的にマッチングし、
+    // 対応するエラーコード AppHTTPException に設定してスローする。
+    if (result.isErr()) {
+      const error = result.error;
+      match(error)
+        .with({ type: "TODO_FETCH_FAILED" }, () => {
+          throw new AppHTTPException(ENDPOINT_ERROR_CODES.GET_TODOS.FETCH_FAILED.code);
+        })
+        .exhaustive();
+      return c.json({ error: "not found" }, 500);
     }
-  );
+
+    // レスポンスデータを作成する。
+    const responseData = {
+      todos: result.value,
+    };
+
+    // レスポンスデータをバリデーションする。
+    const validatedResponse = responseSchema.parse(responseData);
+
+    // レスポンスを生成する。
+    return c.json(validatedResponse);
+  },
+);

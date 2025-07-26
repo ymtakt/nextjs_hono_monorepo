@@ -36,7 +36,7 @@ declare global {
 export const prisma =
   process.env.NODE_ENV === "test"
     ? createPrismaClient() // テスト時は毎回新しく作成
-    : globalThis.__prisma ?? createPrismaClient(); // 他は使い回し
+    : (globalThis.__prisma ?? createPrismaClient()); // 他は使い回し
 
 // 開発環境でのホットリロード対応
 if (process.env.NODE_ENV !== "production") {

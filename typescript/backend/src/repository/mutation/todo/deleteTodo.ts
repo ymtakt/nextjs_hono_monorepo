@@ -13,9 +13,7 @@ type RepositoryParams = {
  * @param params - パラメータ。
  * @returns 削除された Todo の情報。
  */
-export const deleteTodo = async (
-  params: RepositoryParams
-): Promise<Result<void, Error>> => {
+export const deleteTodo = async (params: RepositoryParams): Promise<Result<void, Error>> => {
   const c = getContext<EnvironmentVariables>();
   const logger = c.get("logger");
   const prisma = c.get("prisma");

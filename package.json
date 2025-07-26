@@ -1,15 +1,21 @@
 {
-    "name": "sample-app",
-    "private": true,
-    "workspaces": [
-        "typescript/*"
-    ],
-    "scripts": {
-        "dev": "bun run dev:api & bun run dev:web",
-        "dev:web": "cd typescript/frontend && bun run dev",
-        "dev:api": "cd typescript/backend && bun run dev",
-        "test": "cd typescript/frontend && bun run test",
-        "test:ui": "cd typescript/frontend && bun run test:ui",
-        "test:run": "cd typescript/frontend && bun run test:run"
-    }
+  "name": "sample-app",
+  "private": true,
+  "workspaces": [
+    "typescript/*"
+  ],
+  "scripts": {
+    "dev": "bun run dev:api & bun run dev:web",
+    "dev:web": "cd typescript/frontend && bun run dev",
+    "dev:api": "cd typescript/backend && bun run dev",
+    "test": "cd typescript/frontend && bun run test",
+    "test:ui": "cd typescript/frontend && bun run test:ui",
+    "test:run": "cd typescript/frontend && bun run test:run",
+    "format": "bunx @biomejs/biome format --write . --files-ignore-unknown=true",
+    "lint": "bunx @biomejs/biome lint . --files-ignore-unknown=true",
+    "check": "bunx @biomejs/biome check --apply . --files-ignore-unknown=true"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.2"
+  }
 }

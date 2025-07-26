@@ -23,7 +23,7 @@ type UseCaseError = {
 };
 
 export const fetchTodosUseCase = async (
-  params: UseCaseParams
+  params: UseCaseParams,
 ): Promise<Result<UseCaseResult[], UseCaseError>> => {
   // Repository を呼び出してデータを取得する。
   const repositoryResult = await getTodosByUserId(params);

@@ -12,8 +12,7 @@ async function main() {
         create: [
           {
             title: "Complete project setup",
-            description:
-              "Set up the development environment and install dependencies",
+            description: "Set up the development environment and install dependencies",
             completed: false,
           },
           {

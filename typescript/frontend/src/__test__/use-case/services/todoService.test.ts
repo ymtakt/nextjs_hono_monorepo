@@ -51,8 +51,6 @@ describe("fetchTodos", () => {
 
     vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse as any);
 
-    await expect(fetchTodos()).rejects.toThrow(
-      "Failed to fetch todos: Server Error"
-    );
+    await expect(fetchTodos()).rejects.toThrow("Failed to fetch todos: Server Error");
   });
 });

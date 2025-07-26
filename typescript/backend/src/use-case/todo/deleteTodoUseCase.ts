@@ -14,7 +14,7 @@ type UseCaseError = {
 };
 
 export const deleteTodoUseCase = async (
-  params: UseCaseParams
+  params: UseCaseParams,
 ): Promise<Result<void, UseCaseError>> => {
   // Repository を呼び出してデータを取得する。
   const repositoryResult = await deleteTodo(params);

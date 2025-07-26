@@ -40,7 +40,7 @@ export class AppLogger {
   private log(
     level: "debug" | "info" | "warn" | "error",
     message: string,
-    data?: Record<string, unknown>
+    data?: Record<string, unknown>,
   ): void {
     // 絵文字付きメッセージを作成する。
     const emoji = AppLogger.LOG_EMOJI[level];
@@ -53,8 +53,7 @@ export class AppLogger {
     };
 
     // データを JSON 文字列に変換する。
-    const dataJson =
-      Object.keys(logData).length > 0 ? JSON.stringify(logData, null, 2) : "";
+    const dataJson = Object.keys(logData).length > 0 ? JSON.stringify(logData, null, 2) : "";
 
     // 区切り線で囲まれたログメッセージを作成する。
     const formattedLog = [

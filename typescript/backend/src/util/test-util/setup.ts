@@ -3,8 +3,7 @@ import { execSync } from "child_process";
 import { disconnectPrisma, prisma, resetTestData } from "../prisma";
 
 // テスト用DB URL
-const TEST_DATABASE_URL =
-  "postgresql://testuser:testpass@localhost:54321/myapp_test";
+const TEST_DATABASE_URL = "postgresql://testuser:testpass@localhost:54321/myapp_test";
 
 beforeAll(async () => {
   try {

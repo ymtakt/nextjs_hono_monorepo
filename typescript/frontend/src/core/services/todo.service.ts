@@ -28,9 +28,7 @@ export const fetchTodo = async (todoId: number): Promise<TodoResponse> => {
   return data;
 };
 
-export const createTodo = async (
-  todo: CreateTodoRequest
-): Promise<TodoResponse> => {
+export const createTodo = async (todo: CreateTodoRequest): Promise<TodoResponse> => {
   const res = await apiClient.api.todos.$post({
     json: todo,
   });
@@ -45,7 +43,7 @@ export const createTodo = async (
 
 export const updateTodo = async (
   todoId: number,
-  todo: UpdateTodoRequest
+  todo: UpdateTodoRequest,
 ): Promise<TodoResponse> => {
   const res = await apiClient.api.todos[":todoId"].$put({
     param: { todoId: todoId.toString() },

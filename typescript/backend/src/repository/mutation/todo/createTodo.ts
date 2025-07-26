@@ -26,7 +26,7 @@ type RepositoryResult = {
  * @returns 作成された Todo の情報。
  */
 export const createTodo = async (
-  params: RepositoryParams
+  params: RepositoryParams,
 ): Promise<Result<RepositoryResult, Error>> => {
   const c = getContext<EnvironmentVariables>();
   const logger = c.get("logger");

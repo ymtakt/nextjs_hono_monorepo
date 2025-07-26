@@ -19,7 +19,7 @@ type Todo = {
 };
 
 export const getTodosByUserId = async (
-  params: RepositoryParams
+  params: RepositoryParams,
 ): Promise<Result<Todo[], Error>> => {
   const c = getContext<EnvironmentVariables>();
   const logger = c.get("logger");

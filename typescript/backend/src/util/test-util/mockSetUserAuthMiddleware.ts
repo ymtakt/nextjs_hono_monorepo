@@ -14,10 +14,7 @@ const { mockSetUserAuthMiddleware: mockModule } = (() => {
     return { setUserAuthMiddleware: mock };
   });
 
-  vi.mock(
-    "../../endpoint/middleware/setUserAuthMiddleware",
-    () => mockSetUserAuthMiddleware
-  );
+  vi.mock("../../endpoint/middleware/setUserAuthMiddleware", () => mockSetUserAuthMiddleware);
 
   return { mockSetUserAuthMiddleware };
 })();
@@ -40,22 +37,20 @@ export const mockSetUserAuthMiddleware = ({ userId }: MockConfig = {}) => {
   // モックの実装をリセットする（モジュール自体はリセットしない）。
   mockModule.setUserAuthMiddleware.mockReset();
 
-  mockModule.setUserAuthMiddleware.mockImplementation(
-    async (c: Context, next: Next) => {
-      const logger = c.get("logger");
+  mockModule.setUserAuthMiddleware.mockImplementation(async (c: Context, next: Next) => {
+    const logger = c.get("logger");
 
-      // ユーザー ID が与えられていない場合は認証エラーをスローする。
-      if (!userId) {
-        if (logger) {
-          logger.error("userId is not provided");
-        }
-        // エラーをスローする。
-        throw new AppHTTPException(ERROR_CODES.AUTH.USER_AUTH_ERROR.code);
+    // ユーザー ID が与えられていない場合は認証エラーをスローする。
+    if (!userId) {
+      if (logger) {
+        logger.error("userId is not provided");
       }
-
-      // ユーザー ID を Context にセットする。
-      c.set("userId", userId);
-      await next();
+      // エラーをスローする。
+      throw new AppHTTPException(ERROR_CODES.AUTH.USER_AUTH_ERROR.code);
     }
-  );
+
+    // ユーザー ID を Context にセットする。
+    c.set("userId", userId);
+    await next();
+  });
 };

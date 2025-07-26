@@ -8,9 +8,7 @@ describe("useAsyncData", () => {
   it("成功時の状態管理を正しく行う", async () => {
     const mockAsyncFunction = vi.fn().mockResolvedValue("test data");
 
-    const { result } = renderHook(() =>
-      useAsyncData(mockAsyncFunction, { immediate: false })
-    );
+    const { result } = renderHook(() => useAsyncData(mockAsyncFunction, { immediate: false }));
 
     // 初期状態
     expect(result.current.loading).toBe(false);
@@ -31,9 +29,7 @@ describe("useAsyncData", () => {
   it("エラー時の状態管理を正しく行う", async () => {
     const mockAsyncFunction = vi.fn().mockRejectedValue("error message");
 
-    const { result } = renderHook(() =>
-      useAsyncData(mockAsyncFunction, { immediate: false })
-    );
+    const { result } = renderHook(() => useAsyncData(mockAsyncFunction, { immediate: false }));
 
     await act(async () => {
       try {

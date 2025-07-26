@@ -9,7 +9,7 @@ type UseAsyncDataOptions = {
 
 export const useAsyncData = <T>(
   asyncFunction: () => Promise<T>,
-  options: UseAsyncDataOptions = {}
+  options: UseAsyncDataOptions = {},
 ) => {
   const { immediate = true } = options;
 

@@ -28,7 +28,7 @@ type RepositoryResult = {
  * @returns 更新された Todo の情報。
  */
 export const updateTodo = async (
-  params: RepositoryParams
+  params: RepositoryParams,
 ): Promise<Result<RepositoryResult, Error>> => {
   const c = getContext<EnvironmentVariables>();
   const logger = c.get("logger");

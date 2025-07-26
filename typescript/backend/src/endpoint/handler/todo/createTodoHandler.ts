@@ -6,10 +6,7 @@ import { createFactory } from "hono/factory";
 import { match } from "ts-pattern";
 import type { EnvironmentVariables } from "../../../env";
 import { ENDPOINT_ERROR_CODES } from "../../errorCode";
-import {
-  AppHTTPException,
-  getErrorResponseForOpenAPISpec,
-} from "../../errorResponse";
+import { AppHTTPException, getErrorResponseForOpenAPISpec } from "../../errorResponse";
 import { createTodoUseCase } from "../../../use-case/todo/createTodoUseCase";
 
 /** リクエストデータのスキーマ。 */
@@ -51,61 +48,58 @@ export type CreateTodoRequest = z.infer<typeof requestSchema>;
  *
  * @returns Todo を返却する。
  */
-export const createTodoHandlers =
-  createFactory<EnvironmentVariables>().createHandlers(
-    describeRoute({
-      description: "Todo を作成する",
-      tags: ["todo"],
-      responses: {
-        200: {
-          description: "Todo の作成に成功",
-          content: {
-            "application/json": {
-              schema: resolver(responseSchema),
-            },
+export const createTodoHandlers = createFactory<EnvironmentVariables>().createHandlers(
+  describeRoute({
+    description: "Todo を作成する",
+    tags: ["todo"],
+    responses: {
+      200: {
+        description: "Todo の作成に成功",
+        content: {
+          "application/json": {
+            schema: resolver(responseSchema),
           },
         },
-        400: getErrorResponseForOpenAPISpec(ENDPOINT_ERROR_CODES.GET_TODOS),
       },
-    }),
+      400: getErrorResponseForOpenAPISpec(ENDPOINT_ERROR_CODES.GET_TODOS),
+    },
+  }),
 
-    async (c) => {
-      // 認証済みユーザー ID を取得する。
-      const userId = c.get("userId");
+  async (c) => {
+    // 認証済みユーザー ID を取得する。
+    const userId = c.get("userId");
 
-      // バリデーション済みのリクエストデータを取得する。
-      const requestData = await c.req.json<CreateTodoRequest>();
+    // バリデーション済みのリクエストデータを取得する。
+    const requestData = await c.req.json<CreateTodoRequest>();
 
-      // UseCase を呼び出す。
-      const result = await createTodoUseCase({
-        userId,
-        title: requestData.title,
-        description: requestData.description,
-      });
+    // UseCase を呼び出す。
+    const result = await createTodoUseCase({
+      userId,
+      title: requestData.title,
+      description: requestData.description,
+    });
 
-      // エラーが発生した場合は、エラーの種類を網羅的にマッチングし、
-      // 対応するエラーコード AppHTTPException に設定してスローする。
-      if (result.isErr()) {
-        const error = result.error;
-        match(error)
-          .with({ type: "TODO_CREATE_FAILED" }, () => {
-            throw new AppHTTPException(
-              ENDPOINT_ERROR_CODES.CREATE_TODO.FAILED.code
-            );
-          })
-          .exhaustive();
-        return c.json({ error: "not found" }, 500);
-      }
-
-      // レスポンスデータを作成する。
-      const responseData = {
-        todo: result.value,
-      };
-
-      // レスポンスデータをバリデーションする。
-      const validatedResponse = responseSchema.parse(responseData);
-
-      // レスポンスを生成する。
-      return c.json(validatedResponse);
+    // エラーが発生した場合は、エラーの種類を網羅的にマッチングし、
+    // 対応するエラーコード AppHTTPException に設定してスローする。
+    if (result.isErr()) {
+      const error = result.error;
+      match(error)
+        .with({ type: "TODO_CREATE_FAILED" }, () => {
+          throw new AppHTTPException(ENDPOINT_ERROR_CODES.CREATE_TODO.FAILED.code);
+        })
+        .exhaustive();
+      return c.json({ error: "not found" }, 500);
     }
-  );
+
+    // レスポンスデータを作成する。
+    const responseData = {
+      todo: result.value,
+    };
+
+    // レスポンスデータをバリデーションする。
+    const validatedResponse = responseSchema.parse(responseData);
+
+    // レスポンスを生成する。
+    return c.json(validatedResponse);
+  },
+);

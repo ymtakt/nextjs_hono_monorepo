@@ -30,10 +30,7 @@ describe("formatDateToJapanese", () => {
   describe("エラーハンドリング", () => {
     it("エラーが発生した場合はconsole.errorが呼ばれる", () => {
       formatDateToJapanese("invalid-date");
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Date formatting error:",
-        expect.any(Error)
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Date formatting error:", expect.any(Error));
     });
   });
 });

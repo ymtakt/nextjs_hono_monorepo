@@ -19,9 +19,7 @@ type Todo = {
   updatedAt: Date;
 };
 
-export const getUserTodo = async (
-  params: RepositoryParams
-): Promise<Result<Todo, Error>> => {
+export const getUserTodo = async (params: RepositoryParams): Promise<Result<Todo, Error>> => {
   const c = getContext<EnvironmentVariables>();
   const logger = c.get("logger");
   const prisma = c.get("prisma");

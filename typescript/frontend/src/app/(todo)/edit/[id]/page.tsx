@@ -1,4 +1,4 @@
-import TodoEditForm from "@/components/todos/TodoEditForm"
+import TodoEditForm from "@/components/todos/TodoEditForm";
 
 export default async function EditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
