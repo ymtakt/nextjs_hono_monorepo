@@ -3,13 +3,27 @@
 import Link from "next/link";
 import { formatDateToJapanese } from "@/utils/date-format";
 import { useTodos } from "@/logic/hooks/todos/useTodos";
-
-
+import { useModal } from "@/logic/hooks/useModal";
+import { Modal } from "../base/Modal";
+import { deleteTodo } from "@/core/services/todo.service";
 
 
 export function TodoList() {
-  const { todos, loading, error } = useTodos();
+  const { todos, loading, error, refetch } = useTodos();
+  const deleteModal = useModal<{ id: number; title: string }>();
 
+  // 削除処理
+  const handleDelete = async () => {
+    if (!deleteModal.data) return;
+
+    try {
+      await deleteTodo(deleteModal.data.id);
+      deleteModal.closeModal();
+      refetch(); // リストを再取得
+    } catch (error) {
+      console.error('削除に失敗しました:', error);
+    }
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-[200px]">
@@ -86,19 +100,27 @@ export function TodoList() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 ml-4">
-                    <Link
-                      href={`/detail/${todo.id}`}
-                      className="text-blue-600 hover:text-blue-800 px-3 py-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
-                    >
-                      詳細
-                    </Link>
-                    <Link
-                      href={`/edit/${todo.id}`}
-                      className="text-green-600 hover:text-green-800 px-3 py-1 rounded-md hover:bg-green-50 transition-colors duration-200"
-                    >
-                      編集
-                    </Link>
+                  <div className="">
+                    <div className="flex items-center gap-2 ml-4">
+                      <Link
+                        href={`/detail/${todo.id}`}
+                        className="text-blue-600 hover:text-blue-800 px-3 py-1 rounded-md hover:bg-blue-50 transition-colors duration-200"
+                      >
+                        詳細
+                      </Link>
+                      <Link
+                        href={`/edit/${todo.id}`}
+                        className="text-green-600 hover:text-green-800 px-3 py-1 rounded-md hover:bg-green-50 transition-colors duration-200"
+                      >
+                        編集
+                      </Link>
+                    </div>
+
+                    <div className="">
+                      <button onClick={() => deleteModal.openModal({ id: todo.id, title: todo.title })}>
+                        削除
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -106,6 +128,29 @@ export function TodoList() {
           ))}
         </div>
       )}
+      {/* モーダルは1つだけ */}
+      <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.closeModal}>
+        <div>
+          <h3 className="text-lg font-semibold mb-4">削除確認</h3>
+          <p className="mb-4">
+            「{deleteModal.data?.title}」を削除しますか？
+          </p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={deleteModal.closeModal}
+              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            >
+              キャンセル
+            </button>
+            <button
+              onClick={handleDelete}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              削除
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
