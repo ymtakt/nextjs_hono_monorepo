@@ -12,7 +12,7 @@
       "*.js": "$(capture).js.map, $(capture).min.js, $(capture).d.ts",
       "*.jsx": "$(capture).js",
       "*.ts": "$(capture).js, $(capture).*.ts",
-      "*.tsx": "$(capture).ts",
+      "*.tsx": "$(capture).tsx, $(capture).*.tsx",
       ".env": "*.env, .env.*, env.d.ts",
       ".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
       "index.d.ts": "*.d.ts",
@@ -23,5 +23,5 @@
       "vite.config.*": "*.env, .babelrc*, .codecov, .cssnanorc*, .env.*, .htmlnanorc*, .mocha*, .postcssrc*, .terserrc*, api-extractor.json, ava.config.*, babel.config.*, cssnano.config.*, cypress.json, env.d.ts, htmlnanorc.*, index.html, jasmine.*, jest.config.*, jsconfig.*, karma*, playwright.config.*, postcss.config.*, puppeteer.config.*, svgo.config.*, tailwind.config.*, tsconfig.*, tsdoc.*, unocss.config.*, vitest.config.*, webpack.config.*, windi.config.*"
     },
     "cSpell.ignorePaths": ["**/.vscode/**"],
-    "cSpell.words": ["neverthrow"]
+    "cSpell.words": ["neverthrow","quramy","Fabbrica","autoincrement"]
   }

@@ -1,6 +1,6 @@
 # dependencies
 node_modules/
-apps/api/generated/
+typescript/backend/generated/
 
 # testing
 /coverage

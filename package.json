@@ -2,14 +2,14 @@
     "name": "sample-app",
     "private": true,
     "workspaces": [
-        "apps/*"
+        "typescript/*"
     ],
     "scripts": {
         "dev": "bun run dev:api & bun run dev:web",
-        "dev:web": "cd apps/web && bun run dev",
-        "dev:api": "cd apps/api && bun run dev",
-        "test": "cd apps/web && bun run test",
-        "test:ui": "cd apps/web && bun run test:ui",
-        "test:run": "cd apps/web && bun run test:run"
+        "dev:web": "cd typescript/frontend && bun run dev",
+        "dev:api": "cd typescript/backend && bun run dev",
+        "test": "cd typescript/frontend && bun run test",
+        "test:ui": "cd typescript/frontend && bun run test:ui",
+        "test:run": "cd typescript/frontend && bun run test:run"
     }
 }
