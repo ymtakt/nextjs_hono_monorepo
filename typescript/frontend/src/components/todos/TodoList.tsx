@@ -1,17 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Todo } from "@/core/services/todo.service";
 import { formatDateToJapanese } from "@/utils/date-format";
-import { useAsyncData } from "@/logic/hooks/useAsyncData";
-import { fetchTodos } from "@/core/services/todo.service";
+import { useTodos } from "@/logic/hooks/todos/useTodos";
+
+
 
 
 export function TodoList() {
-  const { data, loading, error } = useAsyncData<{ todos: Todo[] }>(fetchTodos);
-
-  // Todo固有のロジック
-  const todos = data?.todos || [];
+  const { todos, loading, error } = useTodos();
 
 
   if (loading) {
@@ -71,13 +68,13 @@ export function TodoList() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className={`w-3 h-3 rounded-full ${todo.completed ? "bg-green-500" : "bg-gray-300"}`}></div>
-                      <h3 className={`text-lg font-semibold ${todo.completed ? "line-through text-gray-500" : "text-gray-900"}`}>
+                      <div className={`w-3 h-3 rounded-full ${todo.isCompleted ? "bg-green-500" : "bg-gray-300"}`}></div>
+                      <h3 className={`text-lg font-semibold ${todo.isCompleted ? "line-through text-gray-500" : "text-gray-900"}`}>
                         {todo.title}
                       </h3>
                     </div>
                     {todo.description && (
-                      <p className={`text-gray-600 mb-3 ${todo.completed ? "line-through" : ""}`}>
+                      <p className={`text-gray-600 mb-3 ${todo.isCompleted ? "line-through" : ""}`}>
                         {todo.description}
                       </p>
                     )}
@@ -85,7 +82,7 @@ export function TodoList() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      {formatDateToJapanese(todo.createdAt)}
+                      {formatDateToJapanese(todo.createdDate)}
                     </div>
                   </div>
 

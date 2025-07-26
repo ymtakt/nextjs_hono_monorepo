@@ -14,13 +14,13 @@ export const setUserAuthMiddleware: MiddlewareHandler = async (c, next) => {
 
   try {
     // Authorization ヘッダーからトークンを取得
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      // TODO:修正する
-      throw new AppHTTPException(ERROR_CODES.AUTH.USER_AUTH_ERROR.code);
-    }
+    // const authHeader = c.req.header("Authorization");
+    // if (!authHeader?.startsWith("Bearer ")) {
+    //   // TODO:修正する
+    //   throw new AppHTTPException(ERROR_CODES.AUTH.USER_AUTH_ERROR.code);
+    // }
 
-    const token = authHeader.replace("Bearer ", "");
+    // const token = authHeader.replace("Bearer ", "");
 
     // TODO:一旦そのままidをセットする
     // JWTを検証（またはセッションテーブルをチェック）

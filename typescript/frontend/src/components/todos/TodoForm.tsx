@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState } from "react"
-import { client } from "@/lib/apiClient"
+import { apiClient } from "@/lib/apiClient"
 import { useRouter } from "next/navigation"
 
 export default function TodoForm({ id, prevTitle, prevDescription }: { id: string, prevTitle: string, prevDescription: string }) {
@@ -15,7 +15,7 @@ export default function TodoForm({ id, prevTitle, prevDescription }: { id: strin
     const description = formData.get('description') as string
 
     // @ts-expect-error - Hono RPC client type issue  
-    const res = await client.api.todos[":id"].$put({
+    const res = await apiClient.api.todos[":id"].$put({
       param: { id },
       json: { title, description },
     }, {

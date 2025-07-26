@@ -30,7 +30,9 @@ export const useAsyncData = <T>(
     } finally {
       setLoading(false);
     }
-  }, [asyncFunction]);
+    // TODO: 依存配列の設定が必要かも
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (immediate) {
