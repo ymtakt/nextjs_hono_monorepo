@@ -9,7 +9,7 @@ describe("getTodoHandler - 正常系", () => {
     mockSetUserAuthMiddleware({ userId: 1 });
 
     // テスト用のTodoを作成
-    const todo = await prisma.todo.create({
+    await prisma.todo.create({
       data: {
         id: 123,
         title: "Test Todo",

@@ -1,5 +1,5 @@
-import TodoRegisterForm from "@/components/todos/TodoRegisterForm";
+import TodoRegister from "@/components/todos/TodoRegister";
 
 export default function RegisterPage() {
-  return <TodoRegisterForm />;
+  return <TodoRegister />;
 }

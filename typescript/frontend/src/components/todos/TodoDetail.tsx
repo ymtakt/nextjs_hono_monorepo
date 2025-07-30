@@ -1,31 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { LoadingSpinner } from "../base/Loading";
+import { useAppSWR } from "@/logic/hooks/useSWRHooks";
+import { fetchTodo } from "@/core/services/todo.service";
+import { transformToTodoEntity } from "@/logic/use-case/todo";
 import { notFound } from "next/navigation";
-import { useTodo } from "@/logic/hooks/todos/useTodo";
 
 export default function TodoDetail({ id }: { id: number }) {
-  const { todo, loading, error } = useTodo(id);
+  // データ取得
+  const { data, error, isLoading } = useAppSWR(`todo-${id}`, () =>
+    fetchTodo(id)
+  );
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <div className="text-red-500 text-lg">{error}</div>
-      </div>
-    );
-  }
-
-  if (!todo) {
+  // データが存在しない場合は404
+  if (!isLoading && !error && !data?.todo) {
     notFound();
   }
+
+  // DTOからEntityに変換
+  const todo = data?.todo ? transformToTodoEntity(data.todo) : null;
+
+  if (isLoading) return <LoadingSpinner />;
+
+  // エラーの場合はuseAppSWR内でアプリケーションエラーに変換してメッセージを表示
+  if (error) return <div className="text-red-500 text-lg">{error.message}</div>;
+  if (!todo) return <div>Todo not found</div>;
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -36,7 +36,7 @@ export default function TodoDetail({ id }: { id: number }) {
             href="/"
             className="text-gray-600 hover:text-gray-800 transition-colors duration-200"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -51,7 +51,7 @@ export default function TodoDetail({ id }: { id: number }) {
           href={`/edit/${todo.id}`}
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -117,3 +117,4 @@ export default function TodoDetail({ id }: { id: number }) {
     </div>
   );
 }
+

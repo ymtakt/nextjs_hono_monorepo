@@ -1,9 +1,9 @@
 {
   "name": "sample-app",
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.2"
+  },
   "private": true,
-  "workspaces": [
-    "typescript/*"
-  ],
   "scripts": {
     "dev": "bun run dev:api & bun run dev:web",
     "dev:web": "cd typescript/frontend && bun run dev",
@@ -15,7 +15,7 @@
     "lint": "bunx @biomejs/biome lint . --files-ignore-unknown=true",
     "check": "bunx @biomejs/biome check --apply . --files-ignore-unknown=true"
   },
-  "devDependencies": {
-    "@biomejs/biome": "^2.1.2"
-  }
+  "workspaces": [
+    "typescript/*"
+  ]
 }

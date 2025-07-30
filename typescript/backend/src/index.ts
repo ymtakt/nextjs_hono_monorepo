@@ -28,6 +28,42 @@ const routes = app
   .delete("/api/todos/:todoId", ...deleteTodoHandlers)
 
   // 開発環境向け：OpenAPI の仕様を生成する。
+  // .get(
+  //   "/development/spec",
+  //   openAPISpecs(app, {
+  //     documentation: {
+  //       info: {
+  //         title: "Hono API",
+  //         version: "1.0.0",
+  //         description: "Server-side API for architecture-sample-app",
+  //       },
+  //       servers: [
+  //         // {
+  //         //   url: "https://architecture-sample-app-dev.saigusa758cloudy.workers.dev	",
+  //         //   description: "Dev Server",
+  //         // },
+  //         // {
+  //         //   url: " https://architecture-sample-app.saigusa758cloudy.workers.dev",
+  //         //   description: "Production Server",
+  //         // },
+  //         { url: "http://localhost:8080", description: "Local Server" },
+  //       ],
+  //       // グローバルなセキュリティ要件を定義する。
+  //       // security: [{ bearerAuth: [] }],
+  //       // components: {
+  //       //   securitySchemes: {
+  //       //     bearerAuth: {
+  //       //       type: "http",
+  //       //       scheme: "bearer",
+  //       //       bearerFormat: "JWT",
+  //       //       description: "Firebase Auth IdToken を入力してください",
+  //       //     },
+  //       //   },
+  //       // },
+  //     },
+  //   })
+  // )
+
   .get(
     "/development/spec",
     openAPISpecs(app, {
@@ -38,17 +74,8 @@ const routes = app
           description: "Server-side API for architecture-sample-app",
         },
         servers: [
-          // {
-          //   url: "https://architecture-sample-app-dev.saigusa758cloudy.workers.dev	",
-          //   description: "Dev Server",
-          // },
-          // {
-          //   url: " https://architecture-sample-app.saigusa758cloudy.workers.dev",
-          //   description: "Production Server",
-          // },
           { url: "http://localhost:8080", description: "Local Server" },
         ],
-        // グローバルなセキュリティ要件を定義する。
         security: [{ bearerAuth: [] }],
         components: {
           securitySchemes: {
@@ -61,10 +88,13 @@ const routes = app
           },
         },
       },
-    }),
+    })
   )
   // 開発環境向け：API リファレンスを生成する。
-  .get("/development/docs", Scalar({ theme: "saturn", url: "/development/spec" }));
+  .get(
+    "/development/docs",
+    Scalar({ theme: "saturn", url: "/development/spec" })
+  );
 
 export type AppType = typeof routes;
 

@@ -9,7 +9,7 @@ describe("deleteTodoHandler - 正常系", () => {
     mockSetUserAuthMiddleware({ userId: 1 });
 
     // テスト用のTodoを作成
-    const todo = await prisma.todo.create({
+    await prisma.todo.create({
       data: {
         id: 456,
         title: "削除対象Todo",

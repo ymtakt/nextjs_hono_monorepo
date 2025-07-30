@@ -10,13 +10,18 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div
+    <button
+      type="button"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0000008c]"
       onClick={onClose}
     >
-      <div className="bg-white rounded-lg p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        className="bg-white rounded-lg p-6 max-w-md w-full"
+        onClick={(e) => e.stopPropagation()}
+      >
         {children}
-      </div>
-    </div>
+      </button>
+    </button>
   );
 };

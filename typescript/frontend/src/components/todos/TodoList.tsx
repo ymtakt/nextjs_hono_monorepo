@@ -1,15 +1,36 @@
+// /Users/user/app/practice/nextjs_hono_monorepo/typescript/frontend/src/components/todos/TodoList.tsx
 "use client";
 
 import Link from "next/link";
 import { formatDateToJapanese } from "@/utils/date-format";
-import { useTodos } from "@/logic/hooks/todos/useTodos";
 import { useModal } from "@/logic/hooks/useModal";
 import { Modal } from "../base/Modal";
-import { deleteTodo } from "@/core/services/todo.service";
+import { deleteTodo, fetchTodos } from "@/core/services/todo.service";
+import { useAppSWR } from "@/logic/hooks/useSWRHooks";
+import { LoadingSpinner } from "../base/Loading";
+import { transformToTodoEntity } from "@/logic/use-case/todo";
+
 
 export function TodoList() {
-  const { todos, loading, error, refetch } = useTodos();
+  // データ取得
+  const { data, error, isLoading, mutate } = useAppSWR(
+    "todos",
+    fetchTodos
+  );
   const deleteModal = useModal<{ id: number; title: string }>();
+
+
+  // DTOからEntityに変換
+  const todos = data?.todos.map(transformToTodoEntity) || [];
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // エラーの場合はuseAppSWR内でアプリケーションエラーに変換してメッセージを表示
+  if (error) {
+    return <div className="text-red-500 text-lg">{error.message}</div>;
+  }
 
   // 削除処理
   const handleDelete = async () => {
@@ -18,27 +39,12 @@ export function TodoList() {
     try {
       await deleteTodo(deleteModal.data.id);
       deleteModal.closeModal();
-      refetch(); // リストを再取得
+      // リストを再取得
+      mutate();
     } catch (error) {
       console.error("削除に失敗しました:", error);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <div className="text-red-500 text-lg">{error}</div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -49,7 +55,7 @@ export function TodoList() {
           href="/register"
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           新規作成
@@ -65,6 +71,7 @@ export function TodoList() {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -79,7 +86,7 @@ export function TodoList() {
             href="/register"
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -118,6 +125,7 @@ export function TodoList() {
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -148,6 +156,7 @@ export function TodoList() {
 
                     <div className="">
                       <button
+                        type="button"
                         onClick={() => deleteModal.openModal({ id: todo.id, title: todo.title })}
                       >
                         削除
@@ -167,12 +176,14 @@ export function TodoList() {
           <p className="mb-4">「{deleteModal.data?.title}」を削除しますか？</p>
           <div className="flex gap-2 justify-end">
             <button
+              type="button"
               onClick={deleteModal.closeModal}
               className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
             >
               キャンセル
             </button>
             <button
+              type="button"
               onClick={handleDelete}
               className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             >
