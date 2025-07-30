@@ -5,9 +5,9 @@ import { notFound } from 'next/navigation'
 import { fetchTodo } from '@/core/services/todo.service'
 import { useAppSWR } from '@/logic/hooks/useSWRHooks'
 import { transformToTodoEntity } from '@/logic/use-case/todo'
-import { LoadingSpinner } from '../base/Loading'
+import { LoadingSpinner } from '@/components/functionless'
 
-export default function TodoDetail({ id }: { id: number }) {
+export function TodoDetail({ id }: { id: number }) {
   // データ取得
   const { data, error, isLoading } = useAppSWR(`todo-${id}`, () => fetchTodo(id))
 

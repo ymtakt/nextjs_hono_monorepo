@@ -1,4 +1,3 @@
-// /Users/user/app/practice/nextjs_hono_monorepo/typescript/frontend/src/components/todos/TodoList.tsx
 'use client'
 
 import Link from 'next/link'
@@ -7,8 +6,8 @@ import { useModal } from '@/logic/hooks/useModal'
 import { useAppSWR } from '@/logic/hooks/useSWRHooks'
 import { transformToTodoEntity } from '@/logic/use-case/todo'
 import { formatDateToJapanese } from '@/utils/date-format'
-import { LoadingSpinner } from '../base/Loading'
-import { Modal } from '../base/Modal'
+import { LoadingSpinner } from '@/components/functionless'
+import { Modal } from '@/components/functionless'
 
 export function TodoList() {
   // データ取得

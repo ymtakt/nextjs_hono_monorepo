@@ -1,4 +1,4 @@
-import TodoRegister from '@/components/todos/TodoRegister'
+import { TodoRegister } from '@/components/functional/todo'
 
 export default function RegisterPage() {
   return <TodoRegister />

@@ -6,7 +6,7 @@ interface ModalProps {
   children: React.ReactNode
 }
 
-export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
+export function Modal({ isOpen, onClose, children }: ModalProps) {
   if (!isOpen) return null
 
   return (

@@ -1,15 +1,17 @@
 'use client'
 
 import { notFound, useRouter } from 'next/navigation'
+
 import { fetchTodo, updateTodo } from '@/core/services/todo.service'
+import { LoadingSpinner } from '@/components/functionless'
 import type { TodoFormData } from '@/logic/data/todo'
 import { useAppSWR } from '@/logic/hooks/useSWRHooks'
 import { useToast } from '@/logic/hooks/useToast'
 import { transformToTodoEntity } from '@/logic/use-case/todo'
-import { LoadingSpinner } from '../base/Loading'
+
 import { TodoForm } from './TodoForm'
 
-export default function TodoEdit({ id }: { id: number }) {
+export function TodoEdit({ id }: { id: number }) {
   const router = useRouter()
   const { success } = useToast()
   const { data, error, isLoading } = useAppSWR(`todo-${id}`, () => fetchTodo(id))

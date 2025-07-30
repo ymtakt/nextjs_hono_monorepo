@@ -48,11 +48,11 @@
 docker compose -f compose.test.yml up -d
 ```
 
-### 2. 最新のマイグレーションを元に DB を更新する
+<!-- ### 2. 最新のマイグレーションを元に DB を更新する
 
 ```bash
 dotenv -e .env.test -- npx prisma migrate deploy
-```
+``` -->
 
 ### 3. テストを実行する
 

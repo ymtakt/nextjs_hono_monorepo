@@ -1,4 +1,3 @@
-// /Users/user/app/practice/nextjs_hono_monorepo/typescript/frontend/src/components/todos/TodoRegisterForm.tsx
 'use client'
 
 import { useRouter } from 'next/navigation'
@@ -7,7 +6,7 @@ import type { TodoFormData } from '@/logic/data/todo'
 import { useToast } from '@/logic/hooks/useToast'
 import { TodoForm } from './TodoForm'
 
-export default function TodoRegister() {
+export function TodoRegister() {
   const router = useRouter()
   const { success } = useToast()
 
