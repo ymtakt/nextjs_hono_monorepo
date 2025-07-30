@@ -1,50 +1,45 @@
 // /Users/user/app/practice/nextjs_hono_monorepo/typescript/frontend/src/components/todos/TodoList.tsx
-"use client";
+'use client'
 
-import Link from "next/link";
-import { formatDateToJapanese } from "@/utils/date-format";
-import { useModal } from "@/logic/hooks/useModal";
-import { Modal } from "../base/Modal";
-import { deleteTodo, fetchTodos } from "@/core/services/todo.service";
-import { useAppSWR } from "@/logic/hooks/useSWRHooks";
-import { LoadingSpinner } from "../base/Loading";
-import { transformToTodoEntity } from "@/logic/use-case/todo";
-
+import Link from 'next/link'
+import { deleteTodo, fetchTodos } from '@/core/services/todo.service'
+import { useModal } from '@/logic/hooks/useModal'
+import { useAppSWR } from '@/logic/hooks/useSWRHooks'
+import { transformToTodoEntity } from '@/logic/use-case/todo'
+import { formatDateToJapanese } from '@/utils/date-format'
+import { LoadingSpinner } from '../base/Loading'
+import { Modal } from '../base/Modal'
 
 export function TodoList() {
   // データ取得
-  const { data, error, isLoading, mutate } = useAppSWR(
-    "todos",
-    fetchTodos
-  );
-  const deleteModal = useModal<{ id: number; title: string }>();
-
+  const { data, error, isLoading, mutate } = useAppSWR('todos', fetchTodos)
+  const deleteModal = useModal<{ id: number; title: string }>()
 
   // DTOからEntityに変換
-  const todos = data?.todos.map(transformToTodoEntity) || [];
+  const todos = data?.todos.map(transformToTodoEntity) || []
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner />
   }
 
   // エラーの場合はuseAppSWR内でアプリケーションエラーに変換してメッセージを表示
   if (error) {
-    return <div className="text-red-500 text-lg">{error.message}</div>;
+    return <div className="text-red-500 text-lg">{error.message}</div>
   }
 
   // 削除処理
   const handleDelete = async () => {
-    if (!deleteModal.data) return;
+    if (!deleteModal.data) return
 
     try {
-      await deleteTodo(deleteModal.data.id);
-      deleteModal.closeModal();
+      await deleteTodo(deleteModal.data.id)
+      deleteModal.closeModal()
       // リストを再取得
-      mutate();
+      mutate()
     } catch (error) {
-      console.error("削除に失敗しました:", error);
+      console.error('削除に失敗しました:', error)
     }
-  };
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -55,7 +50,13 @@ export function TodoList() {
           href="/register"
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           新規作成
@@ -86,7 +87,13 @@ export function TodoList() {
             href="/register"
             className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -106,16 +113,16 @@ export function TodoList() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <div
-                        className={`w-3 h-3 rounded-full ${todo.isCompleted ? "bg-green-500" : "bg-gray-300"}`}
+                        className={`w-3 h-3 rounded-full ${todo.isCompleted ? 'bg-green-500' : 'bg-gray-300'}`}
                       ></div>
                       <h3
-                        className={`text-lg font-semibold ${todo.isCompleted ? "line-through text-gray-500" : "text-gray-900"}`}
+                        className={`text-lg font-semibold ${todo.isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}
                       >
                         {todo.title}
                       </h3>
                     </div>
                     {todo.description && (
-                      <p className={`text-gray-600 mb-3 ${todo.isCompleted ? "line-through" : ""}`}>
+                      <p className={`text-gray-600 mb-3 ${todo.isCompleted ? 'line-through' : ''}`}>
                         {todo.description}
                       </p>
                     )}
@@ -193,5 +200,5 @@ export function TodoList() {
         </div>
       </Modal>
     </div>
-  );
+  )
 }

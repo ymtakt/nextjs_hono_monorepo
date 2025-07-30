@@ -1,22 +1,22 @@
-import type { OpenAPIV3 } from "openapi-types";
+import type { OpenAPIV3 } from 'openapi-types'
 
 /**
  * エラーコードの型定義。
  */
 export type ErrorCode = {
   /** エラーコード。 */
-  code: string;
+  code: string
 
   /** OpenAPI ドキュメントに記述するためのエラーコードの説明。 */
-  descriptionForOpenAPISpec: string;
-};
+  descriptionForOpenAPISpec: string
+}
 
 /**
  * エラーコードのマップの型定義。
  */
 export type ErrorCodesMap<T extends string = string> = {
-  [K in T]: ErrorCode;
-};
+  [K in T]: ErrorCode
+}
 
 /**
  * API エラーを表すカスタムエラークラス。
@@ -25,7 +25,7 @@ export class AppHTTPException extends Error {
   /**
    * エラーコード。
    */
-  readonly code: string;
+  readonly code: string
 
   /**
    * コンストラクタ。
@@ -33,9 +33,9 @@ export class AppHTTPException extends Error {
    * @param code エラーコード。
    */
   constructor(code: string) {
-    super(`API Error: ${code}`);
-    this.code = code;
-    this.name = "AppHTTPException";
+    super(`API Error: ${code}`)
+    this.code = code
+    this.name = 'AppHTTPException'
   }
 }
 
@@ -53,30 +53,30 @@ export function getErrorResponseForOpenAPISpec(
     .map(
       ([key, errorCode]) => `- ${errorCode.code}: ${key} - ${errorCode.descriptionForOpenAPISpec}`,
     )
-    .join("\n");
+    .join('\n')
 
   return {
-    description: "エラー",
+    description: 'エラー',
     content: {
-      "application/json": {
+      'application/json': {
         schema: {
-          type: "object",
+          type: 'object',
           properties: {
             error: {
-              type: "object",
+              type: 'object',
               properties: {
                 code: {
-                  type: "string",
+                  type: 'string',
                   enum: Object.values(errorCodes).map((errorCode) => errorCode.code),
                   description: `エラーコード。以下の値が使用されます：\n${errorCodeDescription}`,
                 },
               },
-              required: ["code"],
+              required: ['code'],
             },
           },
-          required: ["error"],
+          required: ['error'],
         },
       },
     },
-  };
+  }
 }

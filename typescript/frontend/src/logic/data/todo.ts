@@ -1,4 +1,4 @@
-import z from "zod";
+import z from 'zod'
 
 /**
  * Todo関連のデータ型定義とバリデーションスキーマを管理するモジュール。
@@ -10,18 +10,18 @@ import z from "zod";
  */
 export type TodoEntity = {
   /** Todo項目の一意識別子 */
-  id: number;
+  id: number
   /** Todo項目のタイトル */
-  title: string;
+  title: string
   /** Todo項目の詳細説明 */
-  description: string;
+  description: string
   /** 完了状態（true: 完了、false: 未完了） */
-  isCompleted: boolean;
+  isCompleted: boolean
   /** 作成日時（ISO 8601形式の文字列） */
-  createdDate: string;
+  createdDate: string
   /** 更新日時（ISO 8601形式の文字列） */
-  updatedDate: string;
-};
+  updatedDate: string
+}
 
 /**
  * Todoフォームのバリデーションスキーマ。
@@ -29,13 +29,13 @@ export type TodoEntity = {
  */
 export const todoFormSchema = z.object({
   /** タイトルは必須項目（1文字以上） */
-  title: z.string().min(1, "タイトルは必須です"),
+  title: z.string().min(1, 'タイトルは必須です'),
   /** 説明は任意項目 */
   description: z.string(),
-});
+})
 
 /**
  * Todoフォームで扱うデータの型定義。
  * todoFormSchemaから自動生成される。
  */
-export type TodoFormData = z.infer<typeof todoFormSchema>;
+export type TodoFormData = z.infer<typeof todoFormSchema>

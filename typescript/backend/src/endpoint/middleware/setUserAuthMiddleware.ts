@@ -1,6 +1,6 @@
-import type { MiddlewareHandler } from "hono";
-import { ERROR_CODES } from "../errorCode";
-import { AppHTTPException } from "../errorResponse";
+import type { MiddlewareHandler } from 'hono'
+import { ERROR_CODES } from '../errorCode'
+import { AppHTTPException } from '../errorResponse'
 
 /**
  * ユーザー認証を行い、Context にユーザー ID をセットするミドルウェア。
@@ -9,8 +9,8 @@ import { AppHTTPException } from "../errorResponse";
  * @returns Promise<void>。
  */
 export const setUserAuthMiddleware: MiddlewareHandler = async (c, next) => {
-  const logger = c.get("logger");
-  const prisma = c.get("prisma");
+  const logger = c.get('logger')
+  const prisma = c.get('prisma')
 
   try {
     // Authorization ヘッダーからトークンを取得
@@ -39,12 +39,12 @@ export const setUserAuthMiddleware: MiddlewareHandler = async (c, next) => {
 
     // c.set("userId", user.id);
 
-    c.set("userId", 1);
+    c.set('userId', 1)
 
-    await next();
+    await next()
   } catch (e) {
-    logger.error("failed to verify user auth", e);
+    logger.error('failed to verify user auth', e)
     // ユーザー認証に失敗した場合は、AppHTTPException をスローする。
-    throw new AppHTTPException(ERROR_CODES.AUTH.USER_AUTH_ERROR.code);
+    throw new AppHTTPException(ERROR_CODES.AUTH.USER_AUTH_ERROR.code)
   }
-};
+}

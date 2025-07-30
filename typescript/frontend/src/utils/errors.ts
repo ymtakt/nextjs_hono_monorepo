@@ -13,10 +13,10 @@ export class ApplicationError extends Error {
   constructor(
     message: string,
     public readonly code?: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
-    super(message);
-    this.name = "ApplicationError";
+    super(message)
+    this.name = 'ApplicationError'
   }
 }
 
@@ -35,9 +35,9 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
-    public readonly originalError?: unknown
+    public readonly originalError?: unknown,
   ) {
-    super(message);
-    this.name = "ApiError";
+    super(message)
+    this.name = 'ApiError'
   }
 }

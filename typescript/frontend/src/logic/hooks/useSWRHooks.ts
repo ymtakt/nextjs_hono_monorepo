@@ -1,8 +1,8 @@
-import { getErrorMessage } from "@/utils/error-handler";
-import useSWR, { type SWRConfiguration, type SWRResponse } from "swr";
+import useSWR, { type SWRConfiguration, type SWRResponse } from 'swr'
+import { getErrorMessage } from '@/utils/error-handler'
 
 /** SWRで使用するエラー型の定義 */
-type FetcherError = Error & { status?: number };
+type FetcherError = Error & { status?: number }
 
 /**
  * useSWRのラッパーフック。
@@ -29,7 +29,7 @@ type FetcherError = Error & { status?: number };
 export const useAppSWR = <T>(
   key: string | null,
   fetcher: () => Promise<T>,
-  config: SWRConfiguration = {}
+  config: SWRConfiguration = {},
 ): SWRResponse<T, FetcherError> & { errorMessage: string | null } => {
   // アプリケーション全体で共通化する設定をマージ
   const mergedConfig = {
@@ -41,15 +41,15 @@ export const useAppSWR = <T>(
     shouldRetryOnError: false,
     // ユーザー指定の設定で上書き
     ...config,
-  } satisfies SWRConfiguration;
+  } satisfies SWRConfiguration
 
   // 元のuseSWRを実行
-  const swrResult = useSWR<T, FetcherError>(key, () => fetcher(), mergedConfig);
+  const swrResult = useSWR<T, FetcherError>(key, () => fetcher(), mergedConfig)
 
   return {
     // 元のSWR結果をそのまま展開
     ...swrResult,
     // アプリケーション用に変換されたエラーメッセージを追加
     errorMessage: swrResult.error ? getErrorMessage(swrResult.error) : null,
-  };
-};
+  }
+}

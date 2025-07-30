@@ -1,13 +1,13 @@
-"use client";
+'use client'
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
+  isOpen: boolean
+  onClose: () => void
+  children: React.ReactNode
 }
 
 export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <button
@@ -23,5 +23,5 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
         {children}
       </button>
     </button>
-  );
-};
+  )
+}

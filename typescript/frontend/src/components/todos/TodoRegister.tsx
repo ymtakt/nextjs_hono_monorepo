@@ -1,24 +1,21 @@
 // /Users/user/app/practice/nextjs_hono_monorepo/typescript/frontend/src/components/todos/TodoRegisterForm.tsx
-"use client";
+'use client'
 
-import { useRouter } from "next/navigation";
-import { TodoForm } from "./TodoForm";
-import { createTodo } from "@/core/services/todo.service";
-import { TodoFormData } from "@/logic/data/todo";
-import { useToast } from "@/logic/hooks/useToast";
-
+import { useRouter } from 'next/navigation'
+import { createTodo } from '@/core/services/todo.service'
+import type { TodoFormData } from '@/logic/data/todo'
+import { useToast } from '@/logic/hooks/useToast'
+import { TodoForm } from './TodoForm'
 
 export default function TodoRegister() {
-  const router = useRouter();
-  const { success } = useToast();
+  const router = useRouter()
+  const { success } = useToast()
 
   const handleSubmit = async (data: TodoFormData) => {
-    await createTodo({ ...data });
-    success("Todoを作成しました");
-    router.push("/");
-  };
+    await createTodo({ ...data })
+    success('Todoを作成しました')
+    router.push('/')
+  }
 
-  return (
-    <TodoForm mode="create" onSubmit={handleSubmit} />
-  );
+  return <TodoForm mode="create" onSubmit={handleSubmit} />
 }

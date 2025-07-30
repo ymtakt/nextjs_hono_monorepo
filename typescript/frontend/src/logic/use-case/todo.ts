@@ -1,4 +1,4 @@
-import { TodoEntity } from "../data/todo";
+import type { TodoEntity } from '../data/todo'
 
 /**
  * Todo関連のビジネスロジックを定義するモジュール。
@@ -32,11 +32,11 @@ export const transformToTodoEntity = (apiTodo: any): TodoEntity => ({
   // タイトルをそのまま設定
   title: apiTodo.title,
   // descriptionがnullまたはundefinedの場合は空文字に変換
-  description: apiTodo.description || "",
+  description: apiTodo.description || '',
   // completedフィールドをisCompletedにマッピング
   isCompleted: apiTodo.completed,
   // createdAtをcreatedDateにマッピング
   createdDate: apiTodo.createdAt,
   // updatedAtがない場合はcreatedAtを使用
   updatedDate: apiTodo.updatedAt || apiTodo.createdAt,
-});
+})

@@ -1,18 +1,18 @@
-import { defineConfig } from "vitest/config";
-import * as path from "path";
+import * as path from 'path'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
     globals: true,
-    setupFiles: ["./src/util/test-util/setup.ts"],
-    environment: "node",
+    setupFiles: ['./src/util/test-util/setup.ts'],
+    environment: 'node',
     env: {
-      NODE_ENV: "test",
-      DATABASE_URL: "postgresql://testuser:testpass@localhost:54321/myapp_test",
+      NODE_ENV: 'test',
+      DATABASE_URL: 'postgresql://testuser:testpass@localhost:54321/myapp_test',
     },
     testTimeout: 30000, // PostgreSQL接続のため長めに設定
     hookTimeout: 30000,
-    pool: "threads",
+    pool: 'threads',
     poolOptions: {
       threads: {
         singleThread: true, // DBテストのため単一スレッド
@@ -21,7 +21,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
     },
   },
-});
+})

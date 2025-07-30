@@ -1,26 +1,26 @@
-import { getContext } from "hono/context-storage";
-import { type Result, err, ok } from "neverthrow";
-import type { EnvironmentVariables } from "../../../env";
+import { getContext } from 'hono/context-storage'
+import { err, ok, type Result } from 'neverthrow'
+import type { EnvironmentVariables } from '../../../env'
 
 /** Todo を更新する際のパラメータ。 */
 type RepositoryParams = {
-  todoId: number;
-  userId: number;
-  title: string;
-  description: string;
-  completed: boolean;
-};
+  todoId: number
+  userId: number
+  title: string
+  description: string
+  completed: boolean
+}
 
 /** Todo の更新結果。 */
 type RepositoryResult = {
-  id: number;
-  title: string;
-  description: string | null;
-  completed: boolean;
-  userId: number;
-  createdAt: Date;
-  updatedAt: Date;
-};
+  id: number
+  title: string
+  description: string | null
+  completed: boolean
+  userId: number
+  createdAt: Date
+  updatedAt: Date
+}
 
 /**
  * Todo を更新する。
@@ -30,9 +30,9 @@ type RepositoryResult = {
 export const updateTodo = async (
   params: RepositoryParams,
 ): Promise<Result<RepositoryResult, Error>> => {
-  const c = getContext<EnvironmentVariables>();
-  const logger = c.get("logger");
-  const prisma = c.get("prisma");
+  const c = getContext<EnvironmentVariables>()
+  const logger = c.get('logger')
+  const prisma = c.get('prisma')
 
   try {
     // Todo を更新する。
@@ -44,11 +44,11 @@ export const updateTodo = async (
         userId: params.userId,
         completed: params.completed,
       },
-    });
+    })
 
     // 更新に失敗した場合はエラーを返す。
     if (!updatedTodo) {
-      return err(new Error(`Todo の更新に失敗しました: ${params.todoId}`));
+      return err(new Error(`Todo の更新に失敗しました: ${params.todoId}`))
     }
 
     // 更新した Todo の情報を返す。
@@ -60,12 +60,12 @@ export const updateTodo = async (
       userId: updatedTodo.userId,
       createdAt: new Date(updatedTodo.createdAt),
       updatedAt: new Date(updatedTodo.updatedAt),
-    };
+    }
 
-    return ok(result);
+    return ok(result)
   } catch (error) {
     // エラーログを出力する。
-    logger.error(`Todo の更新に失敗しました: ${error}`);
-    return err(new Error(`Todo の更新に失敗しました: ${params.todoId}`));
+    logger.error(`Todo の更新に失敗しました: ${error}`)
+    return err(new Error(`Todo の更新に失敗しました: ${params.todoId}`))
   }
-};
+}

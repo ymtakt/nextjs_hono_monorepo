@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react'
 
 /**
  * モーダルの開閉状態とデータを管理するカスタムフック。
@@ -21,9 +21,9 @@ import { useState } from "react";
 // TODO: any型を適切な型に置き換える検討が必要
 export const useModal = <T = any>(initialOpen: boolean = false) => {
   // モーダルの開閉状態を管理
-  const [isOpen, setIsOpen] = useState(initialOpen);
+  const [isOpen, setIsOpen] = useState(initialOpen)
   // モーダルに渡すデータを管理
-  const [data, setData] = useState<T | null>(null);
+  const [data, setData] = useState<T | null>(null)
 
   /**
    * モーダルを開く関数。
@@ -32,10 +32,10 @@ export const useModal = <T = any>(initialOpen: boolean = false) => {
    */
   const openModal = (modalData?: T) => {
     // データを設定（未指定の場合はnull）
-    setData(modalData || null);
+    setData(modalData || null)
     // モーダルを開く
-    setIsOpen(true);
-  };
+    setIsOpen(true)
+  }
 
   /**
    * モーダルを閉じる関数。
@@ -43,10 +43,10 @@ export const useModal = <T = any>(initialOpen: boolean = false) => {
    */
   const closeModal = () => {
     // モーダルを閉じる
-    setIsOpen(false);
+    setIsOpen(false)
     // データをリセット
-    setData(null);
-  };
+    setData(null)
+  }
 
   return {
     /** モーダルの開閉状態 */
@@ -57,5 +57,5 @@ export const useModal = <T = any>(initialOpen: boolean = false) => {
     openModal,
     /** モーダルを閉じる関数 */
     closeModal,
-  };
-};
+  }
+}

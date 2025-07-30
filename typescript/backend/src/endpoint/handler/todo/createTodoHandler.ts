@@ -1,19 +1,19 @@
-import { z } from "zod";
-import "zod-openapi/extend";
-import { describeRoute } from "hono-openapi";
-import { resolver } from "hono-openapi/zod";
-import { createFactory } from "hono/factory";
-import { match } from "ts-pattern";
-import type { EnvironmentVariables } from "../../../env";
-import { ENDPOINT_ERROR_CODES } from "../../errorCode";
-import { AppHTTPException, getErrorResponseForOpenAPISpec } from "../../errorResponse";
-import { createTodoUseCase } from "../../../use-case/todo/createTodoUseCase";
+import { z } from 'zod'
+import 'zod-openapi/extend'
+import { createFactory } from 'hono/factory'
+import { describeRoute } from 'hono-openapi'
+import { resolver } from 'hono-openapi/zod'
+import { match } from 'ts-pattern'
+import type { EnvironmentVariables } from '../../../env'
+import { createTodoUseCase } from '../../../use-case/todo/createTodoUseCase'
+import { ENDPOINT_ERROR_CODES } from '../../errorCode'
+import { AppHTTPException, getErrorResponseForOpenAPISpec } from '../../errorResponse'
 
 /** リクエストデータのスキーマ。 */
 const requestSchema = z.object({
   title: z.string(),
   description: z.string(),
-});
+})
 
 /** レスポンスデータのスキーマ。 */
 const responseSchema = z
@@ -31,17 +31,17 @@ const responseSchema = z
     example: {
       todo: {
         id: 1,
-        title: "買い物リスト作成",
+        title: '買い物リスト作成',
         completed: false,
-        description: "週末の買い物で必要なものをまとめる",
-        createdAt: "2024-07-01T12:00:00.000Z",
-        updatedAt: "2024-07-01T12:00:00.000Z",
+        description: '週末の買い物で必要なものをまとめる',
+        createdAt: '2024-07-01T12:00:00.000Z',
+        updatedAt: '2024-07-01T12:00:00.000Z',
       },
     },
-  });
+  })
 
-export type CreateTodoResponse = z.infer<typeof responseSchema>;
-export type CreateTodoRequest = z.infer<typeof requestSchema>;
+export type CreateTodoResponse = z.infer<typeof responseSchema>
+export type CreateTodoRequest = z.infer<typeof requestSchema>
 
 /**
  * Todo を作成する Handler.
@@ -50,13 +50,13 @@ export type CreateTodoRequest = z.infer<typeof requestSchema>;
  */
 export const createTodoHandlers = createFactory<EnvironmentVariables>().createHandlers(
   describeRoute({
-    description: "Todo を作成する",
-    tags: ["todo"],
+    description: 'Todo を作成する',
+    tags: ['todo'],
     responses: {
       200: {
-        description: "Todo の作成に成功",
+        description: 'Todo の作成に成功',
         content: {
-          "application/json": {
+          'application/json': {
             schema: resolver(responseSchema),
           },
         },
@@ -67,39 +67,39 @@ export const createTodoHandlers = createFactory<EnvironmentVariables>().createHa
 
   async (c) => {
     // 認証済みユーザー ID を取得する。
-    const userId = c.get("userId");
+    const userId = c.get('userId')
 
     // バリデーション済みのリクエストデータを取得する。
-    const requestData = await c.req.json<CreateTodoRequest>();
+    const requestData = await c.req.json<CreateTodoRequest>()
 
     // UseCase を呼び出す。
     const result = await createTodoUseCase({
       userId,
       title: requestData.title,
       description: requestData.description,
-    });
+    })
 
     // エラーが発生した場合は、エラーの種類を網羅的にマッチングし、
     // 対応するエラーコード AppHTTPException に設定してスローする。
     if (result.isErr()) {
-      const error = result.error;
+      const error = result.error
       match(error)
-        .with({ type: "TODO_CREATE_FAILED" }, () => {
-          throw new AppHTTPException(ENDPOINT_ERROR_CODES.CREATE_TODO.FAILED.code);
+        .with({ type: 'TODO_CREATE_FAILED' }, () => {
+          throw new AppHTTPException(ENDPOINT_ERROR_CODES.CREATE_TODO.FAILED.code)
         })
-        .exhaustive();
-      return c.json({ error: "not found" }, 500);
+        .exhaustive()
+      return c.json({ error: 'not found' }, 500)
     }
 
     // レスポンスデータを作成する。
     const responseData = {
       todo: result.value,
-    };
+    }
 
     // レスポンスデータをバリデーションする。
-    const validatedResponse = responseSchema.parse(responseData);
+    const validatedResponse = responseSchema.parse(responseData)
 
     // レスポンスを生成する。
-    return c.json(validatedResponse);
+    return c.json(validatedResponse)
   },
-);
+)

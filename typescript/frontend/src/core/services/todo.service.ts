@@ -1,9 +1,9 @@
-import { apiClient } from "@/lib/apiClient";
-import { ApiError } from "@/utils/errors";
-import { CreateTodoRequest } from "backend/src/endpoint/handler/todo/createTodoHandler";
-import { TodoResponse } from "backend/src/endpoint/handler/todo/getTodoHandler";
-import { TodosResponse } from "backend/src/endpoint/handler/todo/getTodosHandler";
-import { UpdateTodoRequest } from "backend/src/endpoint/handler/todo/updateTodoHandler";
+import type { CreateTodoRequest } from 'backend/src/endpoint/handler/todo/createTodoHandler'
+import type { TodoResponse } from 'backend/src/endpoint/handler/todo/getTodoHandler'
+import type { TodosResponse } from 'backend/src/endpoint/handler/todo/getTodosHandler'
+import type { UpdateTodoRequest } from 'backend/src/endpoint/handler/todo/updateTodoHandler'
+import { apiClient } from '@/lib/apiClient'
+import { ApiError } from '@/utils/errors'
 
 /**
  * Todo関連のAPI通信を行うサービス層の関数群。
@@ -31,18 +31,18 @@ import { UpdateTodoRequest } from "backend/src/endpoint/handler/todo/updateTodoH
  */
 export const fetchTodos = async (): Promise<TodosResponse> => {
   // APIクライアントを使用してGETリクエストを実行
-  const res = await apiClient.api.todos.$get();
+  const res = await apiClient.api.todos.$get()
 
   // レスポンスが正常でない場合はエラーを投げる
   if (!res.ok) {
-    const errorText = await res.text();
-    throw new ApiError(res.status, errorText);
+    const errorText = await res.text()
+    throw new ApiError(res.status, errorText)
   }
 
   // レスポンスボディをJSONとして解析
-  const data = await res.json();
-  return data;
-};
+  const data = await res.json()
+  return data
+}
 
 /**
  * 指定されたIDの単一Todo項目を取得する関数。
@@ -65,20 +65,20 @@ export const fetchTodos = async (): Promise<TodosResponse> => {
  */
 export const fetchTodo = async (todoId: number): Promise<TodoResponse> => {
   // パスパラメータにTodoIDを設定してGETリクエストを実行
-  const res = await apiClient.api.todos[":todoId"].$get({
+  const res = await apiClient.api.todos[':todoId'].$get({
     param: { todoId: todoId.toString() },
-  });
+  })
 
   // レスポンスが正常でない場合はエラーを投げる
   if (!res.ok) {
-    const errorText = await res.text();
-    throw new ApiError(res.status, errorText);
+    const errorText = await res.text()
+    throw new ApiError(res.status, errorText)
   }
 
   // レスポンスボディをJSONとして解析
-  const data = await res.json();
-  return data;
-};
+  const data = await res.json()
+  return data
+}
 
 /**
  * 新しいTodo項目を作成する関数。
@@ -104,24 +104,22 @@ export const fetchTodo = async (todoId: number): Promise<TodoResponse> => {
  * }
  * ```
  */
-export const createTodo = async (
-  todo: CreateTodoRequest
-): Promise<TodoResponse> => {
+export const createTodo = async (todo: CreateTodoRequest): Promise<TodoResponse> => {
   // リクエストボディにTodoデータを設定してPOSTリクエストを実行
   const res = await apiClient.api.todos.$post({
     json: todo,
-  });
+  })
 
   // レスポンスが正常でない場合はエラーを投げる
   if (!res.ok) {
-    const errorText = await res.text();
-    throw new ApiError(res.status, errorText);
+    const errorText = await res.text()
+    throw new ApiError(res.status, errorText)
   }
 
   // レスポンスボディをJSONとして解析
-  const data = await res.json();
-  return data;
-};
+  const data = await res.json()
+  return data
+}
 
 /**
  * 既存のTodo項目を更新する関数。
@@ -150,26 +148,26 @@ export const createTodo = async (
  */
 export const updateTodo = async (
   todoId: number,
-  todo: UpdateTodoRequest
+  todo: UpdateTodoRequest,
 ): Promise<TodoResponse> => {
   // パスパラメータとリクエストボディを設定してPUTリクエストを実行
-  const res = await apiClient.api.todos[":todoId"].$put({
+  const res = await apiClient.api.todos[':todoId'].$put({
     param: { todoId: todoId.toString() },
     json: todo,
     // 型システムの制約により一時的にany型でキャスト
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any);
+  } as any)
 
   // レスポンスが正常でない場合はエラーを投げる
   if (!res.ok) {
-    const errorText = await res.text();
-    throw new ApiError(res.status, errorText);
+    const errorText = await res.text()
+    throw new ApiError(res.status, errorText)
   }
 
   // レスポンスボディをJSONとして解析
-  const data = await res.json();
-  return data;
-};
+  const data = await res.json()
+  return data
+}
 
 /**
  * 指定されたIDのTodo項目を削除する関数。
@@ -201,15 +199,15 @@ export const updateTodo = async (
  */
 export const deleteTodo = async (todoId: number): Promise<void> => {
   // パスパラメータにTodoIDを設定してDELETEリクエストを実行
-  const res = await apiClient.api.todos[":todoId"].$delete({
+  const res = await apiClient.api.todos[':todoId'].$delete({
     param: { todoId: todoId.toString() },
-  });
+  })
 
   // レスポンスが正常でない場合はエラーを投げる
   if (!res.ok) {
-    const errorText = await res.text();
-    throw new ApiError(res.status, errorText);
+    const errorText = await res.text()
+    throw new ApiError(res.status, errorText)
   }
 
   // 削除処理は戻り値なしで正常終了
-};
+}

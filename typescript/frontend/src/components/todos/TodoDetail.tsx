@@ -1,31 +1,29 @@
-"use client";
+'use client'
 
-import Link from "next/link";
-import { LoadingSpinner } from "../base/Loading";
-import { useAppSWR } from "@/logic/hooks/useSWRHooks";
-import { fetchTodo } from "@/core/services/todo.service";
-import { transformToTodoEntity } from "@/logic/use-case/todo";
-import { notFound } from "next/navigation";
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { fetchTodo } from '@/core/services/todo.service'
+import { useAppSWR } from '@/logic/hooks/useSWRHooks'
+import { transformToTodoEntity } from '@/logic/use-case/todo'
+import { LoadingSpinner } from '../base/Loading'
 
 export default function TodoDetail({ id }: { id: number }) {
   // データ取得
-  const { data, error, isLoading } = useAppSWR(`todo-${id}`, () =>
-    fetchTodo(id)
-  );
+  const { data, error, isLoading } = useAppSWR(`todo-${id}`, () => fetchTodo(id))
 
   // データが存在しない場合は404
   if (!isLoading && !error && !data?.todo) {
-    notFound();
+    notFound()
   }
 
   // DTOからEntityに変換
-  const todo = data?.todo ? transformToTodoEntity(data.todo) : null;
+  const todo = data?.todo ? transformToTodoEntity(data.todo) : null
 
-  if (isLoading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner />
 
   // エラーの場合はuseAppSWR内でアプリケーションエラーに変換してメッセージを表示
-  if (error) return <div className="text-red-500 text-lg">{error.message}</div>;
-  if (!todo) return <div>Todo not found</div>;
+  if (error) return <div className="text-red-500 text-lg">{error.message}</div>
+  if (!todo) return <div>Todo not found</div>
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -36,7 +34,13 @@ export default function TodoDetail({ id }: { id: number }) {
             href="/"
             className="text-gray-600 hover:text-gray-800 transition-colors duration-200"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -51,7 +55,13 @@ export default function TodoDetail({ id }: { id: number }) {
           href={`/edit/${todo.id}`}
           className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -69,12 +79,12 @@ export default function TodoDetail({ id }: { id: number }) {
           {/* ステータス */}
           <div className="flex items-center gap-3">
             <div
-              className={`w-4 h-4 rounded-full ${todo.isCompleted ? "bg-green-500" : "bg-gray-300"}`}
+              className={`w-4 h-4 rounded-full ${todo.isCompleted ? 'bg-green-500' : 'bg-gray-300'}`}
             ></div>
             <span
-              className={`text-sm font-medium ${todo.isCompleted ? "text-green-600" : "text-gray-600"}`}
+              className={`text-sm font-medium ${todo.isCompleted ? 'text-green-600' : 'text-gray-600'}`}
             >
-              {todo.isCompleted ? "完了" : "未完了"}
+              {todo.isCompleted ? '完了' : '未完了'}
             </span>
           </div>
 
@@ -94,13 +104,13 @@ export default function TodoDetail({ id }: { id: number }) {
           {/* 作成日時 */}
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">作成日時</h3>
-            <p className="text-gray-600">{new Date(todo.createdDate).toLocaleString("ja-JP")}</p>
+            <p className="text-gray-600">{new Date(todo.createdDate).toLocaleString('ja-JP')}</p>
           </div>
 
           {/* 更新日時 */}
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">更新日時</h3>
-            <p className="text-gray-600">{new Date(todo.updatedDate).toLocaleString("ja-JP")}</p>
+            <p className="text-gray-600">{new Date(todo.updatedDate).toLocaleString('ja-JP')}</p>
           </div>
 
           {/* アクションボタン */}
@@ -115,6 +125,5 @@ export default function TodoDetail({ id }: { id: number }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
-
