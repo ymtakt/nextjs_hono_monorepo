@@ -15,7 +15,7 @@ describe('createTodoHandler - 正常系', () => {
 
     const res = await client.api.todos.$post({
       json: requestData,
-    })
+    } as any)
 
     if (res.status !== 200) throw new Error('Todo作成に失敗しました')
 

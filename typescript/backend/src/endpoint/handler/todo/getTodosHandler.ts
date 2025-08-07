@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import 'zod-openapi/extend'
 import { createFactory } from 'hono/factory'
 import { describeRoute } from 'hono-openapi'
@@ -8,37 +7,23 @@ import type { EnvironmentVariables } from '../../../env'
 import { fetchTodosUseCase } from '../../../use-case/todo/fetchTodosUseCase'
 import { ENDPOINT_ERROR_CODES } from '../../errorCode'
 import { AppHTTPException, getErrorResponseForOpenAPISpec } from '../../errorResponse'
+import { getTodosResponseSchema } from '../../../schemas'
 
 /** レスポンスデータのスキーマ。 */
-const responseSchema = z
-  .object({
-    todos: z.array(
-      z.object({
-        id: z.number(),
-        title: z.string(),
-        completed: z.boolean(),
-        description: z.string(),
-        createdAt: z.string(),
-        updatedAt: z.string(),
-      }),
-    ),
-  })
-  .openapi({
-    example: {
-      todos: [
-        {
-          id: 1,
-          title: '買い物リスト作成',
-          completed: false,
-          description: '週末の買い物で必要なものをまとめる',
-          createdAt: '2024-07-01T12:00:00.000Z',
-          updatedAt: '2024-07-01T12:00:00.000Z',
-        },
-      ],
-    },
-  })
-
-export type TodosResponse = z.infer<typeof responseSchema>
+const responseSchema = getTodosResponseSchema.openapi({
+  example: {
+    todos: [
+      {
+        id: 1,
+        title: '買い物リスト作成',
+        completed: false,
+        description: '週末の買い物で必要なものをまとめる',
+        createdAt: '2024-07-01T12:00:00.000Z',
+        updatedAt: '2024-07-01T12:00:00.000Z',
+      },
+    ],
+  },
+})
 
 /**
  * Todo 一覧を取得する Handler.

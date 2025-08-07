@@ -20,6 +20,7 @@ export const globalErrorHandlerMiddleware = async (
       code: error.code,
       message: error.message,
     })
+    console.log(error.code)
     return c.json({ error: { code: error.code } }, 400)
   }
 
