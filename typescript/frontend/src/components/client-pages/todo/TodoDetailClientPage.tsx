@@ -1,33 +1,25 @@
 'use client'
 
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { fetchTodo } from '@/core/services/todo.service'
-import { useAppSWR } from '@/logic/hooks/useSWRHooks'
-import { transformToTodoEntity } from '@/logic/use-case/todo'
-import { LoadingSpinner } from '@/components/functionless'
+import type { TodoEntity } from '@/logic/data/todo.data'
 
-export function TodoDetail({ id }: { id: number }) {
-  // データ取得
-  const { data, error, isLoading } = useAppSWR(`todo-${id}`, () => fetchTodo(id))
+type TodoDetailProps = {
+  todo: TodoEntity
+}
 
-  // データが存在しない場合は404
-  if (!isLoading && !error && !data?.todo) {
-    notFound()
-  }
-
-  // DTOからEntityに変換
-  const todo = data?.todo ? transformToTodoEntity(data.todo) : null
-
-  if (isLoading) return <LoadingSpinner />
-
-  // エラーの場合はuseAppSWR内でアプリケーションエラーに変換してメッセージを表示
-  if (error) return <div className="text-red-500 text-lg">{error.message}</div>
-  if (!todo) return <div>Todo not found</div>
+/**
+ * todoの詳細ページのコンポーネント
+ *
+ * - 特定のTodoEntityをpropsとして受け取る
+ * - 受け取ったTodoEntityを表示する
+ * - client component
+ * - React Hooksを使用することが可能
+ */
+export function TodoDetailClientPage(props: TodoDetailProps) {
+  const { todo } = props
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      {/* ヘッダー */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <Link
@@ -73,10 +65,8 @@ export function TodoDetail({ id }: { id: number }) {
         </Link>
       </div>
 
-      {/* Todo詳細 */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
         <div className="space-y-6">
-          {/* ステータス */}
           <div className="flex items-center gap-3">
             <div
               className={`w-4 h-4 rounded-full ${todo.isCompleted ? 'bg-green-500' : 'bg-gray-300'}`}
@@ -88,12 +78,10 @@ export function TodoDetail({ id }: { id: number }) {
             </span>
           </div>
 
-          {/* タイトル */}
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">{todo.title}</h2>
           </div>
 
-          {/* 説明 */}
           {todo.description && (
             <div>
               <h3 className="text-sm font-medium text-gray-700 mb-2">説明</h3>
@@ -101,19 +89,16 @@ export function TodoDetail({ id }: { id: number }) {
             </div>
           )}
 
-          {/* 作成日時 */}
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">作成日時</h3>
             <p className="text-gray-600">{new Date(todo.createdDate).toLocaleString('ja-JP')}</p>
           </div>
 
-          {/* 更新日時 */}
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">更新日時</h3>
             <p className="text-gray-600">{new Date(todo.updatedDate).toLocaleString('ja-JP')}</p>
           </div>
 
-          {/* アクションボタン */}
           <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
             <Link
               href="/"

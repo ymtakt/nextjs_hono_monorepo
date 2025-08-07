@@ -1,5 +1,5 @@
-import { TodoRegister } from '@/components/functional/todo'
+import { TodoRegisterClientPage } from '@/components/client-pages/todo'
 
 export default function RegisterPage() {
-  return <TodoRegister />
+  return <TodoRegisterClientPage />
 }

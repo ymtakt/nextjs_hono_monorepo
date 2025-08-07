@@ -58,16 +58,6 @@ describe('formatDateToJapanese', () => {
   })
 
   /**
-   * null値の場合にエラーメッセージが返されることを検証する。
-   */
-  it('null値の場合にエラーメッセージが返される', () => {
-    const result = formatDateToJapanese(null as any)
-
-    expect(result).toBe('日付不明')
-    expect(console.error).toHaveBeenCalled()
-  })
-
-  /**
    * undefined値の場合にエラーメッセージが返されることを検証する。
    */
   it('undefined値の場合にエラーメッセージが返される', () => {

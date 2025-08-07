@@ -1,0 +1,78 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { TodoFormComponent } from '@/components/functionless/todo'
+import { createTodoAction } from '@/components/client-pages/todo/actions'
+import { useActionState } from 'react'
+import type { FormValidationErrorCode } from '@/utils/validation'
+import { getFormValidationErrorMessage } from '@/utils/validation'
+import type { TodoFormActionState } from '@/components/client-pages/todo/actions'
+import {
+  createInitialActionState,
+  useServerActionWrapper,
+} from '@/utils/hooks/useServerActionWrapper'
+
+export function TodoRegisterClientPage() {
+  const router = useRouter()
+  // 初期状態を作成
+  const initialState: TodoFormActionState = createInitialActionState()
+  // Server Actionをラップ
+  const wrappedAction = useServerActionWrapper(createTodoAction, {
+    onSuccess: ({ success }) => {
+      success('作成しました')
+      router.replace('/')
+    },
+    initialState,
+  })
+
+  /**
+   * useActionStateフック
+   *
+   * Server Actionと状態管理を統合する
+   *
+   * @param wrappedAction - 実行するアクション関数
+   * @param initialState - 初期状態
+   * @returns [state, formAction, isPending]
+   *
+   * 戻り値の説明：
+   * - state: 現在のフォーム状態（バリデーションエラー、入力値等を含む）
+   * - formAction: フォームのaction属性に渡す関数
+   * - isPending: Server Action実行中の場合true（ローディング表示に使用）
+   */
+  const [state, formAction, isPending] = useActionState<TodoFormActionState, FormData>(
+    wrappedAction,
+    initialState,
+  )
+
+  return (
+    <TodoFormComponent
+      mode={'create'}
+      formActionMethod={formAction}
+      titleValue={state.title}
+      descriptionValue={state.description}
+      completedValue={state.completed}
+      titleErrorMessage={
+        state.validationErrors?.title?.[0]
+          ? getFormValidationErrorMessage(
+              state.validationErrors?.title?.[0] as FormValidationErrorCode,
+            )
+          : undefined
+      }
+      descriptionErrorMessage={
+        state.validationErrors?.description?.[0]
+          ? getFormValidationErrorMessage(
+              state.validationErrors?.description?.[0] as FormValidationErrorCode,
+            )
+          : undefined
+      }
+      completedErrorMessage={
+        state.validationErrors?.completed?.[0]
+          ? getFormValidationErrorMessage(
+              state.validationErrors?.completed?.[0] as FormValidationErrorCode,
+            )
+          : undefined
+      }
+      isPending={isPending}
+    />
+  )
+}

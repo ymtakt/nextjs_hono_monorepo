@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import type React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ToastProvider, useToast } from '@/logic/hooks/useToast'
+import { ToastProvider, useToast } from '@/utils/hooks/useToast'
 
 /**
  * useToast hook のunit テスト。

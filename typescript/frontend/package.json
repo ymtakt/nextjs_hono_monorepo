@@ -14,15 +14,16 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.0",
+    "@conform-to/react": "^1.8.2",
+    "@conform-to/zod": "^1.8.2",
     "backend": "../backend",
     "hono": "^4.8.3",
     "next": "15.3.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-hook-form": "^7.61.1",
     "swr": "^2.3.4",
-    "zod": "^4.0.10"
+    "ts-pattern": "^5.8.0",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.10",

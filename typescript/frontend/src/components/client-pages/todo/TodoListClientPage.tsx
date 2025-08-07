@@ -1,44 +1,38 @@
 'use client'
 
 import Link from 'next/link'
-import { deleteTodo, fetchTodos } from '@/core/services/todo.service'
-import { useModal } from '@/logic/hooks/useModal'
-import { useAppSWR } from '@/logic/hooks/useSWRHooks'
-import { transformToTodoEntity } from '@/logic/use-case/todo'
+import { useModal } from '@/utils/hooks/useModal'
 import { formatDateToJapanese } from '@/utils/date-format'
-import { LoadingSpinner } from '@/components/functionless'
-import { Modal } from '@/components/functionless'
+import { Modal } from '@/components/functionless/general'
+import type { TodoEntity } from '@/logic/data/todo.data'
+import type { DeleteTodoActionState } from '@/components/client-pages/todo/actions'
+import { deleteTodoAction } from '@/components/client-pages/todo/actions'
+import { useActionState } from 'react'
+import {
+  createInitialActionState,
+  useServerActionWrapper,
+} from '@/utils/hooks/useServerActionWrapper'
 
-export function TodoList() {
-  // データ取得
-  const { data, error, isLoading, mutate } = useAppSWR('todos', fetchTodos)
+type TodoListProps = {
+  todos: TodoEntity[]
+}
+
+export function TodoListClientPage(props: TodoListProps) {
+  const { todos } = props
   const deleteModal = useModal<{ id: number; title: string }>()
 
-  // DTOからEntityに変換
-  const todos = data?.todos.map(transformToTodoEntity) || []
-
-  if (isLoading) {
-    return <LoadingSpinner />
-  }
-
-  // エラーの場合はuseAppSWR内でアプリケーションエラーに変換してメッセージを表示
-  if (error) {
-    return <div className="text-red-500 text-lg">{error.message}</div>
-  }
-
-  // 削除処理
-  const handleDelete = async () => {
-    if (!deleteModal.data) return
-
-    try {
-      await deleteTodo(deleteModal.data.id)
+  // 初期状態を作成
+  const initialState: DeleteTodoActionState = createInitialActionState()
+  // Server Actionをラップ
+  const wrappedAction = useServerActionWrapper(deleteTodoAction, {
+    onSuccess: ({ success }) => {
       deleteModal.closeModal()
-      // リストを再取得
-      mutate()
-    } catch (error) {
-      console.error('削除に失敗しました:', error)
-    }
-  }
+      success('削除しました')
+    },
+    initialState,
+  })
+
+  const [_, deleteAction, isPending] = useActionState(wrappedAction, initialState)
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -175,27 +169,28 @@ export function TodoList() {
           ))}
         </div>
       )}
-      {/* モーダルは1つだけ */}
       <Modal isOpen={deleteModal.isOpen} onClose={deleteModal.closeModal}>
         <div>
-          <h3 className="text-lg font-semibold mb-4">削除確認</h3>
-          <p className="mb-4">「{deleteModal.data?.title}」を削除しますか？</p>
-          <div className="flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={deleteModal.closeModal}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-            >
-              キャンセル
-            </button>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              削除
-            </button>
-          </div>
+          <form action={deleteAction}>
+            <input type="hidden" name="todoId" value={deleteModal.data?.id} />
+            <h3 className="text-lg font-semibold mb-4">削除確認</h3>
+            <p className="mb-4">「{deleteModal.data?.title}」を削除しますか？</p>
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={deleteModal.closeModal}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                キャンセル
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                {isPending ? '削除中...' : '削除'}
+              </button>
+            </div>
+          </form>
         </div>
       </Modal>
     </div>

@@ -31,9 +31,7 @@ export const useModal = <T = any>(initialOpen: boolean = false) => {
    * @param modalData - モーダルに渡すデータ（オプション）
    */
   const openModal = (modalData?: T) => {
-    // データを設定（未指定の場合はnull）
     setData(modalData || null)
-    // モーダルを開く
     setIsOpen(true)
   }
 
@@ -42,20 +40,14 @@ export const useModal = <T = any>(initialOpen: boolean = false) => {
    * 状態とデータの両方をリセットする。
    */
   const closeModal = () => {
-    // モーダルを閉じる
     setIsOpen(false)
-    // データをリセット
     setData(null)
   }
 
   return {
-    /** モーダルの開閉状態 */
     isOpen,
-    /** モーdalに渡されたデータ */
     data,
-    /** モーダルを開く関数 */
     openModal,
-    /** モーダルを閉じる関数 */
     closeModal,
   }
 }

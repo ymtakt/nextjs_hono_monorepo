@@ -8,19 +8,14 @@ type ToastType = 'success' | 'error'
 
 /** トーストオブジェクトの型定義 */
 type Toast = {
-  /** 一意識別子 */
   id: string
-  /** 表示メッセージ */
   message: string
-  /** トーストの種類 */
   type: ToastType
 }
 
 /** トーストコンテキストで提供される機能の型定義 */
 type ToastContextType = {
-  /** 成功メッセージを表示する関数 */
   success: (message: string) => void
-  /** エラーメッセージを表示する関数 */
   error: (message: string) => void
 }
 

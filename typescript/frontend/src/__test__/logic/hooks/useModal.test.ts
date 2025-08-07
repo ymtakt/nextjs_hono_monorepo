@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { useModal } from '@/logic/hooks/useModal'
+import { useModal } from '@/utils/hooks/useModal'
 
 /**
  * useModal hook のテスト。
