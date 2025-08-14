@@ -1,10 +1,16 @@
+import { notFound } from 'next/navigation'
 import { TodoListClientPage } from '@/components/client-pages/todo'
-import { fetchTodos } from '@/logic/use-case/todo.use-case'
+import { fetchTodos } from '@/domain/logic/ssr/todo/fetch-todos'
 
 export default async function Home() {
-  console.log('start')
-  const todos = await fetchTodos()
-  console.log('end')
+  const result = await fetchTodos()
+
+  if (result.isErr()) {
+    notFound()
+  }
+
+  const todos = result.value
+
   return (
     <div className="min-h-screen bg-gray-50">
       <TodoListClientPage todos={todos} />

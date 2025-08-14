@@ -1,5 +1,5 @@
-import { LoadingSpinner } from '@/components/functionless/general/Loading'
+import { ServerComponentLoading } from '@/components/functionless/general/loading/ServerComponentLoading'
 
 export default function Loading() {
-  return <LoadingSpinner />
+  return <ServerComponentLoading />
 }

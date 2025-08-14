@@ -62,7 +62,11 @@ export function TodoFormComponent(props: TodoFormComponentProps) {
     <div className="mt-10">
       <h1 className="text-3xl font-bold text-center">{title}</h1>
 
-      <form action={formActionMethod} className="flex flex-col gap-2 max-w-[600px] mx-auto mt-10">
+      <form
+        key={JSON.stringify({ titleValue, descriptionValue, completedValue })}
+        action={formActionMethod}
+        className="flex flex-col gap-2 max-w-[600px] mx-auto mt-10"
+      >
         {/* 
           条件分岐内でprops.idValueにアクセス
           TypeScriptがmode === 'update'の場合にidValueが存在することを保証

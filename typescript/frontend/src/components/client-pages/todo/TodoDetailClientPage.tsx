@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import type { TodoEntity } from '@/logic/data/todo.data'
+import type { TodoEntity } from '@/domain/data/todo.data'
 
 type TodoDetailProps = {
   todo: TodoEntity

@@ -1,5 +1,6 @@
 import { TodoEditClientPage } from '@/components/client-pages/todo'
-import { fetchTodo } from '@/logic/use-case/todo.use-case'
+import { fetchTodo } from '@/domain/logic/ssr/todo/fetch-todo'
+import { notFound } from 'next/navigation'
 
 /**
  * todoの編集ページ
@@ -13,7 +14,13 @@ import { fetchTodo } from '@/logic/use-case/todo.use-case'
  */
 export default async function EditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const todo = await fetchTodo(Number(id))
+  const result = await fetchTodo(Number(id))
+
+  if (result.isErr()) {
+    return notFound()
+  }
+
+  const todo = result.value
 
   return (
     <div className="max-w-2xl mx-auto p-6">
