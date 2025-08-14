@@ -4,6 +4,7 @@ import { getTodosByUserId } from '../../repository/query/todo/getTodosByUserId'
 /** UseCase のパラメータ型の定義。 */
 type UseCaseParams = {
   userId: number
+  search?: string
 }
 
 /** UseCase の戻り値型の定義。 */

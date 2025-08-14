@@ -4,8 +4,6 @@ import { useRouter } from 'next/navigation'
 import { TodoFormComponent } from '@/components/functionless/todo'
 import { createTodoAction } from '@/components/client-pages/todo/actions'
 import { useActionState } from 'react'
-import type { FormValidationErrorCode } from '@/utils/validation'
-import { getFormValidationErrorMessage } from '@/utils/validation'
 import type { TodoFormActionState } from '@/components/client-pages/todo/actions'
 import {
   createInitialActionState,
@@ -52,25 +50,15 @@ export function TodoRegisterClientPage() {
       descriptionValue={state.description}
       completedValue={state.completed}
       titleErrorMessage={
-        state.validationErrors?.title?.[0]
-          ? getFormValidationErrorMessage(
-              state.validationErrors?.title?.[0] as FormValidationErrorCode,
-            )
-          : undefined
+        state.validationErrors?.title?.[0] ? state.validationErrors?.title?.[0] : undefined
       }
       descriptionErrorMessage={
         state.validationErrors?.description?.[0]
-          ? getFormValidationErrorMessage(
-              state.validationErrors?.description?.[0] as FormValidationErrorCode,
-            )
+          ? state.validationErrors?.description?.[0]
           : undefined
       }
       completedErrorMessage={
-        state.validationErrors?.completed?.[0]
-          ? getFormValidationErrorMessage(
-              state.validationErrors?.completed?.[0] as FormValidationErrorCode,
-            )
-          : undefined
+        state.validationErrors?.completed?.[0] ? state.validationErrors?.completed?.[0] : undefined
       }
       isPending={isPending}
     />

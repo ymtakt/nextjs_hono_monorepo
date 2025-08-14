@@ -18,11 +18,15 @@ type UseCaseError = {
  * - ステータスコードを判別して、アプリケーションエラーをthrowする
  * - レスポンスボディをJSONとして解析
  */
-export const fetchTodos = async (): Promise<Result<TodoEntity[], UseCaseError>> => {
+export const fetchTodos = async (search?: string): Promise<Result<TodoEntity[], UseCaseError>> => {
   try {
     // APIクライアントを使用してGETリクエストを実行
     // テストで置き換え可能
-    const res = await apiClient.api.todos.$get()
+    const res = await apiClient.api.todos.$get({
+      query: {
+        search,
+      },
+    })
 
     // テスト用に1秒待つ
     await new Promise((resolve) => setTimeout(resolve, 1000))

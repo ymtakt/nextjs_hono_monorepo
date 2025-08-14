@@ -5,6 +5,7 @@ import type { EnvironmentVariables } from '../../../env'
 /** Todo を取得する際のパラメータ。 */
 type RepositoryParams = {
   userId: number
+  search?: string
 }
 
 /** Todo の取得結果。 */
@@ -28,7 +29,7 @@ export const getTodosByUserId = async (
   try {
     // ユーザーIDに紐づくTODO一覧を取得する。（作成日時の降順）
     const todos = await prisma.todo.findMany({
-      where: { userId: params.userId },
+      where: { userId: params.userId, title: { contains: params.search } },
       orderBy: { createdAt: 'desc' },
     })
 

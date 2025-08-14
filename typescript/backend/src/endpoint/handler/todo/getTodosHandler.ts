@@ -4,10 +4,10 @@ import { describeRoute } from 'hono-openapi'
 import { resolver } from 'hono-openapi/zod'
 import { match } from 'ts-pattern'
 import type { EnvironmentVariables } from '../../../env'
+import { getTodosResponseSchema } from '../../../schemas'
 import { fetchTodosUseCase } from '../../../use-case/todo/fetchTodosUseCase'
 import { ENDPOINT_ERROR_CODES } from '../../errorCode'
 import { AppHTTPException, getErrorResponseForOpenAPISpec } from '../../errorResponse'
-import { getTodosResponseSchema } from '../../../schemas'
 
 /** レスポンスデータのスキーマ。 */
 const responseSchema = getTodosResponseSchema.openapi({
@@ -51,9 +51,13 @@ export const getTodosHandlers = createFactory<EnvironmentVariables>().createHand
     // 認証済みユーザー ID を取得する。
     const userId = c.get('userId')
 
+    console.log('api - search', c.req.query('search'))
+    const search = c.req.query('search')
+
     // UseCase を呼び出す。
     const result = await fetchTodosUseCase({
       userId,
+      search,
     })
 
     // エラーが発生した場合は、エラーの種類を網羅的にマッチングし、

@@ -2,8 +2,16 @@ import { notFound } from 'next/navigation'
 import { TodoListClientPage } from '@/components/client-pages/todo'
 import { fetchTodos } from '@/domain/logic/ssr/todo/fetch-todos'
 
-export default async function Home() {
-  const result = await fetchTodos()
+interface PageProps {
+  searchParams: Promise<{
+    search?: string
+  }>
+}
+
+export default async function Home({ searchParams }: PageProps) {
+  const { search } = await searchParams
+
+  const result = await fetchTodos(search)
 
   if (result.isErr()) {
     notFound()

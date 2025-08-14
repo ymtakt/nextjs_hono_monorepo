@@ -1,13 +1,13 @@
 // utils/server-action-wrapper.ts
 'use client'
 
+import { useToast } from '@/utils/hooks/useToast'
 import {
   ACTION_STATUS,
   type ActionState,
   type FormFields,
   type ValidationErrors,
-} from '@/utils/actions'
-import { useToast } from '@/utils/hooks/useToast'
+} from '@/utils/server-actions'
 
 /**
  * Server Action用高階関数のオプション

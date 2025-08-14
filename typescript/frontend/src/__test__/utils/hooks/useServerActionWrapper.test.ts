@@ -1,10 +1,10 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { ACTION_STATUS, type ActionState } from '@/utils/actions'
 import {
   createInitialActionState,
   useServerActionWrapper,
 } from '@/utils/hooks/useServerActionWrapper'
+import { ACTION_STATUS, type ActionState } from '@/utils/server-actions'
 
 /**
  * useServerActionWrapper hook のテスト。

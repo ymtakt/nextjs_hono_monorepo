@@ -4,14 +4,11 @@ import { useRouter } from 'next/navigation'
 import type { TodoEntity } from '@/domain/data/todo.data'
 import { TodoFormComponent } from '@/components/functionless/todo'
 import { updateTodoAction, type TodoFormActionState } from '@/components/client-pages/todo/actions'
-import { useActionState, useTransition } from 'react'
-import type { FormValidationErrorCode } from '@/utils/validation'
-import { getFormValidationErrorMessage } from '@/utils/validation'
+import { useActionState } from 'react'
 import {
   createInitialActionState,
   useServerActionWrapper,
 } from '@/utils/hooks/useServerActionWrapper'
-import { ClientComponentLoading } from '@/components/functionless/general'
 
 type TodoEditProps = {
   todo: TodoEntity
@@ -29,7 +26,6 @@ type TodoEditProps = {
  */
 export function TodoEditClientPage({ todo }: TodoEditProps) {
   const router = useRouter()
-  const [isLoading, startTransition] = useTransition()
 
   // 初期状態を作成
   const initialState: TodoFormActionState = createInitialActionState()
@@ -64,48 +60,26 @@ export function TodoEditClientPage({ todo }: TodoEditProps) {
     initialState,
   )
 
-  const handleRefresh = () => {
-    startTransition(() => {
-      router.refresh()
-    })
-  }
-
   return (
-    <>
-      {isLoading && <ClientComponentLoading />}
-      <button type="button" onClick={handleRefresh}>
-        refresh
-      </button>
-      <TodoFormComponent
-        mode={'update'}
-        idValue={todo.id.toString()}
-        formActionMethod={formAction}
-        titleValue={state.title ?? todo?.title ?? ''}
-        descriptionValue={state.description ?? todo?.description ?? ''}
-        completedValue={state.completed ?? todo?.isCompleted ?? false}
-        titleErrorMessage={
-          state.validationErrors?.title?.[0]
-            ? getFormValidationErrorMessage(
-                state.validationErrors?.title?.[0] as FormValidationErrorCode,
-              )
-            : undefined
-        }
-        descriptionErrorMessage={
-          state.validationErrors?.description?.[0]
-            ? getFormValidationErrorMessage(
-                state.validationErrors?.description?.[0] as FormValidationErrorCode,
-              )
-            : undefined
-        }
-        completedErrorMessage={
-          state.validationErrors?.completed?.[0]
-            ? getFormValidationErrorMessage(
-                state.validationErrors?.completed?.[0] as FormValidationErrorCode,
-              )
-            : undefined
-        }
-        isPending={isPending}
-      />
-    </>
+    <TodoFormComponent
+      mode={'update'}
+      idValue={todo.id.toString()}
+      formActionMethod={formAction}
+      titleValue={state.title ?? todo?.title ?? ''}
+      descriptionValue={state.description ?? todo?.description ?? ''}
+      completedValue={state.completed ?? todo?.isCompleted ?? false}
+      titleErrorMessage={
+        state.validationErrors?.title?.[0] ? state.validationErrors?.title?.[0] : undefined
+      }
+      descriptionErrorMessage={
+        state.validationErrors?.description?.[0]
+          ? state.validationErrors?.description?.[0]
+          : undefined
+      }
+      completedErrorMessage={
+        state.validationErrors?.completed?.[0] ? state.validationErrors?.completed?.[0] : undefined
+      }
+      isPending={isPending}
+    />
   )
 }
