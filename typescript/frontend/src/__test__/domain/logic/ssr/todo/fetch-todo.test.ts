@@ -1,23 +1,14 @@
-/**
- * todo.use-case.ts のテスト。
- * use-case層のビジネスロジックとAPI呼び出しの正常系とエラー系を検証する。
- */
-
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { apiClient } from '@/core/services/api.service'
+import { apiClient } from '@/core/service/api.service'
 import { fetchTodo } from '@/domain/logic/ssr/todo/fetch-todo'
 
 // APIクライアントをモック化
-vi.mock('@/lib/apiClient', () => ({
+vi.mock('@/core/service/api.service', () => ({
   apiClient: {
     api: {
       todos: {
-        $get: vi.fn(),
-        $post: vi.fn(),
         ':todoId': {
           $get: vi.fn(),
-          $put: vi.fn(),
-          $delete: vi.fn(),
         },
       },
     },
@@ -29,7 +20,7 @@ vi.mock('timers', () => ({
   setTimeout: vi.fn((callback) => callback()),
 }))
 
-describe('todo.use-case', () => {
+describe('fetchTodo', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // setTimeoutをモック化
@@ -39,63 +30,98 @@ describe('todo.use-case', () => {
     })
   })
 
-  describe('fetchTodo', () => {
-    /**
-     * 正常に個別Todoを取得できることを検証する。
-     */
-    it('正常に個別Todoを取得する', async () => {
-      const mockTodo = {
-        todo: {
-          id: 1,
-          title: '個別テストTodo',
-          description: '個別テスト説明',
-          completed: true,
-          createdAt: '2025-01-01T00:00:00Z',
-          updatedAt: '2025-01-02T00:00:00Z',
-        },
-      }
-
-      const mockResponse = {
-        ok: true,
-        json: vi.fn().mockResolvedValue(mockTodo),
-      }
-
-      vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse as any)
-
-      const result = await fetchTodo(1)
-
-      expect(result).toEqual({
+  // 前提：APIが正常なレスポンスを返す
+  // 期待値：変換されたTodoEntityがok結果で返される
+  it('正常にTodoを取得して変換される', async () => {
+    const mockTodo = {
+      todo: {
         id: 1,
-        title: '個別テストTodo',
-        description: '個別テスト説明',
+        title: 'テストTodo',
+        description: 'テスト説明',
+        completed: true,
+        createdAt: '2025-01-01T00:00:00Z',
+        updatedAt: '2025-01-02T00:00:00Z',
+      },
+    }
+
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue(mockTodo),
+    }
+
+    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse as any)
+
+    const result = await fetchTodo(1)
+
+    expect(result.isOk()).toBe(true)
+    if (result.isOk()) {
+      expect(result.value).toEqual({
+        id: 1,
+        title: 'テストTodo',
+        description: 'テスト説明',
         isCompleted: true,
         createdDate: '2025-01-01T00:00:00Z',
         updatedDate: '2025-01-02T00:00:00Z',
       })
-      expect(apiClient.api.todos[':todoId'].$get).toHaveBeenCalledWith({
-        param: { todoId: '1' },
-      })
+    }
+    expect(apiClient.api.todos[':todoId'].$get).toHaveBeenCalledWith({
+      param: { todoId: '1' },
     })
+  })
 
-    /**
-     * 外部エラーコードでApplicationErrorを投げることを検証する。
-     */
-    it('外部エラーコードでApplicationErrorを投げる', async () => {
-      const mockResponse = {
-        ok: false,
-        statusText: 'endpoint.getTodos.fetchFailed.1',
-      }
+  // 前提：APIが正常でないレスポンス（ok: false）を返す
+  // 期待値：TODO_FETCH_FAILEDエラーがerr結果で返される
+  it('APIレスポンスが正常でない場合エラーが返される', async () => {
+    const mockResponse = {
+      ok: false,
+    }
 
-      vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse as any)
+    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse as any)
 
-      await expect(fetchTodo(999)).rejects.toThrow(ApplicationError)
+    const result = await fetchTodo(999)
 
-      try {
-        await fetchTodo(999)
-      } catch (error) {
-        expect(error).toBeInstanceOf(ApplicationError)
-        expect((error as ApplicationError).message).toBe('TodoIDが見つかりません')
-      }
+    expect(result.isErr()).toBe(true)
+    if (result.isErr()) {
+      expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' })
+    }
+  })
+
+  // 前提：API呼び出し時にネットワークエラーが発生する
+  // 期待値：TODO_FETCH_FAILEDエラーがerr結果で返される
+  it('API呼び出しでエラーが発生した場合エラーが返される', async () => {
+    vi.mocked(apiClient.api.todos[':todoId'].$get).mockRejectedValue(new Error('Network Error'))
+
+    const result = await fetchTodo(1)
+
+    expect(result.isErr()).toBe(true)
+    if (result.isErr()) {
+      expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' })
+    }
+  })
+
+  // 前提：正常なAPIレスポンスでtodoIdが数値で渡される
+  // 期待値：todoIdが文字列に変換されてAPIに渡される
+  it('todoIdが文字列に変換されてAPIに渡される', async () => {
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        todo: {
+          id: 123,
+          title: 'test',
+          description: 'test',
+          completed: false,
+          createdAt: '2025-01-01T00:00:00Z',
+          updatedAt: '2025-01-01T00:00:00Z',
+        },
+      }),
+    }
+
+    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse as any)
+
+    await fetchTodo(123)
+
+    expect(apiClient.api.todos[':todoId'].$get).toHaveBeenCalledWith({
+      param: { todoId: '123' },
     })
   })
 })

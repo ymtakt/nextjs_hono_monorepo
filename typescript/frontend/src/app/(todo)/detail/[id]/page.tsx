@@ -1,4 +1,4 @@
-import { TodoDetailClientPage } from '@/components/client-pages/todo'
+import { TodoDetailClientPage } from '@/component/client-page/todo'
 import { fetchTodo } from '@/domain/logic/ssr/todo/fetch-todo'
 import { notFound } from 'next/navigation'
 import { match } from 'ts-pattern'

@@ -1,5 +1,5 @@
 import { err, ok, type Result } from 'neverthrow'
-import { apiClient } from '@/core/services/api.service'
+import { apiClient } from '@/core/service/api.service'
 import type { TodoEntity } from '@/domain/data/todo.data'
 import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity'
 
@@ -11,12 +11,6 @@ type UseCaseError = {
 /**
  * 全てのTodoを取得する
  *
- * - APIクライアントを使用してGETリクエストを実行
- * - テストで置き換え可能
- * - テスト用に1秒待つ
- * - レスポンスが正常でない場合はエラーを投げる
- * - ステータスコードを判別して、アプリケーションエラーをthrowする
- * - レスポンスボディをJSONとして解析
  */
 export const fetchTodos = async (search?: string): Promise<Result<TodoEntity[], UseCaseError>> => {
   try {

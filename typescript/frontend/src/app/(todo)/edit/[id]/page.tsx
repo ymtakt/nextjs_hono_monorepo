@@ -1,4 +1,4 @@
-import { TodoEditClientPage } from '@/components/client-pages/todo'
+import { TodoEditClientPage } from '@/component/client-page/todo'
 import { fetchTodo } from '@/domain/logic/ssr/todo/fetch-todo'
 import { notFound } from 'next/navigation'
 

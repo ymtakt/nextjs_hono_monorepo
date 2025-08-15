@@ -1,4 +1,4 @@
-import type { TodoEntity } from '@/logic/data/todo.data'
+import type { TodoEntity } from '@/domain/data/todo.data'
 
 /**
  * 外部APIから取得したデータをTodoEntityに変換する

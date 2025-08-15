@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { TodoListClientPage } from '@/components/client-pages/todo'
+import { TodoListClientPage } from '@/component/client-page/todo'
 import { fetchTodos } from '@/domain/logic/ssr/todo/fetch-todos'
 
 interface PageProps {
