@@ -29,7 +29,8 @@ describe('deleteTodo', () => {
       ok: true,
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse);
 
     const result = await deleteTodo(todoId);
 
@@ -50,8 +51,8 @@ describe('deleteTodo', () => {
     const mockResponse = {
       ok: true,
     };
-
-    vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse);
 
     await deleteTodo(todoId);
 
@@ -69,7 +70,8 @@ describe('deleteTodo', () => {
       ok: false,
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse);
 
     const result = await deleteTodo(todoId);
 
@@ -101,7 +103,8 @@ describe('deleteTodo', () => {
       ok: true,
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse);
 
     const result1 = await deleteTodo(1);
     const result2 = await deleteTodo(2);

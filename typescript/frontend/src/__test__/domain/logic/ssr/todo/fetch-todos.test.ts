@@ -17,9 +17,9 @@ describe('fetchTodos', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // setTimeoutをモック化
-    vi.spyOn(global, 'setTimeout').mockImplementation((callback: any) => {
+    vi.spyOn(global, 'setTimeout').mockImplementation((callback) => {
       callback();
-      return {} as any;
+      return {} as unknown as NodeJS.Timeout;
     });
   });
 
@@ -52,7 +52,8 @@ describe('fetchTodos', () => {
       json: vi.fn().mockResolvedValue(mockTodos),
     };
 
-    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
 
     const result = await fetchTodos();
 
@@ -86,7 +87,8 @@ describe('fetchTodos', () => {
       json: vi.fn().mockResolvedValue({ todos: [] }),
     };
 
-    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
 
     const result = await fetchTodos();
 
@@ -104,7 +106,8 @@ describe('fetchTodos', () => {
       json: vi.fn().mockResolvedValue({ todos: [] }),
     };
 
-    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
 
     await fetchTodos('test search');
 
@@ -123,7 +126,8 @@ describe('fetchTodos', () => {
       json: vi.fn().mockResolvedValue({ todos: [] }),
     };
 
-    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
 
     await fetchTodos();
 
@@ -141,7 +145,8 @@ describe('fetchTodos', () => {
       ok: false,
     };
 
-    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
 
     const result = await fetchTodos();
 

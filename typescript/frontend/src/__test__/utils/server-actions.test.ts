@@ -106,7 +106,7 @@ describe('withServerActionHandling', () => {
   // 期待値：そのまま結果が返され、トーストやコールバックは実行されない
   it('予期しないステータス時は結果をそのまま返す', async () => {
     const unknownState = {
-      status: 'unknown_status' as any,
+      status: 'unknown_status' as const,
       error: null,
       validationErrors: null,
     };

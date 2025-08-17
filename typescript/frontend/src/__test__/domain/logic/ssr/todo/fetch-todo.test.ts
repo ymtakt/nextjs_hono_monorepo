@@ -24,9 +24,9 @@ describe('fetchTodo', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // setTimeoutをモック化
-    vi.spyOn(global, 'setTimeout').mockImplementation((callback: any) => {
+    vi.spyOn(global, 'setTimeout').mockImplementation((callback) => {
       callback();
-      return {} as any;
+      return {} as unknown as NodeJS.Timeout;
     });
   });
 
@@ -49,7 +49,8 @@ describe('fetchTodo', () => {
       json: vi.fn().mockResolvedValue(mockTodo),
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse);
 
     const result = await fetchTodo(1);
 
@@ -76,7 +77,8 @@ describe('fetchTodo', () => {
       ok: false,
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse);
 
     const result = await fetchTodo(999);
 
@@ -116,7 +118,8 @@ describe('fetchTodo', () => {
       }),
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse);
 
     await fetchTodo(123);
 

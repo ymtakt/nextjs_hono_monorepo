@@ -168,7 +168,7 @@ export function convertValidationErrors<T extends Record<string, string[]>>(
       const convertedMessages = errors.map(
         (errorCode) => messageMap[errorCode] || 'エラーが発生しました',
       );
-      (convertedErrors as any)[key] = convertedMessages;
+      (convertedErrors as Record<string, string[]>)[key] = convertedMessages;
     }
   }
 

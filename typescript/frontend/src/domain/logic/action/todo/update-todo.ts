@@ -27,7 +27,7 @@ export const updateTodo = async (
   todo: UpdateTodoRequest,
 ): Promise<Result<TodoEntity, UseCaseError>> => {
   try {
-    const res = await (apiClient.api.todos[':todoId'] as any).$put({
+    const res = await apiClient.api.todos[':todoId'].$put({
       param: { todoId: todoId.toString() },
       json: todo,
     });

@@ -16,7 +16,7 @@ export const formatDateToJapanese = (dateString: string): string => {
     const date = new Date(dateString);
 
     // 無効な日付をチェック
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       throw new Error(`Invalid date: ${dateString}`);
     }
 

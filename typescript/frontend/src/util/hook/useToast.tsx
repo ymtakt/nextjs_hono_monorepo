@@ -1,6 +1,5 @@
 'use client';
 
-import type React from 'react';
 import { createContext, type PropsWithChildren, useCallback, useContext, useState } from 'react';
 
 /** トーストの種類を定義する型 */

@@ -47,7 +47,8 @@ describe('updateTodo', () => {
       json: vi.fn().mockResolvedValue(mockUpdatedTodo),
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
     const result = await updateTodo(todoId, updateRequest);
 
@@ -88,7 +89,8 @@ describe('updateTodo', () => {
       }),
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
     await updateTodo(todoId, updateRequest);
 
@@ -128,7 +130,8 @@ describe('updateTodo', () => {
       json: vi.fn().mockResolvedValue(mockUpdatedTodo),
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
     const result = await updateTodo(todoId, updateRequest);
 
@@ -170,7 +173,8 @@ describe('updateTodo', () => {
       }),
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
     await updateTodo(todoId, updateRequest);
 
@@ -198,7 +202,8 @@ describe('updateTodo', () => {
       ok: false,
     };
 
-    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
     const result = await updateTodo(todoId, updateRequest);
 

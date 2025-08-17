@@ -19,7 +19,7 @@ import { useState } from 'react';
  * ```
  */
 // TODO: any型を適切な型に置き換える検討が必要
-export const useModal = <T = any>(initialOpen: boolean = false) => {
+export const useModal = <T>(initialOpen: boolean = false) => {
   // モーダルの開閉状態を管理
   const [isOpen, setIsOpen] = useState(initialOpen);
   // モーダルに渡すデータを管理

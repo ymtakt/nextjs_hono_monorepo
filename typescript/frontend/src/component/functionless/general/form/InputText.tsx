@@ -18,22 +18,27 @@
 
 type InputTextProps = {
   label: string;
+  name: string;
   placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  defaultValue?: string;
   errorMessage?: string;
-  // ✅ conform用のpropsを受け取る
-  [key: string]: any; // getInputPropsの結果を受け取る
 };
 
 export function InputText(props: InputTextProps) {
-  const { label, placeholder, errorMessage, ...inputProps } = props;
+  const { label, placeholder, errorMessage, name, value, onChange, defaultValue } = props;
 
   return (
     <div>
-      <label htmlFor={inputProps.id} className="text-sm font-medium">
+      <label htmlFor={name} className="text-sm font-medium">
         {label}
       </label>
       <input
-        {...inputProps} // ✅ conformのpropsをそのまま適用
+        name={name}
+        value={value}
+        onChange={onChange}
+        defaultValue={defaultValue}
         type="text"
         className="border-2 border-gray-300 rounded-md p-2 w-full"
         placeholder={placeholder}

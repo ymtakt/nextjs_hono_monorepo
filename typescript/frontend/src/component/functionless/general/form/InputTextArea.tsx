@@ -18,22 +18,27 @@
 
 type InputTextAreaProps = {
   label: string;
+  name: string;
   placeholder?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  defaultValue?: string;
   errorMessage?: string;
-  // ✅ conform用のpropsを受け取る
-  [key: string]: any; // getTextareaPropsの結果を受け取る
 };
 
 export function InputTextArea(props: InputTextAreaProps) {
-  const { label, placeholder, errorMessage, ...textareaProps } = props;
+  const { label, placeholder, errorMessage, name, value, onChange, defaultValue } = props;
 
   return (
     <div>
-      <label htmlFor={textareaProps.id} className="text-sm font-medium">
+      <label htmlFor={name} className="text-sm font-medium">
         {label}
       </label>
       <textarea
-        {...textareaProps} // ✅ conformのpropsをそのまま適用
+        name={name}
+        value={value}
+        onChange={onChange}
+        defaultValue={defaultValue}
         className="border-2 border-gray-300 rounded-md p-2 w-full"
         placeholder={placeholder}
         rows={4}

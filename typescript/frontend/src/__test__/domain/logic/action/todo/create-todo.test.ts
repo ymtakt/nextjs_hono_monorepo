@@ -44,7 +44,8 @@ describe('createTodo', () => {
       json: vi.fn().mockResolvedValue(mockCreatedTodo),
     };
 
-    vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
     const result = await createTodo(createRequest);
 
@@ -87,7 +88,8 @@ describe('createTodo', () => {
       }),
     };
 
-    vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
     await createTodo(createRequest);
 
@@ -113,7 +115,8 @@ describe('createTodo', () => {
       ok: false,
     };
 
-    vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
     const result = await createTodo(createRequest);
 
@@ -167,7 +170,8 @@ describe('createTodo', () => {
       json: vi.fn().mockResolvedValue(mockCreatedTodo),
     };
 
-    vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse as any);
+    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
     const result = await createTodo(createRequest);
 
