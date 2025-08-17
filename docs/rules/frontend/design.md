@@ -1,380 +1,249 @@
-# デザインシステムルール
+# デザインシステム実装ルール
 
-このファイルを参照したら「✅ デザインシステムルールを確認しました」と返答します。
+## 概要
 
-## 1. 基本方針
+デザインシステムは、一貫性のある UI を実現するための基盤です。
+CSS カスタムプロパティを使用して、色、タイポグラフィ、スペーシングなどのデザイントークンを定義します。
 
-本プロジェクトでは、一貫したデザインと保守性の高い UI を実現するため、以下の方針に従います：
+## 基本方針
 
-- **事前定義スタイル**: カラー、タイポグラフィー、アイコン、余白を統一
-- **コンポーネント再利用**: UI 部品は必ず共通コンポーネントを使用
-- **CSS 変数 + Tailwind**: `globals.css`でデザイントークンを定義し、Tailwind で適用
+1. CSS カスタムプロパティの使用
+2. Tailwind CSS との連携
+3. アクセシビリティへの配慮
+4. レスポンシブデザイン
 
-## 2. カラーシステム
+## カラーシステム
 
-### 2.1 カラー定義
-
-すべての色は `src/app/globals.css` で CSS 変数として定義し、Tailwind のカスタムクラスで使用します。
+### 1. プライマリカラー
 
 ```css
-/* src/app/globals.css */
 :root {
-  /* Primary Colors */
-  --color-primary-50: #fefce8;
-  --color-primary-100: #fef3c7;
-  --color-primary-500: #ffd700;
-  --color-primary-600: #e6c200;
-  --color-primary-900: #713f12;
+  /* プライマリ */
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-light: #3b82f6;
 
-  /* Gray Colors */
-  --color-gray-50: #fafaf9;
-  --color-gray-100: #f5f5f4;
-  --color-gray-500: #71717a;
-  --color-gray-800: #27272a;
-  --color-gray-900: #18181b;
+  /* グレースケール */
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
 
-  /* Semantic Colors */
-  --color-background: #fffffe;
-  --color-foreground: #18181b;
-  --color-success: #16a34a;
+  /* セマンティック */
+  --color-background: var(--color-gray-50);
+  --color-foreground: var(--color-gray-900);
   --color-error: #dc2626;
-  --color-warning: #ea580c;
-}
-
-/* Tailwind Custom Classes */
-.text-primary {
-  color: var(--color-primary-500);
-}
-.text-primary-600 {
-  color: var(--color-primary-600);
-}
-.text-foreground {
-  color: var(--color-foreground);
-}
-.text-gray-500 {
-  color: var(--color-gray-500);
-}
-.text-success {
-  color: var(--color-success);
-}
-.text-error {
-  color: var(--color-error);
-}
-
-.bg-primary {
-  background-color: var(--color-primary-500);
-}
-.bg-primary-50 {
-  background-color: var(--color-primary-50);
-}
-.bg-background {
-  background-color: var(--color-background);
-}
-.bg-gray-100 {
-  background-color: var(--color-gray-100);
-}
-
-.border-primary {
-  border-color: var(--color-primary-500);
-}
-.border-gray-500 {
-  border-color: var(--color-gray-500);
+  --color-error-dark: #b91c1c;
+  --color-success: #16a34a;
+  --color-success-dark: #15803d;
+  --color-warning: #ca8a04;
+  --color-warning-dark: #a16207;
 }
 ```
 
-### 2.2 カラー使用ルール
-
-```tsx
-// ✅ 良い例：定義済みクラスを使用
-<div className="text-foreground bg-background">
-<button className="bg-primary text-white">
-<p className="text-gray-500">
-
-// ❌ 悪い例：ハードコードした色
-<div className="text-[#18181b] bg-[#fffffe]">
-<button className="bg-[#ffd700]">
-<p style={{color: '#71717a'}}>
-```
-
-## 3. タイポグラフィーシステム
-
-### 3.1 フォントサイズ定義
+### 2. ダークモード
 
 ```css
-/* src/app/globals.css */
-.text-xs {
-  font-size: 12px;
-  line-height: 16px;
-}
-.text-sm {
-  font-size: 14px;
-  line-height: 20px;
-}
-.text-base {
-  font-size: 16px;
-  line-height: 24px;
-}
-.text-lg {
-  font-size: 18px;
-  line-height: 28px;
-}
-.text-xl {
-  font-size: 20px;
-  line-height: 28px;
-}
-.text-2xl {
-  font-size: 24px;
-  line-height: 32px;
-}
-.text-3xl {
-  font-size: 30px;
-  line-height: 36px;
-}
-
-/* フォントウェイト */
-.font-normal {
-  font-weight: 400;
-}
-.font-medium {
-  font-weight: 500;
-}
-.font-semibold {
-  font-weight: 600;
-}
-.font-bold {
-  font-weight: 700;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--color-gray-900);
+    --color-foreground: var(--color-gray-50);
+  }
 }
 ```
 
-### 3.2 タイポグラフィー使用ルール
-
-```tsx
-// ✅ 良い例：定義済みクラスを使用
-<h1 className="text-3xl font-bold text-foreground">
-<p className="text-base text-gray-500">
-<span className="text-sm font-medium">
-
-// ❌ 悪い例：カスタムサイズ
-<h1 className="text-[32px]">
-<p style={{fontSize: '15px'}}>
-```
-
-## 4. アイコンシステム
-
-### 4.1 アイコンライブラリ
-
-統一されたアイコンセットとして **Lucide React** を使用します。
-
-```tsx
-import { Search, User, Settings, ChevronDown, Plus } from 'lucide-react'
-
-// ✅ 良い例：統一されたアイコン
-<Search className="w-5 h-5 text-gray-500" />
-<User className="w-6 h-6 text-foreground" />
-
-// ❌ 悪い例：複数のアイコンライブラリ混在
-import { FaSearch } from 'react-icons/fa'  // React Icons
-import SearchIcon from '@mui/icons-material/Search'  // Material UI
-```
-
-### 4.2 アイコンサイズ
+## タイポグラフィ
 
 ```css
-/* 標準アイコンサイズ */
-.icon-xs {
-  width: 12px;
-  height: 12px;
-} /* w-3 h-3 */
-.icon-sm {
-  width: 16px;
-  height: 16px;
-} /* w-4 h-4 */
-.icon-base {
-  width: 20px;
-  height: 20px;
-} /* w-5 h-5 */
-.icon-lg {
-  width: 24px;
-  height: 24px;
-} /* w-6 h-6 */
-.icon-xl {
-  width: 32px;
-  height: 32px;
-} /* w-8 h-8 */
-```
+:root {
+  /* フォントファミリー */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, monospace;
 
-## 5. 余白システム
+  /* フォントサイズ */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
 
-### 5.1 余白ルール
-
-**4 の倍数**を基本とし、**8 の倍数**を推奨します。
-
-```tsx
-// ✅ 良い例：4,8の倍数
-<div className="p-4 m-8">        // 16px, 32px
-<div className="px-6 py-3">      // 24px, 12px
-<div className="space-y-4">      // 16px間隔
-<div className="gap-2">          // 8px間隔
-
-// ❌ 悪い例：中途半端な値
-<div className="p-5 m-7">        // 20px, 28px
-<div className="space-y-3">      // 12px間隔
-```
-
-### 5.2 余白パターン
-
-```css
-/* 推奨余白値 */
-.p-1 {
-  padding: 4px;
-} /* 使用頻度：低 */
-.p-2 {
-  padding: 8px;
-} /* 使用頻度：中 */
-.p-3 {
-  padding: 12px;
-} /* 使用頻度：中 */
-.p-4 {
-  padding: 16px;
-} /* 使用頻度：高 */
-.p-6 {
-  padding: 24px;
-} /* 使用頻度：高 */
-.p-8 {
-  padding: 32px;
-} /* 使用頻度：高 */
-.p-12 {
-  padding: 48px;
-} /* 使用頻度：中 */
-```
-
-## 6. コンポーネントシステム
-
-### 6.1 UI コンポーネントの使用
-
-すべての UI 部品は `src/component/functionless` 配下の共通コンポーネントを使用してください。
-
-#### 6.1.1 ボタン・リンク系
-
-```tsx
-// src/component/functionless/Button.tsx
-import { Button } from '@/component/functionless/Button'
-import { TextLink } from '@/component/functionless/TextLink'
-import { Pagination } from '@/component/functionless/Pagination'
-
-// ✅ 良い例：共通コンポーネントを使用
-<Button variant="primary" size="lg">保存</Button>
-<TextLink href="/about">詳細を見る</TextLink>
-<Pagination currentPage={1} totalPages={10} />
-
-// ❌ 悪い例：独自のボタンを作成
-<button className="bg-primary text-white px-4 py-2 rounded">
-```
-
-#### 6.1.2 フォーム系
-
-```tsx
-// src/component/functionless/form/
-import { Input } from '@/component/functionless/form/Input'
-import { Select } from '@/component/functionless/form/Select'
-import { Checkbox } from '@/component/functionless/form/Checkbox'
-
-// ✅ 良い例：共通フォーム部品を使用
-<Input type="email" placeholder="メールアドレス" />
-<Select options={options} placeholder="選択してください" />
-<Checkbox label="利用規約に同意する" />
-
-// ❌ 悪い例：独自のinputを作成
-<input className="border border-gray-300 px-3 py-2 rounded" />
-```
-
-### 6.2 コンポーネント作成ルール
-
-新しいコンポーネントを作成する場合：
-
-1. **既存コンポーネントで対応可能か確認**
-2. **functionless 配下に配置**（副作用なしの純粋コンポーネント）
-3. **定義済みスタイルのみ使用**
-4. **Props で柔軟性を提供**
-
-```tsx
-// ✅ 良い例：再利用可能なコンポーネント
-interface CardProps {
-  variant?: "default" | "outlined";
-  size?: "sm" | "md" | "lg";
-  children: React.ReactNode;
-}
-
-export const Card = ({
-  variant = "default",
-  size = "md",
-  children,
-}: CardProps) => {
-  return (
-    <div
-      className={`
-      bg-background border-gray-500 rounded-lg
-      ${variant === "outlined" ? "border" : "shadow-md"}
-      ${size === "sm" ? "p-4" : size === "lg" ? "p-8" : "p-6"}
-    `}
-    >
-      {children}
-    </div>
-  );
-};
-```
-
-## 7. 実装チェックリスト
-
-### 7.1 スタイリング実装時
-
-- [ ] カラーは定義済みクラスを使用しているか
-- [ ] フォントサイズは定義済みサイズを使用しているか
-- [ ] 余白は 4,8 の倍数を使用しているか
-- [ ] アイコンは Lucide React を使用しているか
-- [ ] UI 部品は共通コンポーネントを使用しているか
-
-### 7.2 コンポーネント作成時
-
-- [ ] 既存コンポーネントで対応できないか確認したか
-- [ ] functionless 配下に配置したか
-- [ ] ハードコードした色・サイズを使用していないか
-- [ ] 再利用可能な設計になっているか
-- [ ] Props で柔軟性を提供しているか
-
-## 8. 禁止事項
-
-### 8.1 絶対に避けるべき実装
-
-```tsx
-// ❌ ハードコードした色
-<div className="text-[#333333] bg-[#FFFFFF]">
-
-// ❌ インラインスタイル
-<p style={{color: '#666', fontSize: '15px'}}>
-
-// ❌ 独自のボタン作成
-<button className="px-4 py-2 bg-blue-500 text-white rounded">
-
-// ❌ 4,8の倍数以外の余白
-<div className="p-5 m-7 space-y-3">
-
-// ❌ 複数のアイコンライブラリ混在
-import { FaHome } from 'react-icons/fa'
-import HomeIcon from '@heroicons/react/outline/HomeIcon'
-```
-
-## 9. テーマ変更への対応
-
-CSS 変数を使用することで、テーマ変更時は `globals.css` の変数値のみ変更すれば全体に反映されます。
-
-```css
-/* ダークテーマ例 */
-[data-theme="dark"] {
-  --color-background: #18181b;
-  --color-foreground: #fafaf9;
-  --color-primary-500: #fbbf24;
+  /* 行の高さ */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  --leading-loose: 2;
 }
 ```
 
-この設計により、**保守性が高く**、**一貫したデザイン**、**テーマ変更に強い**UI システムを実現できます。
+## スペーシング
+
+```css
+:root {
+  /* スペーシング */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+}
+```
+
+## コンポーネントスタイル
+
+### 1. ボタン
+
+```css
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center;
+    @apply px-4 py-2;
+    @apply font-medium rounded-lg;
+    @apply transition-colors;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white;
+    @apply hover:bg-primary-dark;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-500 text-white;
+    @apply hover:bg-gray-600;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-danger {
+    @apply bg-error text-white;
+    @apply hover:bg-error-dark;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+}
+```
+
+### 2. フォーム要素
+
+```css
+@layer components {
+  .input {
+    @apply w-full p-2;
+    @apply border border-gray-500 rounded-lg;
+    @apply bg-background text-foreground;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-error {
+    @apply border-error;
+    @apply focus:ring-error;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-foreground;
+    @apply mb-1;
+  }
+
+  .error-message {
+    @apply text-sm text-error;
+    @apply mt-1;
+  }
+}
+```
+
+### 3. カード
+
+```css
+@layer components {
+  .card {
+    @apply bg-background;
+    @apply rounded-lg shadow-md;
+    @apply p-6;
+  }
+
+  .card-header {
+    @apply text-xl font-bold text-foreground;
+    @apply mb-4;
+  }
+
+  .card-body {
+    @apply text-base text-foreground;
+  }
+
+  .card-footer {
+    @apply mt-4;
+    @apply flex justify-end gap-2;
+  }
+}
+```
+
+## レスポンシブデザイン
+
+```css
+@layer utilities {
+  /* モバイルファースト */
+  .container {
+    @apply mx-auto px-4;
+    @apply sm:px-6 lg:px-8;
+    @apply max-w-7xl;
+  }
+
+  /* グリッドシステム */
+  .grid-cols-auto-fit {
+    @apply grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    @apply gap-4;
+  }
+}
+```
+
+## チェックリスト
+
+### カラー
+
+- [ ] プライマリカラーが定義されている
+- [ ] グレースケールが定義されている
+- [ ] セマンティックカラーが定義されている
+- [ ] ダークモード対応が実装されている
+
+### タイポグラフィ
+
+- [ ] フォントファミリーが定義されている
+- [ ] フォントサイズが定義されている
+- [ ] 行の高さが定義されている
+- [ ] フォントウェイトが定義されている
+
+### スペーシング
+
+- [ ] 基本単位が定義されている
+- [ ] 一貫性のある間隔が設定されている
+- [ ] レスポンシブ対応が考慮されている
+- [ ] コンポーネント間の余白が統一されている
+
+### コンポーネント
+
+- [ ] 基本スタイルが定義されている
+- [ ] バリアントが実装されている
+- [ ] 状態変化が考慮されている
+- [ ] アクセシビリティに配慮している
+
+### レスポンシブ
+
+- [ ] ブレイクポイントが定義されている
+- [ ] モバイルファーストで実装されている
+- [ ] グリッドシステムが実装されている
+- [ ] コンテナサイズが適切に設定されている

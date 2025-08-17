@@ -1,598 +1,593 @@
-# プロジェクトアーキテクチャ
+# フロントエンドアーキテクチャ
 
-このファイルを参照したら「✅ フロントエンドアーキテクチャルールを確認しました」と返答します。
+## 概要
 
-## 1. Next.js の基本構成
+このフロントエンドプロジェクトは、クリーンアーキテクチャの考え方を基にし、Next.js の特有の要件（Server/Client 分離）を考慮したレイヤー設計を採用しています。
+コードの依存関係を明確にし、テスタビリティと保守性を高めることを目的としています。
 
-### 1.1 特殊ファイル
+## モノレポ設計
 
-- `layout.tsx`: 複数のページで共有される UI を定義
+基本方針：このプロジェクトでは、名前空間の概念として捉えているため、フォルダ名は単数形で統一しています。
 
-  ```typescript
-  // app/layout.tsx
-  export default function RootLayout({ children }) {
-    return (
-      <html>
-        <body>
-          {/* プロバイダーの設定 */}
-          <Providers>
-            <header>共通ヘッダー</header>
-            {children}
-            <footer>共通フッター</footer>
-          </Providers>
-        </body>
-      </html>
-    );
-  }
-  ```
-
-- `error.tsx`: エラーハンドリングの UI
-
-  ```typescript
-  // app/error.tsx
-  "use client";
-
-  export default function Error({ error, reset }) {
-    return (
-      <div>
-        <h2>エラーが発生しました</h2>
-        <p>{error.message}</p>
-        <button onClick={() => reset()}>再試行</button>
-      </div>
-    );
-  }
-  ```
-
-- `loading.tsx`: ローディング状態の UI
-
-  ```typescript
-  // app/loading.tsx
-  export default function Loading() {
-    return <div>読み込み中...</div>;
-  }
-  ```
-
-- `not-found.tsx`: 404 ページの UI
-  ```typescript
-  // app/not-found.tsx
-  export default function NotFound() {
-    return <div>ページが見つかりません</div>;
-  }
-  ```
-
-### 1.2 階層ごとの使い分け
-
-#### ルートレベル（app/）
-
-- `layout.tsx`: アプリケーション全体の共通レイアウト
-  - プロバイダーの設定
-  - 共通のヘッダー/フッター
-  - メタデータの設定
-- `error.tsx`: アプリケーション全体のエラーハンドリング
-- `loading.tsx`: アプリケーション全体のローディング状態
-- `not-found.tsx`: 404 ページ
-
-#### グループレベル（app/(group)/）
-
-- `layout.tsx`: グループ固有のレイアウト
-  - グループ固有のナビゲーション
-  - グループ固有のプロバイダー
-- `error.tsx`: グループ固有のエラーハンドリング
-- `loading.tsx`: グループ固有のローディング状態
-
-#### ページレベル（app/(group)/xxx/）
-
-- `page.tsx`: ページコンポーネント
-  - データフェッチ
-  - メタデータ設定
-- `error.tsx`: ページ固有のエラーハンドリング
-- `loading.tsx`: ページ固有のローディング状態
-
-### 1.3 プロバイダーの種類と用途
-
-```typescript
-// app/providers.tsx
-export function Providers({ children }) {
-  return (
-    <ThemeProvider>
-      {" "}
-      {/* テーマ設定（ダークモードなど） */}
-      <AuthProvider>
-        {" "}
-        {/* 認証状態の管理 */}
-        <QueryClientProvider>
-          {" "}
-          {/* APIレスポンスのキャッシュ管理 */}
-          <ToastProvider>
-            {" "}
-            {/* トースト通知の管理 */}
-            <ModalProvider>
-              {" "}
-              {/* モーダルの管理 */}
-              {children}
-            </ModalProvider>
-          </ToastProvider>
-        </QueryClientProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  );
-}
-```
-
-#### 主なプロバイダー
-
-1. アプリケーション全体（layout.tsx）
-
-   - テーマプロバイダー
-   - 認証プロバイダー
-   - API キャッシュプロバイダー
-   - トースト通知プロバイダー
-   - モーダルプロバイダー
-
-2. グループレベル（(group)/layout.tsx）
-
-   - グループ固有の状態プロバイダー
-   - 機能固有のコンテキストプロバイダー
-
-3. ページレベル（xxx/layout.tsx）
-   - ページ固有の状態プロバイダー
-   - フォーム状態のプロバイダー
-
-### 1.4 ルーティング構造
+### ディレクトリ構造
 
 ```
-app/
-  ├── layout.tsx      # 共通レイアウト
-  ├── error.tsx       # エラーハンドリング
-  ├── loading.tsx     # ローディング状態
-  ├── not-found.tsx   # 404ページ
-  ├── page.tsx        # トップページ
-  └── (todo)/         # ルーティンググループ
-      ├── layout.tsx  # グループ共通レイアウト
-      ├── page.tsx    # /todo ページ
-      └── [id]/       # 動的ルーティング
-          └── page.tsx # /todo/[id] ページ
+frontend/
+├──public/                    # 静的ファイル
+   └── image/                 # 画像などの静的ファイル
+└──src/
+   ├── __test__/              # テスト用フォルダ
+   ├── app/                   # Next.js App Routerのページとグローバル設定
+   ├── component/
+   │   ├── functional/        # ビジネスロジックや副作用を内包する共通コンポーネント
+   │   └── functionless/      # ビジネスロジックや副作用を持たず、外部から受け取ったものをそのまま使うだけの共通コンポーネント
+   │   └── client-page/       # React Hooksやビジネスロジック、副作用をもつことのできるページ固有のコンポーネント
+   │        └── action.ts/    # client-pagesの操作を理解しているフォームアクションロジックを定義する。ドメインロジックではない。
+   ├── constant/              # 定数定義
+   ├── core/
+   │    └── service/          # 外部ライブラリの設定・カスタマイズ
+   ├── domain/
+   │   ├── data/              # Entity定義
+   │   └── logic/
+   │       ├── ssr/           # SSR用ロジック（src/app配下で利用する。各画面の初期表示のための取得ロジック）
+   │       ├── action/        # SSR以外のNext.jsサーバーで行うべき、CRUDなどのロジック（client-pages/actions.tsで利用する。各画面の初期表示後のCRUDロジック）
+   │       └── util/          # 汎用ロジック用ロジック
+   └── util/                  # ユーティリティ関数
+       └── hook/              # 汎用的なカスタムフック
 ```
 
-## 2. 基本構成
+### 各レイヤーの依存関係
 
-- **Server Components**: `app/` ディレクトリ配下で App Router ベースのページを定義
+```mermaid
+graph TD
+    A[app] --> B[client-page]
+    B --> C[functional]
+    B --> D[functionless]
+    B --> E[action.ts]
+    E --> F[domain/logic/action]
+    A --> G[domain/logic/ssr]
+    F & G --> H[core/service]
+    H --> I[外部API]
+```
 
-  - 非同期データフェッチを行う最上位層
-  - ページのレイアウトとルーティングを管理
-  - 例：`app/xxx/page.tsx`
+## アーキテクチャ構成
 
-- **Client Components**: `components/client-pages/` ディレクトリ配下でクライアントサイドの処理を行うコンポーネントを定義
+### レイヤー構造
 
-  - UI に関するロジックを実装
-  - Server Actions の実行
-  - 状態管理
-  - 例：`components/client-pages/todo/TodoListClientPage.tsx`
+```mermaid
+graph TD
+  A[ページコンポーネント] --> B[クライアントページ]
+  B --> C[機能なしコンポーネント]
+  B --> D[機能ありコンポーネント]
+  B --> E[ドメインロジック]
+  A --> F[ドメインロジック]
+  E & F --> G[APIサービス]
+  G --> H[外部API]
+```
 
-- **Functionless Components**: `components/functionless/` ディレクトリ配下で純粋な表示用コンポーネントを定義
+### 各レイヤーの責務
 
-  - props を受け取って表示するのみ
-  - ビジネスロジックを含まない
-  - 例：`components/functionless/todo/TodoFormComponent.tsx`
+1. **ページコンポーネント層** (`app/`)
 
-- **Functional Components**: `components/functional/` ディレクトリ配下でグローバルな状態管理を行うコンポーネントを定義
-  - グローバルな状態管理が必要な場合に使用
-  - 例：ショッピングカートの状態管理
+   - 非同期データフェッチを行う最上位層
+   - ページのレイアウトとルーティングを管理
+   - SEO 対応が必要な処理を実装
+   - `domain/logic/ssr`を使用してデータ取得
+   - Result 型でエラーハンドリング
 
-## 3. ディレクトリ構造
+2. **クライアントページ層** (`component/client-page/`)
+
+   - 画面に対して 1:1 で作成される
+   - UI に関するロジックを実装
+   - ServerAction の実行
+   - 状態管理（React hooks）
+   - `domain/logic/action`を使用してデータ操作
+   - フォームアクションロジックを定義（`action.ts`）
+
+3. **機能なしコンポーネント層** (`component/functionless/`)
+
+   - 純粋な表示用コンポーネント
+   - props を受け取って表示するのみ
+   - 内部状態を持たない
+   - ビジネスロジックを含まない
+   - 再利用可能な UI 部品
+
+4. **機能ありコンポーネント層** (`component/functional/`)
+
+   - 複数の画面で共有される状態を管理
+   - 共通のイベントハンドラを実装
+   - 機能なしコンポーネントを組み合わせる
+   - 特定の機能に特化した再利用可能なコンポーネント
+
+5. **ドメインロジック層** (`domain/logic/`)
+
+   - アプリケーションのビジネスロジック
+   - `ssr/`: SSR 用のデータ取得ロジック
+   - `action/`: ServerAction 用のデータ操作ロジック
+   - `util/`: 共通のドメインロジック
+   - Result 型でのエラーハンドリング
+
+6. **API サービス層** (`core/service/`)
+   - 外部 API との通信
+   - API クライアントの設定
+   - エラーハンドリング
+   - Result 型でのレスポンス返却
+
+## ディレクトリ構造
 
 ```
 src/
-├── app/                    # Server Components
+├── app/                    # ページコンポーネント
 │   ├── layout.tsx         # ルートレイアウト
 │   ├── error.tsx          # エラーハンドリング
 │   ├── loading.tsx        # ローディング状態
 │   └── (todo)/            # ルーティンググループ
 │       ├── layout.tsx     # グループレイアウト
-│       ├── error.tsx      # グループエラー
-│       ├── loading.tsx    # グループローディング
 │       ├── page.tsx       # トップページ
 │       └── [id]/          # 動的ルーティング
-│           └── page.tsx   # 詳細ページ
-├── components/
-│   ├── client-pages/      # Client Components
+├── component/
+│   ├── client-page/       # クライアントページ
 │   │   └── todo/
-│   │       ├── actions.ts # Server Actions
-│   │       └── TodoListClientPage.tsx
-│   ├── functional/        # 状態管理コンポーネント
-│   └── functionless/      # 純粋表示コンポーネント
-│       └── todo/
-│           └── TodoFormComponent.tsx
-├── core/                  # APIクライアント
-├── logic/                 # ビジネスロジック
-└── utils/                 # ユーティリティ
+│   │       ├── action.ts  # フォームアクションロジック
+│   │       ├── TodoListClientPage.tsx
+│   │       ├── TodoDetailClientPage.tsx
+│   │       ├── TodoEditClientPage.tsx
+│   │       └── TodoRegisterClientPage.tsx
+│   ├── functional/        # 機能ありコンポーネント
+│   │   └── todo/
+│   │       ├── TodoList.tsx      # 一覧/詳細/編集画面で使用
+│   │       ├── TodoFilter.tsx    # 一覧/検索画面で使用
+│   │       └── TodoStats.tsx     # 一覧/ダッシュボード画面で使用
+│   └── functionless/      # 機能なしコンポーネント
+│       ├── general/       # 汎用コンポーネント
+│       │   ├── form/
+│       │   │   ├── InputText.tsx
+│       │   │   ├── InputTextArea.tsx
+│       │   │   └── SubmitButton.tsx
+│       │   ├── error/
+│       │   │   └── ErrorMessage.tsx
+│       │   └── loading/
+│       │       └── LoadingSpinner.tsx
+│       └── todo/         # 機能固有コンポーネント
+│           └── TodoForm.tsx
+├── core/                  # APIサービス
+├── domain/
+│   ├── data/             # Entity定義
+│   └── logic/
+│       ├── ssr/          # SSR用ロジック
+│       ├── action/       # ServerAction用ロジック
+│       └── util/         # 共通ロジック
+└── util/                 # ユーティリティ
 ```
 
-## 4. レイヤー構成
+## データフロー
 
-### 4.1 Server Components 層
+### 1. SSR フロー
 
-- Next.js App Router を使用したページコンポーネント
-- サーバーサイドでのデータフェッチ
-- レイアウトとルーティングの管理
-- SEO 対応
+```mermaid
+sequenceDiagram
+    participant Page as ページコンポーネント
+    participant Logic as ドメインロジック
+    participant Service as APIサービス
+    participant API as 外部API
 
-### 4.2 Client Components 層
-
-- クライアントサイドのロジック実装
-- Server Actions の定義と実行
-- 状態管理（React hooks）
-- UI イベントハンドリング
-
-### 4.3 Functionless Components 層
-
-- 純粋な表示用コンポーネント
-- props による動作の制御
-- 再利用可能な UI 部品
-- ビジネスロジックを含まない
-
-### 4.4 Functional Components 層
-
-- グローバルな状態管理
-- 複数コンポーネント間での状態共有
-- 現状は未使用
-
-## 5. データフロー
-
-```
-Server Components (データフェッチ)
-         ↓
-Client Components (状態管理・アクション)
-         ↓
-Functionless Components (表示)
+    Page->>Logic: データ取得
+    Logic->>Service: API呼び出し
+    Service->>API: リクエスト
+    API-->>Service: レスポンス
+    Service-->>Logic: Result型
+    Logic-->>Page: Entity
 ```
 
-## 6. 実装方針
+### 2. Server Action フロー
 
-### 6.1 Server Components
+```mermaid
+sequenceDiagram
+    participant Page as クライアントページ
+    participant Action as Server Action
+    participant Logic as ドメインロジック
+    participant Service as APIサービス
+    participant API as 外部API
+
+    Page->>Action: フォームデータ
+    Action->>Action: バリデーション
+    Action->>Logic: 検証済みデータ
+    Logic->>Service: リクエスト
+    Service->>API: API呼び出し
+    API-->>Service: レスポンス
+    Service-->>Logic: Result型
+    Logic-->>Action: Result型
+    Action-->>Page: ActionState
+```
+
+## エラーハンドリング戦略
+
+基本的な考え方：domain/logic 配下では外部通信の詳細を隠蔽し、予期可能なエラーは Result 型で統一的に処理します。
+
+### 1. ドメインロジック層での設計原則
+
+- 外部通信の詳細を隠蔽
+  - HTTP エラーコードや API の内部仕様を上位層に漏らさない
+  - core/service でのエラーをドメイン固有のエラーに変換
+- Result 型によるエラー表現
+  - 予期するエラーは例外(throw)ではなく、Result 型で返却
+  - エラーの種類を型で表現（例：`FetchTodosError`）
+- 一貫したエラー処理
+  - 成功・失敗の状態を型安全に表現
+  - エラーメッセージの一元管理
+
+```typescript
+// domain/logic/ssr/todo/fetch-todos.ts
+export type FetchTodosError = {
+  type: "FETCH_ERROR";
+  message: string;
+};
+
+export async function fetchTodosLogic(): Promise<
+  Result<TodoEntity[], FetchTodosError>
+> {
+  try {
+    const result = await apiService.api.todo.$get();
+
+    if (!result.ok) {
+      return err({ type: "FETCH_ERROR", message: "取得に失敗しました" });
+    }
+
+    return ok(transformToTodoEntity(result.data));
+  } catch {
+    return err({
+      type: "FETCH_ERROR",
+      message: "予期せぬエラーが発生しました",
+    });
+  }
+}
+```
+
+### 2. サーバーサイドレンダリング（SSR）
+
+- Result 型のエラー処理
+  - エラーの場合は`not-found`画面に遷移
+  - ページコンポーネントで一括してハンドリング
+- 予期せぬエラー
+  - `error.tsx`で統一的に処理
+  - 汎用エラー画面を表示
 
 ```typescript
 // app/todo/page.tsx
 export default async function TodoPage() {
-  // データフェッチ
-  const todos = await fetchTodos();
+  const result = await fetchTodosLogic();
 
-  return <TodoListClientPage initialTodos={todos} />;
+  if (result.isErr()) {
+    notFound();
+  }
+
+  return <TodoListClientPage todos={result.value} />;
 }
 ```
 
-### 6.2 Client Components
+### 3. クライアントサイドレンダリング（CSR）
+
+#### ServerActions 内での処理
+
+- バリデーションエラー
+  - zod を使用した型安全なバリデーション
+  - フィールド単位のエラーメッセージ
+- Result 型のエラー
+  - ドメインロジックからのエラーを ActionState に変換
+  - エラーメッセージの一元管理
+- 予期せぬエラー
+  - 固定のエラーメッセージを設定
+  - ActionState で返却
 
 ```typescript
-// components/client-pages/todo/TodoListClientPage.tsx
-"use client";
+// component/client-page/todo/action.ts
+const TODO_ACTION_ERROR_MESSAGES = {
+  TODO_ID_NOT_FOUND: "TodoIDが見つかりません",
+  TODO_CREATE_ERROR: "Todoの作成に失敗しました",
+  TODO_UPDATE_ERROR: "Todoの更新に失敗しました",
+} as const;
 
-export const TodoListClientPage = ({ initialTodos }) => {
-  const [todos, setTodos] = useState(initialTodos);
-  const handleSubmit = () => {};
-
-  return <TodoFormComponent todos={todos} onSubmit={handleSubmit} />;
-};
-```
-
-### 6.3 Functionless Components
-
-```typescript
-// components/functionless/todo/TodoFormComponent.tsx
-export const TodoFormComponent = ({ todos, onSubmit }) => {
-  return <form onSubmit={onSubmit}>{/* UIの実装 */}</form>;
-};
-```
-
-## 7. データフェッチと Server Actions
-
-### 7.1 Server Actions の基本構造
-
-```typescript
-// components/client-pages/todo/actions.ts
-"use server";
-
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import type { ActionState } from "@/utils/actions";
-
-// バリデーションスキーマ
-const todoActionFormSchema = z.object({
-  title: z.string().min(1, "タイトルは必須です"),
-  description: z.string().min(1, "説明は必須です"),
-});
-
-// ActionState型の定義
-export type TodoFormActionState = ActionState<
-  TodoFormFields,
-  TodoValidationErrors
->;
-
-// Server Action
-export async function createTodoAction(
+export async function updateTodoAction(
   prevState: TodoFormActionState,
   formData: FormData
 ): Promise<TodoFormActionState> {
-  const formFields = {
-    title: formData.get("title") as string,
-    description: formData.get("description") as string,
-  };
-
   // バリデーション
-  const validationResult = todoActionFormSchema.safeParse(formFields);
+  const validationResult = todoActionFormSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+    completed: formData.get("completed") === "on",
+  });
+
   if (!validationResult.success) {
     return {
-      ...formFields,
-      status: "error",
-      validationErrors: validationResult.error.flatten().fieldErrors,
+      ...prevState,
+      status: ACTION_STATUS.VALIDATION_ERROR,
+      error: getFirstValidationErrorMessage(validationResult.error),
+      validationErrors: convertValidationErrors(validationResult.error),
     };
   }
 
-  try {
-    await prisma.todo.create({
-      data: validationResult.data,
-    });
-    revalidatePath("/");
-    return { status: "success" };
-  } catch (error) {
+  // ドメインロジック呼び出し
+  const result = await updateTodoLogic(validationResult.data);
+
+  if (result.isErr()) {
     return {
-      ...formFields,
-      status: "error",
-      error: "Todo作成に失敗しました",
+      ...prevState,
+      status: ACTION_STATUS.SERVER_ERROR,
+      error: TODO_ACTION_ERROR_MESSAGES.TODO_UPDATE_ERROR,
     };
   }
+
+  return {
+    status: ACTION_STATUS.SUCCESS,
+    data: result.value,
+  };
 }
 ```
 
-### 7.2 Client Components での使用
+#### クライアント側での処理
+
+- フォームアクション
+  - エラーメッセージを toast で表示
+  - フィールド単位のエラーメッセージを表示
+- 一貫した UI 表現
+  - ローディング状態の表示
+  - エラー状態の表示
+  - 成功時のフィードバック
 
 ```typescript
-// components/client-pages/todo/TodoListClientPage.tsx
-"use client";
+// component/client-page/todo/TodoEditClientPage.tsx
+export function TodoEditClientPage({ todo }: Props) {
+  const [state, formAction] = useFormState(updateTodoAction, null);
+  const { showErrorToast } = useToast();
 
-import { useServerActionWrapper } from "@/utils/hooks/useServerActionWrapper";
-import { createTodoAction } from "./actions";
+  useEffect(() => {
+    if (state?.error) {
+      showErrorToast(state.error);
+    }
+  }, [state]);
 
-export function TodoListClientPage({ todos }: { todos: TodoEntity[] }) {
-  // Server Actionのラッパーフック
-  const wrappedAction = useServerActionWrapper(createTodoAction, {
-    onSuccess: () => {
-      // 成功時の処理
-    },
-  });
-
-  const [_, action, isPending] = useActionState(wrappedAction, initialState);
-
-  return <form action={action}>{/* フォームの実装 */}</form>;
+  return (
+    <TodoFormComponent
+      formAction={formAction}
+      titleErrorMessage={state?.validationErrors?.title}
+      descriptionErrorMessage={state?.validationErrors?.description}
+      isPending={state?.status === "pending"}
+    />
+  );
 }
 ```
 
-### 7.3 データフローの関係性
+## バリデーション戦略
 
-```
-1. Server Components (app/xxx/page.tsx)
-   ↓
-   初期データフェッチ（prisma直接利用）
-   ↓
-2. Client Components (components/client-pages/xxx)
-   ↓
-   useServerActionWrapper + useActionState
-   ↓
-3. Server Actions (actions.ts)
-   ↓
-   バリデーション → DB操作 → revalidatePath
-```
+### 1. スキーマ定義
 
-### 7.4 実装の使い分け
-
-1. Server Components
-
-   - 初期データの取得
-   - SEO が必要なデータ
-   - ページロード時に必要なデータ
-
-2. Server Actions
-
-   - フォーム送信
-   - データの作成・更新・削除
-   - バリデーション処理
-
-3. useServerActionWrapper + useActionState
-   - ローディング状態の管理
-   - エラーハンドリング
-   - 成功時の処理
-
-### 7.6 実装例
-
-```
-
-```
-
-## 8. Use Case の設計
-
-### 8.1 基本原則
-
-- ビジネスロジックの実装
-- service ファイルを使用した外部通信（例：API クライアント）
-- エンティティの変換処理
-- エラーハンドリング
-
-### 8.2 実装ルール
-
-- React が出てこない
-- ロジックに View の概念は出てこない
-- アプリの言葉や知識が出てくる（Entity）
-- Entity の操作（書き込み、保存、配列操作などの計算）
-- 外部通信をモックで置き換え可能な状態
-
-### 8.3 エンティティ変換
+- zod を使用した型安全なバリデーション
+- エラーメッセージの一元管理
+- 再利用可能なスキーマ定義
 
 ```typescript
-// logic/use-case/todo.use-case.ts
-export const transformToTodoEntity = (todoObject: {
-  title: string;
-  description: string;
-  completed: boolean;
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-}): TodoEntity => ({
-  id: todoObject.id,
-  title: todoObject.title,
-  description: todoObject.description || "",
-  isCompleted: todoObject.completed,
-  createdDate: todoObject.createdAt,
-  updatedDate: todoObject.updatedAt || todoObject.createdAt,
+const TODO_VALIDATION_ERRORS = {
+  REQUIRED_TITLE: "タイトルは必須です",
+  TITLE_TOO_LONG: "タイトルは100文字以内で入力してください",
+  REQUIRED_DESCRIPTION: "説明を入力してください",
+} as const;
+
+const todoActionFormSchema = z.object({
+  title: z
+    .string()
+    .min(1, TODO_VALIDATION_ERRORS.REQUIRED_TITLE)
+    .max(100, TODO_VALIDATION_ERRORS.TITLE_TOO_LONG),
+  description: z.string().min(1, TODO_VALIDATION_ERRORS.REQUIRED_DESCRIPTION),
+  completed: z.boolean(),
 });
 ```
 
-### 8.4 エラー処理
+### 2. エラーメッセージの変換
 
-#### エラーコード定義
-
-```typescript
-// utils/errors.ts
-const API_EXTERNAL_ERROR_CODES = {
-  BASE: {
-    NETWORK_ERROR: "NETWORK_ERROR",
-    SERVER_ERROR: "SERVER_ERROR",
-  },
-  API_TODO: {
-    NOT_FOUND: "TODO_NOT_FOUND",
-    FETCH_FAILED: "TODO_FETCH_FAILED",
-    CREATE_FAILED: "TODO_CREATE_FAILED",
-    // ...
-  },
-};
-
-const SERVER_ACTION_ERROR_CODES = {
-  ACTION_TODO: {
-    ID_NOT_FOUND: "TODO_ID_NOT_FOUND",
-    FORM_DATA_INVALID: "FORM_DATA_INVALID",
-    // ...
-  },
-};
-
-export const ERROR_CODES = {
-  ...API_EXTERNAL_ERROR_CODES,
-  ...SERVER_ACTION_ERROR_CODES,
-};
-```
-
-#### エラーメッセージ
+- zod のエラーメッセージを表示用に変換
+- フィールドの優先順位を定義
+- 一貫したエラーメッセージ形式
 
 ```typescript
-const ERROR_MESSAGES: Record<AppErrorCode, string> = {
-  [ERROR_CODES.BASE.NETWORK_ERROR]: "ネットワークエラーが発生しました",
-  [ERROR_CODES.BASE.SERVER_ERROR]: "サーバーエラーが発生しました",
-  [ERROR_CODES.API_TODO.NOT_FOUND]: "Todoが見つかりませんでした",
-  // ...
+const TODO_FIELD_ORDER = ["title", "description", "completed"] as const;
+
+type TodoValidationErrors = {
+  title: string[];
+  description: string[];
+  completed: string[];
 };
-```
 
-#### アプリケーションエラー
-
-```typescript
-export class ApplicationError extends Error {
-  constructor(code: AppErrorCode, public readonly originalError?: unknown) {
-    super(ERROR_MESSAGES[code]);
-    this.name = "ApplicationError";
-  }
+function convertValidationErrors(zodError: z.ZodError): TodoValidationErrors {
+  const fieldErrors = zodError.flatten().fieldErrors;
+  return convertValidationErrors(
+    fieldErrors,
+    TODO_VALIDATION_ERROR_MESSAGES,
+    TODO_FIELD_ORDER
+  );
 }
 ```
 
-### 8.5 実装例
+### 3. バリデーションの実行タイミング
 
-#### データ取得
+- フォーム送信時
+  - ServerAction 内でのバリデーション
+  - 全フィールドの検証
+- インタラクション時
+  - 個別フィールドのバリデーション
+  - リアルタイムフィードバック
 
-```typescript
-export const fetchTodo = async (todoId: number): Promise<TodoEntity> => {
-  const res = await apiClient.api.todos[":todoId"].$get({
-    param: { todoId: todoId.toString() },
-  });
+## テスト戦略
 
-  if (!res.ok) {
-    if (res.statusText === TODO_EXTERNAL_ERRORS.FETCH.FAILED) {
-      throw new ApplicationError(ERROR_CODES.ACTION_TODO.ID_NOT_FOUND);
-    }
-    throw new Error();
-  }
+### テストの分類と責務
 
-  const data = await res.json();
-  return transformToTodoEntity(data.todo);
-};
-```
+#### 1. core/service テスト
 
-#### データ作成
+- API クライアントの設定テスト
+- エラーハンドリングのテスト
+- インターセプターのテスト
+- モックサーバーを使用した統合テスト
 
 ```typescript
-export const createTodo = async (
-  todo: CreateTodoRequest
-): Promise<TodoEntity> => {
-  const res = await apiClient.api.todos.$post({
-    json: todo,
-  });
-
-  if (!res.ok) {
-    if (res.statusText === TODO_EXTERNAL_ERROR_CODES.CREATE.VALIDATION_ERROR) {
-      throw new ApplicationError(ERROR_CODES.ACTION_TODO.FORM_DATA_INVALID);
-    }
-    throw new Error();
-  }
-
-  const data = await res.json();
-  return transformToTodoEntity(data.todo);
-};
-```
-
-### 8.6 使用方法
-
-#### Server Components での使用
-
-```typescript
-// app/todo/[id]/page.tsx
-export default async function TodoDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  try {
-    const todo = await fetchTodo(Number(params.id));
-    return <TodoDetailClientPage todo={todo} />;
-  } catch (error) {
-    if (error instanceof ApplicationError) {
-      return <div>{error.message}</div>;
-    }
-    throw error;
-  }
-}
-```
-
-#### Server Actions での使用
-
-```typescript
-// components/client-pages/todo/actions.ts
-"use server";
-
-export async function createTodoAction(
-  prevState: TodoFormActionState,
-  formData: FormData
-): Promise<TodoFormActionState> {
-  try {
-    const todo = await createTodo({
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
+// __test__/core/service/api.service.test.ts
+describe("apiService", () => {
+  it("正常系: リクエストヘッダーが正しく設定される", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
     });
-    return { status: "success" };
-  } catch (error) {
-    const message = handleServerActionError(
-      error,
-      ERROR_CODES.ACTION_TODO.GENERAL_CREATE_FAILED
+    global.fetch = mockFetch;
+
+    await apiService.api.todo.$get();
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          "Content-Type": "application/json",
+        }),
+      })
     );
-    return {
-      status: "error",
-      error: message,
-    };
-  }
-}
+  });
+});
 ```
+
+#### 2. domain/logic テスト
+
+- ビジネスロジックのユニットテスト
+- Result 型の戻り値テスト
+- エラーケースのテスト
+- モック可能な設計の確認
+
+```typescript
+// __test__/domain/logic/action/todo/create-todo.test.ts
+describe("createTodoLogic", () => {
+  it("正常系: Todoが作成できる", async () => {
+    const result = await createTodoLogic({
+      title: "テストTodo",
+      description: "説明",
+    });
+
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      expect(result.value).toEqual({
+        id: expect.any(String),
+        title: "テストTodo",
+        description: "説明",
+        completed: false,
+      });
+    }
+  });
+
+  it("異常系: バリデーションエラー", async () => {
+    const result = await createTodoLogic({
+      title: "", // 空文字
+      description: "説明",
+    });
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error).toEqual({
+        type: "VALIDATION_ERROR",
+        message: "タイトルは必須です",
+      });
+    }
+  });
+});
+```
+
+#### 3. client-page/action テスト
+
+- フォームバリデーションのテスト
+- ActionState の状態遷移テスト
+- エラーメッセージの変換テスト
+- ドメインロジックとの統合テスト
+
+```typescript
+// __test__/component/client-page/todo/action.test.ts
+describe("createTodoAction", () => {
+  it("正常系: フォームデータからTodoを作成できる", async () => {
+    const formData = new FormData();
+    formData.append("title", "テストTodo");
+    formData.append("description", "説明");
+
+    const result = await createTodoAction(null, formData);
+
+    expect(result.status).toBe(ACTION_STATUS.SUCCESS);
+    expect(result.data).toBeDefined();
+    expect(result.error).toBeNull();
+  });
+
+  it("異常系: バリデーションエラー", async () => {
+    const formData = new FormData();
+    formData.append("title", ""); // 空文字
+
+    const result = await createTodoAction(null, formData);
+
+    expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+    expect(result.validationErrors?.title).toContain("タイトルは必須です");
+  });
+});
+```
+
+### テストの観点
+
+1. 基本機能
+
+   - 正常系: 作成・取得が成功する
+   - 異常系: バリデーションエラーが適切に返される
+
+2. バリデーション
+
+   - 必須項目: 空文字でエラーになる
+   - 文字数制限: 上限を超えるとエラーになる
+
+3. セキュリティ
+
+   - データ分離: 他ユーザーのデータは取得できない
+   - 認証: 認証済みユーザーのみアクセス可能
+
+4. エッジケース
+
+   - 空データ: Todo が 0 件の場合も正常に動作する
+   - 境界値: 文字数制限の境界値でのテスト
+
+5. データ整合性
+   - DB 確認: API と DB の状態が一致している
+   - キャッシュ: revalidatePath が適切に呼ばれている
+
+### テストファイル構成
+
+```
+__test__/
+├── component/
+│   └── client-page/
+│       └── todo/
+│           └── action.test.ts
+├── core/
+│   └── service/
+│       └── api.service.test.ts
+├── domain/
+│   └── logic/
+│       ├── action/
+│       │   └── todo/
+│       │       ├── create-todo.test.ts
+│       │       └── update-todo.test.ts
+│       └── ssr/
+│           └── todo/
+│               └── fetch-todos.test.ts
+└── util/
+    └── hook/
+        └── useActionState.test.ts
+```
+
+## 実装ガイドライン
+
+各レイヤーの詳細な実装ルールは以下のドキュメントを参照：
+
+- [ページコンポーネント実装ルール](./app-router.md)
+- [クライアントページ実装ルール](./client-page.md)
+- [コンポーネント実装ルール](./component.md)
+- [ServerAction 実装ルール](./server-action.md)
+- [ドメインロジック実装ルール](./domain-logic.md)
+- [core サービス実装ルール](./core-service.md)
