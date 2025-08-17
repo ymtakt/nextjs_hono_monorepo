@@ -1,0 +1,10 @@
+---
+description: HTTPハンドラーのルール
+globs: backend/src/handler/**
+alwaysApply: false
+redirect: docs/rules/server/handler.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/server/handler.md](../../../docs/rules/server/handler.md) に従います。

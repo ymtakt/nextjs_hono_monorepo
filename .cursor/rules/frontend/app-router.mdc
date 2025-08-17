@@ -1,0 +1,10 @@
+---
+description: Next.js App Router のルール
+globs: typescript/frontend/src/app/**
+alwaysApply: false
+redirect: docs/rules/frontend/app-router.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/app-router.md](../../../docs/rules/frontend/app-router.md) に従います。

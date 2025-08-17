@@ -1,0 +1,10 @@
+---
+description: Repositoryパターンのルール
+globs: backend/src/repository/**
+alwaysApply: false
+redirect: docs/rules/server/repository.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/server/repository.md](../../../docs/rules/server/repository.md) に従います。

@@ -1,0 +1,10 @@
+---
+description: UseCaseのルール
+globs: backend/src/use-case/**
+alwaysApply: false
+redirect: docs/rules/server/use-case.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/server/use-case.md](../../../docs/rules/server/use-case.md) に従います。

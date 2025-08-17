@@ -1,0 +1,10 @@
+---
+description: サーバープロジェクト全体に常に適用されるルール
+globs: backend/**
+alwaysApply: true
+redirect: docs/rules/server/always-applied-rules.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/server/always-applied-rules.md](../../../docs/rules/server/always-applied-rules.md) に従います。

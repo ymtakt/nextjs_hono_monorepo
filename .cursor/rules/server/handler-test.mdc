@@ -1,0 +1,10 @@
+---
+description: ハンドラーテストのルール
+globs: backend/__test__/handler/**
+alwaysApply: false
+redirect: docs/rules/server/handler-test.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/server/handler-test.md](../../../docs/rules/server/handler-test.md) に従います。
