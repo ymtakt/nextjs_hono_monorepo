@@ -2,15 +2,55 @@
 
 このファイルを参照したら「✅Handler のテストの実装ルールを確認しました」と返答します。
 
-## 1. テストの実行方法
+## 1. テストの方針
+
+本プロジェクトのテストは以下の方針で実装します：
+
+- **Handler テスト**: API エンドポイントの統合テスト（正常・失敗パターン）
+- **Util テスト**: 共通ユーティリティ関数の単体テスト
+
+## 2. テスト実行手順
+
+### 2.1 テストの実行方法
+
+```sh
+bun run test
+```
+
+で watch モードでテストを実行します。一度だけ実行する場合は：
 
 ```sh
 bun run test:run
 ```
 
-で watch せずに一度だけ実行します。
+### 2.2 テスト環境のセットアップ
 
-## 2. テストの基本構造
+#### 前提条件
+
+- Docker が起動していること
+- 開発環境でマイグレーションが作成済みであること（`prisma/migrations/`にファイルが存在）
+
+#### セットアップ手順
+
+1. テスト用データベースを起動する
+
+```bash
+docker compose -f compose.test.yml up -d
+```
+
+2. テストを実行する
+
+```bash
+bun run test
+```
+
+3. テスト用データベースを停止する（任意）
+
+```bash
+docker compose -f compose.test.yml down
+```
+
+## 3. テストの基本構造
 
 Handler のテストは `src/endpoint/handler/**/*Handler.test.ts` に実装します。各テストケースは以下の 3 つのステップで構成し、それぞれにコメントを記述します:
 
@@ -22,10 +62,7 @@ Handler のテストは `src/endpoint/handler/**/*Handler.test.ts` に実装し�
 
 ```typescript
 // ユーザー情報をセットする。
-mockSetUserAuthMiddleware({ userId: 'test-user-id' })
-
-// テスト用の API クライアントを作成する。
-const client = await getTestClient()
+mockSetUserAuthMiddleware({ userId: 1 });
 ```
 
 ### 2.2 Act（実行）
@@ -34,9 +71,12 @@ const client = await getTestClient()
 
 ```typescript
 // リクエストを送信する。
-const res = await client.api.bar[':barId'].foos.$get({
-  param: { barId: 'test-bar-id' },
-})
+const res = await client.api.todos.$post({
+  json: {
+    title: "新しいTodo",
+    description: "新しいTodoの説明",
+  },
+});
 ```
 
 ### 2.3 Assert（検証）
@@ -47,20 +87,18 @@ const res = await client.api.bar[':barId'].foos.$get({
 
 ```typescript
 // ステータスコードを検証する。
-expect(res.status).toBe(200)
+expect(res.status).toBe(200);
 
 // レスポンスデータを検証する。
-const data = await res.json()
-expect(data).toStrictEqual({
-  items: [
-    {
-      id: 'test-foo-1',
-      name: 'Foo 1',
-      createdAt: expect.any(String),
-      updatedAt: expect.any(String),
-    },
-  ],
-})
+const data = await res.json();
+expect(data.todo).toEqual({
+  id: expect.any(Number),
+  title: "新しいTodo",
+  description: "新しいTodoの説明",
+  completed: false,
+  createdAt: expect.any(String),
+  updatedAt: expect.any(String),
+});
 ```
 
 ## 3. テストの命名規則
@@ -70,11 +108,11 @@ expect(data).toStrictEqual({
 テストの description は英語で記述し、各テストの前に日本語のコメントで前提条件と期待値を記述します：
 
 ```typescript
-  // 前提：認証済みユーザーがグループ一覧を取得する。
-  // 期待値：ステータスコード 200 とグループ一覧が返される。
-  it('Successfully request GET /groups', async () => {
+// 前提：認証済みユーザーが新しいTodoを作成する。
+// 期待値：ステータスコード 200 と作成されたTodoが返される。
+it("Successfully create a new todo", async () => {
   // テストコード
-})
+});
 ```
 
 ### 3.2 description の命名規則
@@ -98,96 +136,59 @@ expect(data).toStrictEqual({
 取得系の Handler のテストは以下のパターンで実装します：
 
 ```typescript
-import { describe, expect, it } from 'vitest'
-import { ERROR_CODES } from '../../../endpoint/errorCode'
-import { mockSetUserAuthMiddleware } from '../../../util/test-util/mockMiddleware'
-import { getTestClient } from '../../../util/test-util/testClient'
+import { describe, expect, it } from "vitest";
+import { ENDPOINT_ERROR_CODES } from "../../../endpoint/errorCode";
+import { mockSetUserAuthMiddleware } from "../../../util/test-util/mockSetUserAuthMiddleware";
+import { client } from "../../../util/test-util/testClient";
 
-describe('Test for GET /bar/:barId/foos', () => {
-  // 前提：認証済みユーザーが有効なリソースにアクセスする。
-  // 期待値：ステータスコード 200 とリソース一覧が返される。
-  it('Successfully request GET /bar/:barId/foos', async () => {
+describe("Test for GET /api/todos", () => {
+  // 前提：認証済みユーザーがTodo一覧を取得する。
+  // 期待値：ステータスコード 200 とTodo一覧が返される。
+  it("Successfully request GET /api/todos", async () => {
     // ユーザー情報をセットする。
-    mockSetUserAuthMiddleware({ userId: 'test-user-id' })
-
-    // テスト用の API クライアントを作成する。
-    const client = await getTestClient()
+    mockSetUserAuthMiddleware({ userId: 1 });
 
     // リクエストを送信する。
-    const res = await client.api.bar[':barId'].foos.$get({
-      param: { barId: 'test-bar-id' },
-    })
+    const res = await client.api.todos.$get();
 
     // ステータスコードを検証する。
-    expect(res.status).toBe(200)
-    
+    expect(res.status).toBe(200);
+
     // レスポンスデータを検証する。
-    const data = await res.json()
-    expect(data).toStrictEqual({
-      items: [
-        {
-          id: 'test-foo-1',
-          name: 'Foo 1',
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
-      ],
-    })
-  })
-
-  // 前提：存在しないリソースにアクセスする。
-  // 期待値：ステータスコード 400 とエラーコード get.foo.1 が返される。
-  it('Returns 400 with error code get.foo.1 when resource does not exist', async () => {
-    // ユーザー情報をセットする。
-    mockSetUserAuthMiddleware({ userId: 'test-user-id' })
-
-    // テスト用の API クライアントを作成する。
-    const client = await getTestClient()
-
-    // リクエストを送信する。
-    const res = await client.api.bar[':barId'].foos.$get({
-      param: { barId: 'non-existent-bar' },
-    })
-
-    // Assert: 検証
-    // ステータスコードを検証する。
-    expect(res.status).toBe(400)
-
-    // エラーレスポンスを検証する。
-    const error = await res.json()
-    expect(error).toEqual({
-      error: {
-        code: 'get.foo.1',
+    const data = await res.json();
+    expect(data.todos).toEqual([
+      {
+        id: expect.any(Number),
+        title: expect.any(String),
+        description: expect.any(String),
+        completed: expect.any(Boolean),
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       },
-    })
-  })
+    ]);
+  });
 
   // 前提：未認証ユーザーがリソースにアクセスする。
   // 期待値：ステータスコード 400 とエラーコード middleware.auth.1 が返される。
-  it('Returns 400 with error code middleware.auth.1 when user authentication fails', async () => {
+  it("Returns 400 with error code middleware.auth.1 when user authentication fails", async () => {
     // ユーザー情報をセットする。
-    mockSetUserAuthMiddleware({ userId: undefined })
-
-    // テスト用の API クライアントを作成する。
-    const client = await getTestClient()
+    mockSetUserAuthMiddleware({ userId: undefined });
 
     // リクエストを送信する。
-    const res = await client.api.bar[':barId'].foos.$get({
-      param: { barId: 'test-bar-id' },
-    })
+    const res = await client.api.todos.$get();
 
     // ステータスコードを検証する。
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(400);
 
     // エラーレスポンスを検証する。
-    const error = await res.json()
+    const error = await res.json();
     expect(error).toEqual({
       error: {
-        code: 'middleware.auth.1',
+        code: "middleware.auth.1",
       },
-    })
-  })
-})
+    });
+  });
+});
 ```
 
 ### 4.2 作成・更新系の Handler のテスト
@@ -195,89 +196,78 @@ describe('Test for GET /bar/:barId/foos', () => {
 作成・更新系の Handler のテストは以下のパターンで実装します：
 
 ```typescript
-import { asc, eq } from 'drizzle-orm'
-import { describe, expect, it } from 'vitest'
-import { ERROR_CODES } from '../../../endpoint/errorCode'
-import { bars, barFoos } from '../../../schema'
-import { mockSetUserAuthMiddleware } from '../../../util/test-util/mockMiddleware'
-import {
-  getTestClient,
-  getTestDrizzleClient,
-} from '../../../util/test-util/testClient'
+import { describe, expect, it } from "vitest";
+import { ENDPOINT_ERROR_CODES } from "../../../endpoint/errorCode";
+import { mockSetUserAuthMiddleware } from "../../../util/test-util/mockSetUserAuthMiddleware";
+import { client } from "../../../util/test-util/testClient";
+import { prisma } from "../../../util/prisma";
 
-describe('Test for POST /bar', () => {
-  // 前提：認証済みユーザーが有効なデータでリソースを作成する。
-  // 期待値：ステータスコード 200 と作成されたリソース情報が返される。
-  it('Successfully create a new bar', async () => {
+describe("Test for POST /api/todos", () => {
+  // 前提：認証済みユーザーが有効なデータでTodoを作成する。
+  // 期待値：ステータスコード 200 と作成されたTodo情報が返される。
+  it("Successfully create a new todo", async () => {
     // ユーザー情報をセットする。
-    mockSetUserAuthMiddleware({ userId: 'test-user-id' })
+    mockSetUserAuthMiddleware({ userId: 1 });
 
-    // テスト用の API クライアントを作成する。
-    const client = await getTestClient()
+    const requestData = {
+      title: "新しいTodo",
+      description: "新しいTodoの説明",
+    };
 
     // リクエストを送信する。
-    const res = await client.api.bar.$post({
-      json: {
-        name: 'New Bar',
-        description: 'This is a new bar',
-        attributes: ['attr1', 'attr2'],
-      },
-    })
+    const res = await client.api.todos.$post({
+      json: requestData,
+    });
 
     // ステータスコードを検証する。
-    expect(res.status).toBe(200)
-    
+    expect(res.status).toBe(200);
+
     // レスポンスデータを検証する。
-    const data = await res.json()
-    expect(data).toHaveProperty('id')
-    expect(data).toHaveProperty('createdAt')
+    const data = await res.json();
+    expect(data.todo).toEqual({
+      id: expect.any(Number),
+      title: "新しいTodo",
+      description: "新しいTodoの説明",
+      completed: false,
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    });
 
     // DB の状態を検証する。
-    const db = getTestDrizzleClient()
-    const results = await db
-      .select({ bar: bars })
-      .from(bars)
-      .innerJoin(barFoos, eq(bars.id, barFoos.barId))
-      .where(eq(barFoos.userId, 'test-user-id'))
-      .orderBy(asc(bars.createdAt))
-      .all()
+    const savedTodo = await prisma.todo.findUnique({
+      where: { id: data.todo.id },
+    });
+    expect(savedTodo).not.toBeNull();
+    expect(savedTodo?.title).toBe("新しいTodo");
+    expect(savedTodo?.userId).toBe(1);
+  });
 
-    // 新しく作成されたリソースが存在することを確認する。
-    expect(results.length).toBeGreaterThan(0)
-    const newBar = results[results.length - 1].bar
-    expect(newBar.name).toBe('New Bar')
-    expect(newBar.description).toBe('This is a new bar')
-  })
-
-  // 前提：無効なデータでリソースを作成しようとする。
+  // 前提：無効なデータでTodoを作成しようとする。
   // 期待値：ステータスコード 400 とエラーコード validation.invalid-request.1 が返される。
-  it('Returns 400 with error code validation.invalid-request.1 for invalid data', async () => {
+  it("Returns 400 with error code validation.invalid-request.1 for invalid data", async () => {
     // ユーザー情報をセットする。
-    mockSetUserAuthMiddleware({ userId: 'test-user-id' })
+    mockSetUserAuthMiddleware({ userId: 1 });
 
-    // テスト用の API クライアントを作成する。
-    const client = await getTestClient()
-
-    // リクエストを送信する。 
-    const res = await client.api.bar.$post({
+    // リクエストを送信する。
+    const res = await client.api.todos.$post({
       json: {
-        // name が必須だが省略する。
-        description: 'Invalid bar data',
+        // title が必須だが省略する。
+        description: "Invalid todo data",
       },
-    })
+    });
 
     // ステータスコードを検証する。
-    expect(res.status).toBe(400)
+    expect(res.status).toBe(400);
 
     // エラーレスポンスを検証する。
-    const error = await res.json()
+    const error = await res.json();
     expect(error).toEqual({
       error: {
-        code: 'validation.invalid-request.1',
+        code: "validation.invalid-request.1",
       },
-    })
-  })
-})
+    });
+  });
+});
 ```
 
 ## 5. エラーケースのテスト
@@ -290,7 +280,7 @@ describe('Test for POST /bar', () => {
    ```typescript
    {
      error: {
-       code: string  // ERROR_CODES から適切なコードを使用
+       code: string; // ERROR_CODES から適切なコードを使用
      }
    }
    ```
@@ -304,7 +294,7 @@ describe('Test for POST /bar', () => {
 #### 5.1.1 import の追加
 
 ```typescript
-import type { ZodValidationErrorResponse } from '../../../util/test-util/zodValidationErrorResponse'
+import type { ZodValidationErrorResponse } from "../../../util/test-util/zodValidationErrorResponse";
 ```
 
 #### 5.1.2 テストケースの実装
@@ -312,29 +302,25 @@ import type { ZodValidationErrorResponse } from '../../../util/test-util/zodVali
 ```typescript
 // 前提：認証済みユーザーが無効なパラメータでリクエストを送信する。
 // 期待値：ステータスコード 400 と Zod バリデーションエラーが返される。
-it('Returns 400 with Zod validation error when invalid parameter is provided', async () => {
+it("Returns 400 with Zod validation error when invalid parameter is provided", async () => {
   // ユーザー情報をセットする。
-  mockSetUserAuthMiddleware({ userId: 'test-user-id' })
-
-  // テスト用の API クライアントを作成する。
-  const client = await getTestClient()
+  mockSetUserAuthMiddleware({ userId: 1 });
 
   // リクエストを送信する。
-  const res = await client.api.bar[':barId'].foos.$get({
-    param: { barId: 'test-bar-id' },
+  const res = await client.api.todos.$get({
     query: {
-      limit: '101', // 最大値を超える limit
+      limit: "101", // 最大値を超える limit
     },
-  })
+  });
 
   // ステータスコードを検証する。
-  expect(res.status).toBe(400)
+  expect(res.status).toBe(400);
 
   // Zod バリデーションエラーが返されることを確認する。
-  const errorResponse = (await res.json()) as ZodValidationErrorResponse
-  expect(errorResponse.success).toBe(false)
-  expect(errorResponse.error.name).toBe('ZodError')
-})
+  const errorResponse = (await res.json()) as ZodValidationErrorResponse;
+  expect(errorResponse.success).toBe(false);
+  expect(errorResponse.error.name).toBe("ZodError");
+});
 ```
 
 #### 5.1.3 Zod バリデーションエラーの検証項目
@@ -376,7 +362,6 @@ Zod バリデーションエラーのテストでは、以下の項目を検証�
 
 #### ビジネスロジックエラー
 
-- ストレージ制限超過
 - その他のビジネスルール違反
 
 ## 7. テストデータの準備
@@ -385,38 +370,38 @@ Zod バリデーションエラーのテストでは、以下の項目を検証�
 
 ### 7.1 シードデータの利用
 
-- [seed.ts](../../../server/src/util/test-util/db/seed.ts) に定義されたシードデータを使用
+- `prisma/seed.ts` に定義されたシードデータを使用
 - テストケースで必要なデータがない場合は、シードデータに追加
 
 ### 7.2 モックの設定
 
-- [mockMiddleware.ts](../../../server/src/util/test-util/mockMiddleware.ts) を使用
+- `mockSetUserAuthMiddleware` を使用
 - 認証情報や権限の設定に利用
 
 ```typescript
 // 認証済みユーザーとしてテストする場合
-mockSetUserAuthMiddleware({ userId: 'test-user-id' })
+mockSetUserAuthMiddleware({ userId: 1 });
 
 // 未認証ユーザーとしてテストする場合
-mockSetUserAuthMiddleware({ userId: undefined })
+mockSetUserAuthMiddleware({ userId: undefined });
 ```
 
 ### 7.3 テストクライアントの利用
 
-- [testClient.ts](../../../server/src/util/test-util/testClient.ts) の `getTestClient` を使用
+- `testClient.ts` の `client` を使用
 - API リクエストの実行に利用
 
 ```typescript
-const client = await getTestClient()
+import { client } from "../../../util/test-util/testClient";
 ```
 
 ### 7.4 DB クライアントの利用
 
-- [testClient.ts](../../../server/src/util/test-util/testClient.ts) の `getTestDrizzleClient` を使用
+- `prisma` を使用
 - DB の状態確認に利用
 
 ```typescript
-const db = getTestDrizzleClient()
+import { prisma } from "../../../util/prisma";
 ```
 
 ## 8. モックの適用方針
@@ -429,8 +414,7 @@ Handler のテストは **統合テスト** の性質を持つため、モック
 
 #### 8.1.1 外部システム・サービス層
 
-- **認証システム（Firebase Auth）**: `mockSetUserAuthMiddleware` で認証情報をモック
-- **外部ストレージ（R2）**: ファイルアップロード/ダウンロードの処理をモック
+- **認証システム**: `mockSetUserAuthMiddleware` で認証情報をモック
 - **外部 API**: サードパーティサービスとの通信をモック
 
 #### 8.1.2 インフラストラクチャ層の境界
@@ -463,7 +447,7 @@ Handler のテストは **統合テスト** の性質を持つため、モック
 
 #### 8.2.4 データベース
 
-- テスト用 DB（in-memory DB など）を使用して実際のクエリを実行
+- テスト用 DB を使用して実際のクエリを実行
 - DB の状態変更を検証することで、データの整合性を確保
 - DB をモック化すると、実際のデータ操作の検証ができない
 
@@ -489,23 +473,20 @@ Handler のテストは以下の統合的な動作確認を目的とする：
 
 ```typescript
 // test-user-id のユーザーで認証する。
-mockSetUserAuthMiddleware({ userId: 'test-user-id' })
-
-// uploadCategoryPostToR2 のモックを成功に設定する。
-mockUploadCategoryPostToR2.mockResolvedValueOnce(ok(undefined))
+mockSetUserAuthMiddleware({ userId: 1 });
 ```
 
 #### 8.4.2 避けるべきモック例
 
 ```typescript
 // ❌ UseCase のモック（ビジネスロジック層）
-vi.mocked(createFamilyUseCase).mockResolvedValue({ id: 'test-id' })
+vi.mocked(createTodoUseCase).mockResolvedValue({ id: 1 });
 
 // ❌ Repository のモック（データアクセス層）
-vi.mocked(createFamilyMember).mockResolvedValue(ok({ familyMemberId: 'test-member-id' }))
+vi.mocked(createTodo).mockResolvedValue(ok({ id: 1 }));
 
 // ❌ DB のモック（永続化層）
-vi.mocked(db.insert).mockResolvedValue([{ id: 'test-id' }])
+vi.mocked(prisma.todo.create).mockResolvedValue({ id: 1 });
 ```
 
 ## 9. コメント規則
@@ -523,11 +504,11 @@ vi.mocked(db.insert).mockResolvedValue([{ id: 'test-id' }])
 テストケースの前に、前提条件と期待値を記述します：
 
 ```typescript
-// 前提：認証済みユーザーが有効なリソースにアクセスする。
-// 期待値：ステータスコード 200 とリソース一覧が返される。
-it('Successfully request GET /bar/:barId/foos', async () => {
+// 前提：認証済みユーザーが新しいTodoを作成する。
+// 期待値：ステータスコード 200 と作成されたTodoが返される。
+it("Successfully create a new todo", async () => {
   // ...
-})
+});
 ```
 
 ### 9.3 インラインコメント
@@ -538,10 +519,7 @@ it('Successfully request GET /bar/:barId/foos', async () => {
 
 ```typescript
 // ユーザー情報をセットする。
-mockSetUserAuthMiddleware({ userId: 'test-user-id' })
-
-// テスト用の API クライアントを作成する。
-const client = await getTestClient()
+mockSetUserAuthMiddleware({ userId: 1 });
 ```
 
 #### 実行ステップの説明
@@ -550,9 +528,12 @@ const client = await getTestClient()
 
 ```typescript
 // リクエストを送信する。
-const res = await client.api.bar[':barId'].foos.$get({
-  param: { barId: 'test-bar-id' },
-})
+const res = await client.api.todos.$post({
+  json: {
+    title: "新しいTodo",
+    description: "新しいTodoの説明",
+  },
+});
 ```
 
 #### 検証ステップの説明
@@ -561,18 +542,14 @@ const res = await client.api.bar[':barId'].foos.$get({
 
 ```typescript
 // ステータスコードを検証する。
-expect(res.status).toBe(200)
+expect(res.status).toBe(200);
 
 // レスポンスデータを検証する。
-const data = await res.json()
-expect(data).toStrictEqual({
+const data = await res.json();
+expect(data.todo).toEqual({
   // ...
-})
+});
 ```
-
-### 9.4 コメント規則の適用例
-
-コメント規則の適用例については、「4.1 取得系の Handler のテスト」と「4.2 作成・更新系の Handler のテスト」の実装パターンを参照してください。これらの例では、適切なコメントが記述されています。
 
 ## 10. テスト実装チェックリスト
 

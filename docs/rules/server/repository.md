@@ -20,14 +20,13 @@ Repository は用途に応じて以下のディレクトリに配置します：
 
 ## 3. 命名規則
 
-| 操作 | 接頭辞 | 例 |
-|------|--------|-----|
-| 取得（単一） | `get` | `getUserById` |
-| 取得（複数） | `list` | `listUsersByGroupId` |
-| 作成 | `create` | `createUser` |
-| 更新 | `update` | `updateUserProfile` |
-| 削除 | `delete` | `deleteUser` |
-| 存在確認 | `exists` | `existsUserByEmail` |
+| 操作         | 接頭辞       | 例                 |
+| ------------ | ------------ | ------------------ |
+| 取得（単一） | `get`        | `getTodoById`      |
+| 取得（複数） | `getTodosBy` | `getTodosByUserId` |
+| 作成         | `create`     | `createTodo`       |
+| 更新         | `update`     | `updateTodo`       |
+| 削除         | `delete`     | `deleteTodo`       |
 
 ## 4. 戻り値の型
 
@@ -40,270 +39,127 @@ Repository は用途に応じて以下のディレクトリに配置します：
 ### 5.1 取得系 Repository
 
 ```typescript
-import { eq } from 'drizzle-orm'
-import { asc } from 'drizzle-orm'
-import { getContext } from 'hono/context-storage'
-import { type Result, err, ok } from 'neverthrow'
-import type { EnvironmentVariables } from '../../env'
-import { users } from '../../schema'
+import { getContext } from "hono/context-storage";
+import { err, ok, type Result } from "neverthrow";
+import type { EnvironmentVariables } from "../../../env";
 
-/** ユーザーを取得する際のパラメータ。 */
+/** Todo を取得する際のパラメータ。 */
 type RepositoryParams = {
-  userId: string
-}
+  userId: number;
+  search?: string;
+};
 
-/** ユーザーの取得結果。 */
-type RepositoryResult = {
-  id: string
-  name: string
-  email: string
-  createdAt: Date
-}
+/** Todo の取得結果。 */
+type Todo = {
+  id: number;
+  title: string;
+  completed: boolean;
+  description: string | null;
+  userId: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-/**
- * 指定した ID のユーザーを取得する。
- * @param params - パラメータ。
- * @returns ユーザー情報。
- */
-export const getUserById = async (
-  params: RepositoryParams,
-): Promise<Result<RepositoryResult, Error>> => {
-  const c = getContext<EnvironmentVariables>()
-  const db = c.var.db
-  const logger = c.get('logger')
+export const getTodosByUserId = async (
+  params: RepositoryParams
+): Promise<Result<Todo[], Error>> => {
+  const c = getContext<EnvironmentVariables>();
+  const logger = c.get("logger");
+  const prisma = c.get("prisma");
 
   try {
-    // ユーザーを取得する。
-    const result = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        createdAt: users.createdAt,
-      })
-      .from(users)
-      .where(eq(users.id, params.userId))
-      .get()
+    // ユーザーIDに紐づくTODO一覧を取得する。（作成日時の降順）
+    const todos = await prisma.todo.findMany({
+      where: { userId: params.userId, title: { contains: params.search } },
+      orderBy: { createdAt: "desc" },
+    });
 
-    // 結果がない場合は失敗を返す。
-    if (!result) {
-      return err(new Error(`ユーザーの取得に失敗しました: ${params.userId}`))
-    }
+    // ISO 8601 文字列を Date 型に変換して返す。
+    const processedTodos = todos.map((todo) => ({
+      ...todo,
+      createdAt: new Date(todo.createdAt),
+      updatedAt: new Date(todo.updatedAt),
+    }));
 
-    // 日付型に変換して返す。
-    return ok({
-      ...result,
-      createdAt: new Date(result.createdAt),
-    })
-  } catch (e) {
-    if (e instanceof Error) {
-      logger.error(`Repository Error: ${e}`, e)
-      return err(e)
-    }
-    return err(new Error('ユーザーの取得に失敗しました'))
+    return ok(processedTodos);
+  } catch (error) {
+    // エラーログを出力する。
+    logger.error(`Todo 一覧の取得に失敗しました: ${error}`);
+    return err(new Error(`Todo 一覧の取得に失敗しました: ${params.userId}`));
   }
-}
-
-/** ユーザー一覧を取得する際のパラメータ。 */
-type RepositoryParams = {
-  groupId: string
-}
-
-/** ユーザー一覧の取得結果。 */
-type RepositoryResult = {
-  id: string
-  name: string
-  email: string
-  createdAt: Date
-}[]
-
-/**
- * 指定したグループに属するユーザー一覧を取得する。
- * @param params - パラメータ。
- * @returns ユーザー一覧。
- */
-export const listUsersByGroupId = async (
-  params: RepositoryParams,
-): Promise<Result<RepositoryResult, Error>> => {
-  const c = getContext<EnvironmentVariables>()
-  const db = c.var.db
-  const logger = c.get('logger')
-
-  try {
-    // ユーザー一覧を取得する。
-    const result = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        createdAt: users.createdAt,
-      })
-      .from(users)
-      .innerJoin(userGroups, eq(users.id, userGroups.userId))
-      .where(eq(userGroups.groupId, params.groupId))
-      .orderBy(asc(users.createdAt))
-
-    // 日付型に変換して返す。
-    return ok(
-      result.map((r) => ({
-        ...r,
-        createdAt: new Date(r.createdAt),
-      })),
-    )
-  } catch (e) {
-    if (e instanceof Error) {
-      logger.error(`Repository Error: ${e}`, e)
-      return err(e)
-    }
-    return err(new Error('ユーザー一覧の取得に失敗しました'))
-  }
-}
+};
 ```
 
 ### 5.2 更新系 Repository
 
 ```typescript
-import { getContext } from 'hono/context-storage'
-import { type Result, err, ok } from 'neverthrow'
-import { ulid } from 'ulidx'
-import type { EnvironmentVariables } from '../../env'
-import { users } from '../../schema'
+import { getContext } from "hono/context-storage";
+import { err, ok, type Result } from "neverthrow";
+import type { EnvironmentVariables } from "../../../env";
 
-/** ユーザーを作成する際のパラメータ。 */
+/** Todo を作成する際のパラメータ。 */
 type RepositoryParams = {
-  name: string
-  email: string
-  password: string
-}
+  title: string;
+  description: string;
+  userId: number;
+};
 
-/** ユーザーを作成した結果。 */
+/** Todo の作成結果。 */
 type RepositoryResult = {
-  id: string
-  name: string
-  email: string
-  createdAt: Date
-}
+  id: number;
+  title: string;
+  description: string | null;
+  completed: boolean;
+  userId: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 /**
- * ユーザーを作成する。
+ * 新しい Todo を作成する。
  * @param params - パラメータ。
- * @returns 作成したユーザー情報。
+ * @returns 作成された Todo の情報。
  */
-export const createUser = async (
-  params: RepositoryParams,
+export const createTodo = async (
+  params: RepositoryParams
 ): Promise<Result<RepositoryResult, Error>> => {
-  const c = getContext<EnvironmentVariables>()
-  const db = c.var.db
-  const logger = c.get('logger')
+  const c = getContext<EnvironmentVariables>();
+  const logger = c.get("logger");
+  const prisma = c.get("prisma");
 
   try {
-    // ユーザー ID を生成する。
-    const userId = ulid()
-    const now = new Date()
-    
-    // ユーザーを作成する。
-    await db.insert(users).values({
-      id: userId,
-      name: params.name,
-      email: params.email,
-      password: params.password,
-      createdAt: now,
-      updatedAt: now,
-    })
+    // Todo を作成する。
+    const createdTodo = await prisma.todo.create({
+      data: {
+        title: params.title,
+        description: params.description,
+        userId: params.userId,
+      },
+    });
 
-    // 作成したユーザー情報を返す。
-    return ok({
-      id: userId,
-      name: params.name,
-      email: params.email,
-      createdAt: now,
-    })
-  } catch (e) {
-    if (e instanceof Error) {
-      logger.error(`Repository Error: ${e}`, e)
-      return err(e)
+    // 作成に失敗した場合はエラーを返す。
+    if (!createdTodo) {
+      return err(new Error(`Todo の作成に失敗しました: ${params.title}`));
     }
-    return err(new Error('ユーザーの作成に失敗しました'))
+
+    // 作成した Todo の情報を返す。
+    const result: RepositoryResult = {
+      id: createdTodo.id,
+      title: createdTodo.title,
+      description: createdTodo.description,
+      completed: createdTodo.completed,
+      userId: createdTodo.userId,
+      createdAt: new Date(createdTodo.createdAt),
+      updatedAt: new Date(createdTodo.updatedAt),
+    };
+
+    return ok(result);
+  } catch (error) {
+    // エラーログを出力する。
+    logger.error(`Todo の作成に失敗しました: ${error}`);
+    return err(new Error(`Todo の作成に失敗しました: ${params.title}`));
   }
-}
-
-/** ユーザーを更新する際のパラメータ。 */
-type RepositoryParams = {
-  userId: string
-  name?: string
-  email?: string
-}
-
-/** ユーザーを更新した結果。 */
-type RepositoryResult = {
-  id: string
-  name: string
-  email: string
-  updatedAt: Date
-}
-
-/**
- * ユーザー情報を更新する。
- * @param params - 更新パラメータ。
- * @returns 更新したユーザー情報。
- */
-export const updateUser = async (
-  params: RepositoryParams,
-): Promise<Result<RepositoryResult, Error>> => {
-  const c = getContext<EnvironmentVariables>()
-  const db = c.var.db
-  const logger = c.get('logger')
-
-  try {
-    // 更新データを準備する。
-    const now = new Date()
-    const updateData: Record<string, unknown> = {
-      updatedAt: now,
-    }
-    
-    if (params.name !== undefined) {
-      updateData.name = params.name
-    }
-    
-    if (params.email !== undefined) {
-      updateData.email = params.email
-    }
-    
-    // ユーザーを更新する。
-    await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, params.userId))
-
-    // 更新後のユーザー情報を取得する。
-    const updatedUser = await db
-      .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-      })
-      .from(users)
-      .where(eq(users.id, params.userId))
-      .get()
-
-    // 結果がない場合はエラーを返す。
-    if (!updatedUser) {
-      return err(new Error(`ユーザーの更新に失敗しました: ${params.userId}`))
-    }
-
-    // 更新したユーザー情報を返す。
-    return ok({
-      ...updatedUser,
-      updatedAt: now,
-    })
-  } catch (e) {
-    if (e instanceof Error) {
-      logger.error(`Repository Error: ${e}`, e)
-      return err(e)
-    }
-    return err(new Error('ユーザーの更新に失敗しました'))
-  }
-}
+};
 ```
 
 ## 6. エラーハンドリング
@@ -330,29 +186,34 @@ export const updateUser = async (
 
 ```typescript
 /**
- * 指定した ID のユーザーを取得する。
+ * 新しい Todo を作成する。
  * @param params - パラメータ。
- * @returns ユーザー情報。
+ * @returns 作成された Todo の情報。
  */
 ```
 
 #### 型定義の JSDoc
 
 ```typescript
-/** ユーザーを取得する際のパラメータ。 */
+/** Todo を作成する際のパラメータ。 */
 type RepositoryParams = {
-  userId: string
-}
+  title: string;
+  description: string;
+  userId: number;
+};
 ```
 
 ```typescript
-/** ユーザーの取得結果。 */
+/** Todo の作成結果。 */
 type RepositoryResult = {
-  id: string
-  name: string
-  email: string
-  createdAt: Date
-}
+  id: number;
+  title: string;
+  description: string | null;
+  completed: boolean;
+  userId: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
 ```
 
 ### 7.3 インラインコメント
@@ -360,29 +221,25 @@ type RepositoryResult = {
 #### データベース操作の説明
 
 ```typescript
-// ユーザーを取得する。
-const result = await db.select(...)
+// Todo を作成する。
+const createdTodo = await prisma.todo.create(...)
 ```
 
 #### データ加工の説明
 
 ```typescript
-// 日付型に変換して返す。
-return ok({...})
+// ISO 8601 文字列を Date 型に変換して返す。
+const processedTodos = todos.map(...)
 ```
 
 #### 条件分岐の説明
 
 ```typescript
-// 結果がない場合は失敗を返す。
-if (!result) {
+// 作成に失敗した場合はエラーを返す。
+if (!createdTodo) {
   return err(new Error(...))
 }
 ```
-
-### 7.4 コメント規則の適用例
-
-コメント規則の適用例については、「5.1 取得系 Repository」と「5.2 更新系 Repository」の実装パターンを参照してください。これらの例では、適切な JSDoc コメントとインラインコメントが記述されています。
 
 ## 8. 実装チェックリスト
 

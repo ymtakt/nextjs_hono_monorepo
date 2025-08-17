@@ -1,18 +1,16 @@
 # プロジェクトアーキテクチャ
 
-このファイルを参照したら「✅アーキテクチャルールを確認しました」と返答します。
-
 ## 1. 基本構成
 
-- **スキーマ定義**: [schema.ts](../../../server/src/schema.ts) がデータベーススキーマを定義しています。
-- **テスト設定**: [vitest.config.ts](../../../server/vitest.config.ts) に従って [setupDb.ts](../../../server/src/util/test-util/db/setupDb.ts) で vitest によるテスト時のサーバを設定します。
-- **テストデータ**: [seed.ts](../../../server/src/util/test-util/db/seed.ts) でテスト時のシードデータを提供します。
+- **スキーマ定義**: `prisma/schema.prisma` がデータベーススキーマを定義しています。
+- **テスト設定**: `vitest.config.ts` に従って `src/util/test-util/setup.ts` で vitest によるテスト時のサーバを設定します。
+- **テストデータ**: `prisma/seed.ts` でテスト時のシードデータを提供します。
 
 ## 2. エントリポイントと環境設定
 
-- **メインエントリポイント**: [index.ts](../../../server/src/index.ts) に hono のアプリの定義とエンドポイントのパス一覧を定義します。
-- **アプリケーション生成**: [factory.ts](../../../server/src/util/factory.ts) で hono インスタンスを生成します。
-- **環境変数**: [env.ts](../../../server/src/env.ts) に環境変数一覧を定義します。
+- **メインエントリポイント**: `src/index.ts` に hono のアプリの定義とエンドポイントのパス一覧を定義します。
+- **アプリケーション生成**: `src/util/factory.ts` で hono インスタンスを生成します。
+- **環境変数**: `src/env.ts` に環境変数一覧を定義します。
 
 エンドポイントのパス定義から `src/endpoint/handler` フォルダ配下の処理に委譲します。
 
@@ -21,52 +19,56 @@
 本プロジェクトでは以下の技術スタックを使用しています：
 
 - **Web フレームワーク**: [Hono](https://hono.dev) - 軽量で高速な Web フレームワーク
-- **データベース ORM**: [Drizzle ORM](https://orm.drizzle.team) - 型安全な SQL クエリビルダー
-- **データベース**: SQLite（開発環境）/ Cloudflare D1（本番環境）
+- **データベース ORM**: [Prisma](https://www.prisma.io) - 型安全な ORM
 - **テスト**: [Vitest](https://vitest.dev) - 高速な JavaScript テストフレームワーク
-- **デプロイ**: [Cloudflare Workers](https://workers.cloudflare.com) - エッジコンピューティングプラットフォーム
 - **パッケージマネージャ**: [Bun](https://bun.sh) - JavaScript ランタイム兼パッケージマネージャ
 - **型チェック**: [TypeScript](https://www.typescriptlang.org) - 静的型付け JavaScript
-- **エラーハンドリング**: [neverthrow](https://github.com/supermacro/neverthrow) - 関数型プログラミングスタイルのエラーハンドリングライブラリ
 
 ## 4. レイヤー構成
 
 プロジェクトは以下のレイヤーで構成されています：
 
-### 4.1 Handler レイヤー
+### 4.1 Handler レイヤー (`src/endpoint/handler/`)
 
 - API エンドポイントのリクエスト処理とレスポンス生成を担当
-- [handler.md](./handler.md) に従って実装
-- テストは [handler-test.md](./handler-test.md) に従って実装
+- リクエストのバリデーション
+- use-case の呼び出し
+- レスポンスの整形
 - **技術**: Hono の Context を使用したリクエスト/レスポンス処理
 
-### 4.2 Middleware レイヤー
+### 4.2 Middleware レイヤー (`src/endpoint/middleware/`)
 
 - リクエスト処理の前後に共通処理を実行
 - 認証・認可の処理
-- ログ出力やエラーハンドリングなどの横断的関心事を担当
-- `src/middleware` ディレクトリに実装
+- グローバルエラーハンドリング
+- リクエスト ID の生成
 - **技術**: Hono の Middleware API を使用
 
-### 4.3 UseCase レイヤー
+### 4.3 UseCase レイヤー (`src/use-case/`)
 
 - ビジネスロジックを実装
 - Repository レイヤーを呼び出してデータ操作を行う
-- [use-case.md](./use-case.md) に従って実装
-- **技術**: 関数ベースの実装と neverthrow の Result 型を使用したエラーハンドリング
+- トランザクション管理
+- ドメインルールの適用
+- **技術**: 関数ベースの実装
 
-### 4.4 Repository レイヤー
+### 4.4 Repository レイヤー (`src/repository/`)
 
 - データベースアクセスを担当
-- [repository.md](./repository.md) に従って実装
-- **技術**: Drizzle ORM を使用したデータアクセスと neverthrow の Result 型を使用したエラーハンドリング
+- CQRS（Command Query Responsibility Segregation）パターンの採用
+  - `mutation/`: データ変更操作
+  - `query/`: データ取得操作
+- **技術**: Prisma Client を使用したデータアクセス
 
 ## 5. その他の構成要素
 
-- **ユーティリティ**: その他の汎用的な処理等は `src/util` に記述します。
-- **テストクライアント**: テストの実装に際して [testClient.ts](../../../server/src/util/test-util/testClient.ts) を変更することはありません。
-- **エラーハンドリング**: アプリケーション全体で統一されたエラー処理を行います。
-- **ロギング**: 適切なレベルでのログ出力を行います。
+- **ユーティリティ**: `src/util/` に共通機能を実装
+  - ファクトリー関数
+  - ロガー
+  - テストユーティリティ
+- **シードデータ**: `prisma/seed.ts` でデータベースの初期データを管理
+- **マイグレーション**: `prisma/migrations/` でデータベースのスキーマ変更を管理
+- **テストクライアント**: `src/util/test-util/testClient.ts` でテスト用の HTTP クライアントを提供
 
 ## 6. アーキテクチャ図
 
@@ -92,21 +94,34 @@
          │
          ▼
 ┌─────────────────┐
-│   Repository    │ ← データアクセス (Drizzle ORM)
+│   Repository    │ ← データアクセス (Prisma)
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│     Schema      │ ← データベース定義 (SQLite/D1)
+│  schema.prisma  │ ← データベース定義
 └─────────────────┘
 ```
 
 ## 7. 開発フロー
 
-1. スキーマ定義 → Repository → UseCase → Handler の順で実装
-2. **テスト実装**: 現状では Handler レイヤーのエンドポイントテストのみを実装
-   - 各エンドポイントに対して [handler-test.md](./handler-test.md) に従ってテストを作成
+1. スキーマ定義（`schema.prisma`）→ Repository → UseCase → Handler の順で実装
+2. **テスト実装**: Handler レイヤーのエンドポイントテストを実装
+   - 各エンドポイントに対してテストを作成
    - テストは正常系と異常系の両方をカバー
    - テストクライアントを使用してエンドツーエンドでテスト
 3. エンドポイントの動作確認
-4. CI/CD パイプラインによる自動テストと自動デプロイ
+4. データベースマイグレーションの管理
+
+## 8. データフロー例
+
+Todo 作成の場合：
+
+```txt
+1. POST /api/todos
+2. setUserAuthMiddleware で認証チェック
+3. createTodoHandler でリクエスト処理
+4. createTodoUseCase でビジネスロジック実行
+5. createTodo でデータベース操作
+6. Prismaクライアントによるデータベース更新
+```
