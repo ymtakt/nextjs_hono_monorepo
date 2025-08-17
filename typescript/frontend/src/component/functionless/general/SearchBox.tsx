@@ -1,4 +1,5 @@
 import { InputText } from './form/InputText';
+import { SubmitButton } from './form/SubmitButton';
 
 type SearchBoxProps = {
   search: string;
@@ -11,8 +12,8 @@ export function SearchBox(props: SearchBoxProps) {
   const { search, setSearch, handleSearch, searchErrorMessage } = props;
 
   return (
-    <div className="flex items-center gap-2">
-      <form action={handleSearch}>
+    <div className="w-full max-w-md">
+      <form action={handleSearch} className="space-y-4">
         <InputText
           label="タイトル検索"
           name="search"
@@ -22,9 +23,9 @@ export function SearchBox(props: SearchBoxProps) {
           errorMessage={searchErrorMessage}
         />
 
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
+        <SubmitButton size="md" variant="primary">
           Search
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

@@ -42,7 +42,6 @@ type TodoFormComponentProps = CreateTodoFormProps | UpdateTodoFormProps;
 
 /**
  * Todo作成・更新用のフォームコンポーネント
- *
  */
 export function TodoFormComponent(props: TodoFormComponentProps) {
   const {
@@ -59,13 +58,13 @@ export function TodoFormComponent(props: TodoFormComponentProps) {
   const title = mode === 'create' ? '新規作成' : '編集画面';
 
   return (
-    <div className="mt-10">
-      <h1 className="text-3xl font-bold text-center">{title}</h1>
+    <div className="p-8 bg-background">
+      <h1 className="text-3xl font-bold text-foreground text-center">{title}</h1>
 
       <form
         key={JSON.stringify({ titleValue, descriptionValue, completedValue })}
         action={formActionMethod}
-        className="flex flex-col gap-2 max-w-[600px] mx-auto mt-10"
+        className="flex flex-col space-y-4 max-w-[600px] mx-auto mt-8"
       >
         {/* 
           条件分岐内でprops.idValueにアクセス
@@ -90,20 +89,27 @@ export function TodoFormComponent(props: TodoFormComponentProps) {
         />
 
         <div className="flex items-center gap-2">
-          <label htmlFor="completed" className="text-sm font-medium">
+          <label htmlFor="completed" className="text-sm font-medium text-foreground">
             Completed
           </label>
-          <input type="checkbox" name="completed" defaultChecked={completedValue} />
-          <p className="text-red-500 text-sm">{completedErrorMessage}</p>
+          <input
+            type="checkbox"
+            name="completed"
+            defaultChecked={completedValue}
+            className="h-4 w-4 text-primary border-gray-500 rounded"
+          />
+          {completedErrorMessage && <p className="text-sm text-error">{completedErrorMessage}</p>}
         </div>
 
-        <SubmitButton />
-        {isPending && (
-          <div className="flex items-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-            <span>処理中...</span>
-          </div>
-        )}
+        <div className="space-y-2">
+          <SubmitButton size="lg" variant="primary" />
+          {isPending && (
+            <div className="flex items-center justify-center gap-2 text-foreground">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+              <span className="text-sm">処理中...</span>
+            </div>
+          )}
+        </div>
       </form>
     </div>
   );

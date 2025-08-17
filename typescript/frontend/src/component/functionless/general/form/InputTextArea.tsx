@@ -30,8 +30,8 @@ export function InputTextArea(props: InputTextAreaProps) {
   const { label, placeholder, errorMessage, name, value, onChange, defaultValue } = props;
 
   return (
-    <div>
-      <label htmlFor={name} className="text-sm font-medium">
+    <div className="space-y-2">
+      <label htmlFor={name} className="text-sm font-medium text-foreground">
         {label}
       </label>
       <textarea
@@ -39,11 +39,11 @@ export function InputTextArea(props: InputTextAreaProps) {
         value={value}
         onChange={onChange}
         defaultValue={defaultValue}
-        className="border-2 border-gray-300 rounded-md p-2 w-full"
+        className="w-full p-2 border border-gray-500 rounded-lg bg-background text-foreground resize-y min-h-[100px]"
         placeholder={placeholder}
         rows={4}
       />
-      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+      {errorMessage && <p className="text-sm text-error">{errorMessage}</p>}
     </div>
   );
 }
