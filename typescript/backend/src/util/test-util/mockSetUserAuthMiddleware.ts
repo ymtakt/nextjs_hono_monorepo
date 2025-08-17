@@ -7,7 +7,7 @@ import { AppHTTPException } from '../../endpoint/errorResponse'
 const { mockSetUserAuthMiddleware: mockModule } = (() => {
   // ユーザー認証ミドルウェアのモックを vi.hoisted で定義する。
   const mockSetUserAuthMiddleware = vi.hoisted(() => {
-    const mock = vi.fn(async (c: Context, next: Next): Promise<void> => {
+    const mock = vi.fn(async (_: Context, _next: Next): Promise<void> => {
       // モックの実装を上書きしないと利用できないようにしておく。
       throw new Error('Unimplemented')
     })

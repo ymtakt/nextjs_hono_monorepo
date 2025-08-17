@@ -1,4 +1,4 @@
-import { execSync } from 'child_process'
+import { execSync } from 'node:child_process'
 import { afterAll, beforeAll, beforeEach } from 'vitest'
 import { disconnectPrisma, prisma, resetTestData } from '../prisma'
 

@@ -10,7 +10,7 @@ import { AppHTTPException } from '../errorResponse'
  */
 export const setUserAuthMiddleware: MiddlewareHandler = async (c, next) => {
   const logger = c.get('logger')
-  const prisma = c.get('prisma')
+  // const prisma = c.get('prisma')
 
   try {
     // Authorization ヘッダーからトークンを取得

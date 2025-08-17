@@ -9,7 +9,7 @@ describe('updateTodoHandler - 正常系', () => {
     mockSetUserAuthMiddleware({ userId: 1 })
 
     // テスト用のTodoを作成
-    const todo = await prisma.todo.create({
+    await prisma.todo.create({
       data: {
         id: 789,
         title: '更新前Todo',
@@ -28,8 +28,7 @@ describe('updateTodoHandler - 正常系', () => {
     const res = await client.api.todos[':todoId'].$put({
       param: { todoId: '789' },
       json: updateData,
-      //  Paramとjsonを同時に渡すとエラーが発生するため、anyを使用して回避
-    } as any)
+    })
 
     if (res.status !== 200) throw new Error('Todo更新に失敗しました')
 

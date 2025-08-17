@@ -11,11 +11,12 @@ describe('createTodoHandler - 正常系', () => {
     const requestData = {
       title: '新しいTodo',
       description: '新しいTodoの説明',
+      completed: false,
     }
 
     const res = await client.api.todos.$post({
       json: requestData,
-    } as any)
+    })
 
     if (res.status !== 200) throw new Error('Todo作成に失敗しました')
 
