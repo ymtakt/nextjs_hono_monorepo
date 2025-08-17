@@ -1,13 +1,13 @@
-import type { UpdateTodoRequest } from 'backend/schemas'
-import { err, ok, type Result } from 'neverthrow'
-import { apiClient } from '@/core/service/api.service'
-import type { TodoEntity } from '@/domain/data/todo.data'
-import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity'
+import type { UpdateTodoRequest } from 'backend/schemas';
+import { err, ok, type Result } from 'neverthrow';
+import { apiClient } from '@/core/service/api.service';
+import type { TodoEntity } from '@/domain/data/todo.data';
+import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity';
 
 /** UseCase で発生するエラー型の定義。 */
 type UseCaseError = {
-  type: 'TODO_UPDATE_FAILED'
-}
+  type: 'TODO_UPDATE_FAILED';
+};
 
 /**
  * 特定のTodoを更新する
@@ -30,18 +30,18 @@ export const updateTodo = async (
     const res = await (apiClient.api.todos[':todoId'] as any).$put({
       param: { todoId: todoId.toString() },
       json: todo,
-    })
+    });
 
     if (!res.ok) {
-      return err({ type: 'TODO_UPDATE_FAILED' })
+      return err({ type: 'TODO_UPDATE_FAILED' });
     }
 
     // レスポンスボディをJSONとして解析
-    const data = await res.json()
+    const data = await res.json();
 
-    const todoEntity = transformToTodoEntity(data.todo)
-    return ok(todoEntity)
+    const todoEntity = transformToTodoEntity(data.todo);
+    return ok(todoEntity);
   } catch {
-    return err({ type: 'TODO_UPDATE_FAILED' })
+    return err({ type: 'TODO_UPDATE_FAILED' });
   }
-}
+};

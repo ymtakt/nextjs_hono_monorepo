@@ -1,16 +1,16 @@
-'use server'
+'use server';
 
-import { revalidatePath } from 'next/cache'
-import { z } from 'zod'
-import { createTodo } from '@/domain/logic/action/todo/create-todo'
-import { deleteTodo } from '@/domain/logic/action/todo/delete-todo'
-import { updateTodo } from '@/domain/logic/action/todo/update-todo'
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+import { createTodo } from '@/domain/logic/action/todo/create-todo';
+import { deleteTodo } from '@/domain/logic/action/todo/delete-todo';
+import { updateTodo } from '@/domain/logic/action/todo/update-todo';
 import {
   ACTION_STATUS,
   type ActionState,
   convertValidationErrors,
   getFirstValidationErrorMessage,
-} from '@/util/server-actions'
+} from '@/util/server-actions';
 
 /**
  * Todoアクションのサーバーエラーメッセージ定義
@@ -23,7 +23,7 @@ const TODO_ACTION_ERROR_MESSAGES = {
   TODO_CREATE_ERROR: 'Todoの作成に失敗しました',
   TODO_UPDATE_ERROR: 'Todoの更新に失敗しました',
   TODO_DELETE_ERROR: 'Todoの削除に失敗しました',
-} as const
+} as const;
 
 /**
  * Todoバリデーションエラーの表示用メッセージ定義
@@ -35,7 +35,7 @@ const TODO_VALIDATION_ERROR_MESSAGES = {
   REQUIRED_TITLE: 'タイトルは必須です',
   TITLE_TOO_LONG: 'タイトルは100文字以内で入力してください',
   REQUIRED_DESCRIPTION: '説明を入力してください',
-} as const
+} as const;
 
 /**
  * Todoバリデーションエラーの識別子定義
@@ -47,7 +47,7 @@ const TODO_VALIDATION_ERRORS = {
   REQUIRED_TITLE: 'REQUIRED_TITLE',
   TITLE_TOO_LONG: 'TITLE_TOO_LONG',
   REQUIRED_DESCRIPTION: 'REQUIRED_DESCRIPTION',
-} as const
+} as const;
 
 /**
  * Todoフォームフィールドの順序定義
@@ -55,7 +55,7 @@ const TODO_VALIDATION_ERRORS = {
  * バリデーションエラー表示時の優先順位を決定
  * 最初のエラーメッセージを取得する際にこの順序で確認される
  */
-const TODO_FIELD_ORDER = ['title', 'description', 'completed'] as const
+const TODO_FIELD_ORDER = ['title', 'description', 'completed'] as const;
 
 /**
  * Todo作成・更新用のバリデーションスキーマ
@@ -74,7 +74,7 @@ const todoActionFormSchema = z.object({
     .max(100, TODO_VALIDATION_ERRORS.TITLE_TOO_LONG),
   description: z.string().min(1, TODO_VALIDATION_ERRORS.REQUIRED_DESCRIPTION),
   completed: z.boolean(),
-})
+});
 
 /**
  * Todo用のバリデーションエラー型
@@ -88,10 +88,10 @@ const todoActionFormSchema = z.object({
  * @property completed - 完了状態フィールドのエラーメッセージ配列
  */
 type TodoValidationErrors = {
-  title: string[]
-  description: string[]
-  completed: string[]
-}
+  title: string[];
+  description: string[];
+  completed: string[];
+};
 
 /**
  * Todo作成・更新用のフォームフィールド型
@@ -106,11 +106,11 @@ type TodoValidationErrors = {
  * @property completed - 完了状態
  */
 type TodoFormFields = {
-  todoId?: string
-  title?: string
-  description?: string
-  completed?: boolean
-}
+  todoId?: string;
+  title?: string;
+  description?: string;
+  completed?: boolean;
+};
 
 /**
  * Todo削除用のフォームフィールド型
@@ -120,15 +120,15 @@ type TodoFormFields = {
  * @property todoId - 削除対象のTodo識別子
  */
 type DeleteTodoFields = {
-  todoId?: string
-}
+  todoId?: string;
+};
 
 /**
  * Todo削除用のActionState型
  *
  * useActionStateで使用される削除操作の状態管理型
  */
-export type DeleteTodoActionState = ActionState<DeleteTodoFields>
+export type DeleteTodoActionState = ActionState<DeleteTodoFields>;
 
 /**
  * Todo作成・更新用のActionState型
@@ -136,7 +136,7 @@ export type DeleteTodoActionState = ActionState<DeleteTodoFields>
  * useActionStateで使用されるフォーム操作の状態管理型
  * バリデーションエラー、サーバーエラー、成功状態を含む
  */
-export type TodoFormActionState = ActionState<TodoFormFields, TodoValidationErrors>
+export type TodoFormActionState = ActionState<TodoFormFields, TodoValidationErrors>;
 
 /**
  * Todo作成用のServer Action
@@ -161,29 +161,29 @@ export async function createTodoAction(
     title: formData.get('title') as string,
     description: formData.get('description') as string,
     completed: formData.get('completed') === 'on',
-  }
+  };
 
   // zodを使用してバリデーション実行
-  const validationResult = todoActionFormSchema.safeParse(formFields)
+  const validationResult = todoActionFormSchema.safeParse(formFields);
 
   // バリデーションエラーの場合
   if (!validationResult.success) {
-    const fieldErrors = validationResult.error.flatten().fieldErrors
+    const fieldErrors = validationResult.error.flatten().fieldErrors;
     const convertedErrors = convertValidationErrors<TodoValidationErrors>(
       fieldErrors,
       TODO_VALIDATION_ERROR_MESSAGES,
       TODO_FIELD_ORDER,
-    )
+    );
     return {
       ...formFields,
       status: ACTION_STATUS.VALIDATION_ERROR,
       error: getFirstValidationErrorMessage(convertedErrors, TODO_FIELD_ORDER),
       validationErrors: convertedErrors,
-    }
+    };
   }
 
   // バリデーション済みデータでTodo作成のuse-caseを呼び出し
-  const result = await createTodo(validationResult.data)
+  const result = await createTodo(validationResult.data);
 
   if (result.isErr()) {
     return {
@@ -191,12 +191,12 @@ export async function createTodoAction(
       status: ACTION_STATUS.SERVER_ERROR,
       error: TODO_ACTION_ERROR_MESSAGES.TODO_CREATE_ERROR,
       validationErrors: null,
-    }
+    };
   }
 
   // Next.jsのキャッシュを更新
   // 作成後に関連ページを最新状態にする
-  revalidatePath('/')
+  revalidatePath('/');
 
   // 成功状態を返す
   // フィールドは未定義にしてフォームをクリアする
@@ -204,7 +204,7 @@ export async function createTodoAction(
     status: ACTION_STATUS.SUCCESS,
     error: null,
     validationErrors: null,
-  }
+  };
 }
 
 /**
@@ -226,41 +226,41 @@ export async function updateTodoAction(
   prevState: TodoFormActionState,
   formData: FormData,
 ): Promise<TodoFormActionState> {
-  const todoId = formData.get('todoId')
+  const todoId = formData.get('todoId');
   if (!todoId) {
     return {
       ...prevState,
       status: ACTION_STATUS.VALIDATION_ERROR,
       error: TODO_ACTION_ERROR_MESSAGES.TODO_ID_NOT_FOUND,
       validationErrors: null,
-    }
+    };
   }
 
   const formFields: TodoFormFields = {
     title: formData.get('title') as string,
     description: formData.get('description') as string,
     completed: (formData.get('completed') === 'on') as boolean,
-  }
+  };
 
   // バリデーション実行
-  const validationResult = todoActionFormSchema.safeParse(formFields)
+  const validationResult = todoActionFormSchema.safeParse(formFields);
 
   if (!validationResult.success) {
-    const fieldErrors = validationResult.error.flatten().fieldErrors
+    const fieldErrors = validationResult.error.flatten().fieldErrors;
     const convertedErrors = convertValidationErrors<TodoValidationErrors>(
       fieldErrors,
       TODO_VALIDATION_ERROR_MESSAGES,
       TODO_FIELD_ORDER,
-    )
+    );
     return {
       ...formFields,
       status: ACTION_STATUS.VALIDATION_ERROR,
       error: getFirstValidationErrorMessage(convertedErrors, TODO_FIELD_ORDER),
       validationErrors: convertedErrors,
-    }
+    };
   }
 
-  const result = await updateTodo(Number(todoId), validationResult.data)
+  const result = await updateTodo(Number(todoId), validationResult.data);
 
   if (result.isErr()) {
     return {
@@ -268,17 +268,17 @@ export async function updateTodoAction(
       status: ACTION_STATUS.SERVER_ERROR,
       error: TODO_ACTION_ERROR_MESSAGES.TODO_UPDATE_ERROR,
       validationErrors: null,
-    }
+    };
   }
 
-  revalidatePath('/')
-  revalidatePath(`/edit/${todoId}`)
+  revalidatePath('/');
+  revalidatePath(`/edit/${todoId}`);
 
   return {
     status: ACTION_STATUS.SUCCESS,
     error: null,
     validationErrors: null,
-  }
+  };
 }
 
 /**
@@ -298,7 +298,7 @@ export async function deleteTodoAction(
   _: DeleteTodoActionState,
   formData: FormData,
 ): Promise<DeleteTodoActionState> {
-  const todoId = formData.get('todoId') as string
+  const todoId = formData.get('todoId') as string;
 
   if (!todoId) {
     return {
@@ -306,24 +306,24 @@ export async function deleteTodoAction(
       error: TODO_ACTION_ERROR_MESSAGES.TODO_ID_NOT_FOUND,
       validationErrors: null,
       todoId,
-    }
+    };
   }
 
-  const result = await deleteTodo(Number(todoId))
+  const result = await deleteTodo(Number(todoId));
 
   if (result.isErr()) {
     return {
       status: ACTION_STATUS.SERVER_ERROR,
       error: TODO_ACTION_ERROR_MESSAGES.TODO_DELETE_ERROR,
       validationErrors: null,
-    }
+    };
   }
 
-  revalidatePath('/')
+  revalidatePath('/');
 
   return {
     status: ACTION_STATUS.SUCCESS,
     error: null,
     validationErrors: null,
-  }
+  };
 }

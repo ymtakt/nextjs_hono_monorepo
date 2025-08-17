@@ -17,15 +17,15 @@
  */
 
 type InputTextAreaProps = {
-  label: string
-  placeholder?: string
-  errorMessage?: string
+  label: string;
+  placeholder?: string;
+  errorMessage?: string;
   // ✅ conform用のpropsを受け取る
-  [key: string]: any // getTextareaPropsの結果を受け取る
-}
+  [key: string]: any; // getTextareaPropsの結果を受け取る
+};
 
 export function InputTextArea(props: InputTextAreaProps) {
-  const { label, placeholder, errorMessage, ...textareaProps } = props
+  const { label, placeholder, errorMessage, ...textareaProps } = props;
 
   return (
     <div>
@@ -40,5 +40,5 @@ export function InputTextArea(props: InputTextAreaProps) {
       />
       {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
     </div>
-  )
+  );
 }

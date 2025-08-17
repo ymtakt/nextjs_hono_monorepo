@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import type React from 'react'
-import { createContext, PropsWithChildren, useCallback, useContext, useState } from 'react'
+import type React from 'react';
+import { createContext, type PropsWithChildren, useCallback, useContext, useState } from 'react';
 
 /** トーストの種類を定義する型 */
-type ToastType = 'success' | 'error'
+type ToastType = 'success' | 'error';
 
 /** トーストオブジェクトの型定義 */
 type Toast = {
-  id: string
-  message: string
-  type: ToastType
-}
+  id: string;
+  message: string;
+  type: ToastType;
+};
 
 /** トーストコンテキストで提供される機能の型定義 */
 type ToastContextType = {
-  success: (message: string) => void
-  error: (message: string) => void
-}
+  success: (message: string) => void;
+  error: (message: string) => void;
+};
 
 /**
  * トーストコンテキストの作成
@@ -26,7 +26,7 @@ type ToastContextType = {
  * success と error 関数を子コンポーネントに提供
  *
  * */
-const ToastContext = createContext<ToastContextType | undefined>(undefined)
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 /**
  * トースト通知機能を提供するプロバイダコンポーネント。
@@ -39,7 +39,7 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined)
  */
 export const ToastProvider = ({ children }: PropsWithChildren) => {
   // 現在表示中のトースト一覧を管理
-  const [toasts, setToasts] = useState<Toast[]>([])
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
   /**
    * 新しいトーストを追加し、3秒後に自動削除する内部関数。
@@ -49,15 +49,15 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
    */
   const addToast = useCallback((message: string, type: ToastType) => {
     // 現在時刻を使用してユニークなIDを生成
-    const id = Date.now().toString()
+    const id = Date.now().toString();
     // 新しいトーストを追加
-    setToasts((prev) => [...prev, { id, message, type }])
+    setToasts((prev) => [...prev, { id, message, type }]);
 
     // 3秒後に自動削除のタイマーを設定
     setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id))
-    }, 3000)
-  }, [])
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 3000);
+  }, []);
 
   /**
    * 成功メッセージのトーストを表示する関数。
@@ -67,10 +67,10 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
    */
   const success = useCallback(
     (message: string) => {
-      addToast(message, 'success')
+      addToast(message, 'success');
     },
     [addToast],
-  )
+  );
 
   /**
    * エラーメッセージのトーストを表示する関数。
@@ -80,10 +80,10 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
    */
   const error = useCallback(
     (message: string) => {
-      addToast(message, 'error')
+      addToast(message, 'error');
     },
     [addToast],
-  )
+  );
 
   return (
     <ToastContext.Provider value={{ success, error }}>
@@ -103,8 +103,8 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
         ))}
       </div>
     </ToastContext.Provider>
-  )
-}
+  );
+};
 
 /**
  * トースト通知機能を使用するためのカスタムフック。
@@ -116,10 +116,10 @@ export const ToastProvider = ({ children }: PropsWithChildren) => {
  */
 export const useToast = () => {
   // contextを使用して、ToastProvider内で提供される関数を取得
-  const context = useContext(ToastContext)
+  const context = useContext(ToastContext);
   // プロバイダ外での使用チェック
   if (!context) {
-    throw new Error('useToast must be used within ToastProvider')
+    throw new Error('useToast must be used within ToastProvider');
   }
-  return context
-}
+  return context;
+};

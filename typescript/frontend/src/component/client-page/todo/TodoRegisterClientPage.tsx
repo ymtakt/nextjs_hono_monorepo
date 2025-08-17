@@ -1,26 +1,26 @@
-'use client'
+'use client';
 
-import { useRouter } from 'next/navigation'
-import { TodoFormComponent } from '@/component/functionless/todo'
-import { createTodoAction } from '@/component/client-page/todo/action'
-import { useActionState } from 'react'
-import type { TodoFormActionState } from '@/component/client-page/todo/action'
+import { useRouter } from 'next/navigation';
+import { TodoFormComponent } from '@/component/functionless/todo';
+import { createTodoAction } from '@/component/client-page/todo/action';
+import { useActionState } from 'react';
+import type { TodoFormActionState } from '@/component/client-page/todo/action';
 
-import { createInitialFormActionState } from '@/util/form-action-state'
-import { withServerActionHandling } from '@/util/server-actions'
+import { createInitialFormActionState } from '@/util/form-action-state';
+import { withServerActionHandling } from '@/util/server-actions';
 
 export function TodoRegisterClientPage() {
-  const router = useRouter()
+  const router = useRouter();
   // 初期状態を作成
-  const initialState: TodoFormActionState = createInitialFormActionState()
+  const initialState: TodoFormActionState = createInitialFormActionState();
   // Server Actionをラップ
   const wrappedAction = withServerActionHandling(createTodoAction, {
     onSuccess: ({ success }) => {
-      success('作成しました')
-      router.replace('/')
+      success('作成しました');
+      router.replace('/');
     },
     initialState,
-  })
+  });
 
   /**
    * useActionStateフック
@@ -39,7 +39,7 @@ export function TodoRegisterClientPage() {
   const [state, formAction, isPending] = useActionState<TodoFormActionState, FormData>(
     wrappedAction,
     initialState,
-  )
+  );
 
   return (
     <TodoFormComponent
@@ -61,5 +61,5 @@ export function TodoRegisterClientPage() {
       }
       isPending={isPending}
     />
-  )
+  );
 }

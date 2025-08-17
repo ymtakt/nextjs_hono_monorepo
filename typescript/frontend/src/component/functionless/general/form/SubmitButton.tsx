@@ -4,15 +4,15 @@
  *  - 送信ボタン（conform対応）
  */
 
-import { useFormStatus } from 'react-dom'
+import { useFormStatus } from 'react-dom';
 
 type ButtonProps = {
-  children?: React.ReactNode
-}
+  children?: React.ReactNode;
+};
 
 export function SubmitButton({ children }: ButtonProps) {
   // ✅ useFormStatusで送信状態を取得
-  const { pending } = useFormStatus()
+  const { pending } = useFormStatus();
 
   return (
     <button
@@ -22,5 +22,5 @@ export function SubmitButton({ children }: ButtonProps) {
     >
       {pending ? 'Submitting...' : children || 'Submit'}
     </button>
-  )
+  );
 }

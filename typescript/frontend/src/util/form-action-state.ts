@@ -3,7 +3,7 @@ import {
   type ActionState,
   type FormFields,
   type ValidationErrors,
-} from './server-actions'
+} from './server-actions';
 
 /**
  * フォームアクション用の初期状態作成のヘルパー関数
@@ -18,5 +18,5 @@ export function createInitialFormActionState<
     status: ACTION_STATUS.IDLE,
     error: null,
     validationErrors: null,
-  } as ActionState<T, U>
+  } as ActionState<T, U>;
 }

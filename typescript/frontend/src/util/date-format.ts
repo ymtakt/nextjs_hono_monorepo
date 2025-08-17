@@ -13,19 +13,19 @@
 export const formatDateToJapanese = (dateString: string): string => {
   try {
     // 入力文字列からDateオブジェクトを生成
-    const date = new Date(dateString)
+    const date = new Date(dateString);
 
     // 無効な日付をチェック
     if (isNaN(date.getTime())) {
-      throw new Error(`Invalid date: ${dateString}`)
+      throw new Error(`Invalid date: ${dateString}`);
     }
 
     // 日本語ロケールで日付をフォーマット
-    return date.toLocaleDateString('ja-JP')
+    return date.toLocaleDateString('ja-JP');
   } catch (error) {
     // エラーログを出力
-    console.error('Date formatting error:', error)
+    console.error('Date formatting error:', error);
     // フォールバック文字列を返す
-    return '日付不明'
+    return '日付不明';
   }
-}
+};

@@ -1,15 +1,15 @@
-import type { ZodError } from 'zod'
-import { useToast } from './hook/useToast'
+import type { ZodError } from 'zod';
+import { useToast } from './hook/useToast';
 
 /**
  * フォームフィールドの型制約
  */
-export type FormFields = Record<string, unknown>
+export type FormFields = Record<string, unknown>;
 
 /**
  * バリデーションエラーの型制約
  */
-export type ValidationErrors = Record<string, string[]>
+export type ValidationErrors = Record<string, string[]>;
 
 /**
  * サーバーアクションで定義するFormStateの型
@@ -25,36 +25,36 @@ export const ACTION_STATUS = {
   VALIDATION_ERROR: 'validation_error',
   // サーバーエラー
   SERVER_ERROR: 'server_error',
-} as const
+} as const;
 
-export type ActionStatus = (typeof ACTION_STATUS)[keyof typeof ACTION_STATUS]
+export type ActionStatus = (typeof ACTION_STATUS)[keyof typeof ACTION_STATUS];
 
 export type BaseActionState<T extends ValidationErrors> =
   | {
-      status: typeof ACTION_STATUS.IDLE
-      error: null
-      validationErrors: null
+      status: typeof ACTION_STATUS.IDLE;
+      error: null;
+      validationErrors: null;
     }
   | {
-      status: typeof ACTION_STATUS.SUCCESS
-      error: null
-      validationErrors: null
+      status: typeof ACTION_STATUS.SUCCESS;
+      error: null;
+      validationErrors: null;
     }
   | {
-      status: typeof ACTION_STATUS.VALIDATION_ERROR
-      error: string
-      validationErrors: T | null
+      status: typeof ACTION_STATUS.VALIDATION_ERROR;
+      error: string;
+      validationErrors: T | null;
     }
   | {
-      status: typeof ACTION_STATUS.SERVER_ERROR
-      error: string
-      validationErrors: null
-    }
+      status: typeof ACTION_STATUS.SERVER_ERROR;
+      error: string;
+      validationErrors: null;
+    };
 
 export type ActionState<
   T extends FormFields = FormFields,
   U extends ValidationErrors = ValidationErrors,
-> = BaseActionState<U> & T
+> = BaseActionState<U> & T;
 
 /**
  * Server Action用高階関数のオプション
@@ -64,10 +64,10 @@ type ServerActionWrapperOptions<
   U extends ValidationErrors = ValidationErrors,
 > = {
   /** 成功時のコールバック関数 */
-  onSuccess: (params: { success: (message: string) => void }) => void
+  onSuccess: (params: { success: (message: string) => void }) => void;
   /** 初期状態（リセット時に使用） */
-  initialState: ActionState<T, U>
-}
+  initialState: ActionState<T, U>;
+};
 
 /**
  * Server Actionをラップする高階関数
@@ -86,35 +86,35 @@ export function withServerActionHandling<
   serverAction: (prevState: ActionState<T, U>, formData: FormData) => Promise<ActionState<T, U>>,
   options: ServerActionWrapperOptions<T, U>,
 ) {
-  const { success, error } = useToast()
+  const { success, error } = useToast();
 
   return async (prevState: ActionState<T, U>, formData: FormData): Promise<ActionState<T, U>> => {
     // Server Actionを実行
-    const result = await serverAction(prevState, formData)
+    const result = await serverAction(prevState, formData);
 
     // 結果に応じて処理を分岐
     switch (result.status) {
       case ACTION_STATUS.SUCCESS:
         // 成功時：コールバック関数を実行
-        options.onSuccess({ success })
+        options.onSuccess({ success });
         // 初期状態に戻す（フォームをクリア）
-        return options.initialState
+        return options.initialState;
 
       case ACTION_STATUS.VALIDATION_ERROR:
         // バリデーションエラー時：エラートースト表示
-        error(result.error)
-        return result
+        error(result.error);
+        return result;
 
       case ACTION_STATUS.SERVER_ERROR:
         // サーバーエラー時：エラートースト表示
-        error(result.error)
-        return result
+        error(result.error);
+        return result;
 
       default:
         // 予期しない状態の場合は現在の状態を維持
-        return result
+        return result;
     }
-  }
+  };
 }
 
 /**
@@ -129,16 +129,16 @@ export function withServerActionHandling<
  *
  */
 export function extractZodErrorMessage<T>(error: ZodError<T>): string {
-  const fieldErrors = error.flatten().fieldErrors
-  const allErrors: string[] = []
+  const fieldErrors = error.flatten().fieldErrors;
+  const allErrors: string[] = [];
 
   for (const errors of Object.values(fieldErrors)) {
     if (Array.isArray(errors)) {
-      allErrors.push(...errors)
+      allErrors.push(...errors);
     }
   }
 
-  return allErrors[0] || 'バリデーションエラー'
+  return allErrors[0] || 'バリデーションエラー';
 }
 
 /**
@@ -161,18 +161,18 @@ export function convertValidationErrors<T extends Record<string, string[]>>(
   messageMap: Record<string, string>,
   validFields: readonly (keyof T)[],
 ): T {
-  const convertedErrors: Partial<T> = {}
+  const convertedErrors: Partial<T> = {};
 
   for (const [key, errors] of Object.entries(fieldErrors)) {
     if (Array.isArray(errors) && errors.length > 0 && validFields.includes(key as keyof T)) {
       const convertedMessages = errors.map(
         (errorCode) => messageMap[errorCode] || 'エラーが発生しました',
-      )
-      ;(convertedErrors as any)[key] = convertedMessages
+      );
+      (convertedErrors as any)[key] = convertedMessages;
     }
   }
 
-  return convertedErrors as T
+  return convertedErrors as T;
 }
 
 /**
@@ -195,10 +195,10 @@ export function getFirstValidationErrorMessage<T extends Record<string, string[]
   defaultMessage: string = '入力内容を確認してください',
 ): string {
   for (const field of fieldOrder) {
-    const errors = validationErrors[field]
+    const errors = validationErrors[field];
     if (errors && errors.length > 0) {
-      return errors[0]
+      return errors[0];
     }
   }
-  return defaultMessage
+  return defaultMessage;
 }

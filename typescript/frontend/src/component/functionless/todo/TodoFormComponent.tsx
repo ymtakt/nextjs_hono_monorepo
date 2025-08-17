@@ -1,44 +1,44 @@
-'use client'
+'use client';
 
-import { InputText, InputTextArea, SubmitButton } from '@/component/functionless/general'
+import { InputText, InputTextArea, SubmitButton } from '@/component/functionless/general';
 
 /**
  * 共通のフォームプロパティ
  */
 type BaseTodoFormProps = {
-  formActionMethod?: (payload: FormData) => void
-  titleValue?: string
-  descriptionValue?: string
-  completedValue?: boolean
-  titleErrorMessage?: string
-  descriptionErrorMessage?: string
-  completedErrorMessage?: string
-  isPending?: boolean
-}
+  formActionMethod?: (payload: FormData) => void;
+  titleValue?: string;
+  descriptionValue?: string;
+  completedValue?: boolean;
+  titleErrorMessage?: string;
+  descriptionErrorMessage?: string;
+  completedErrorMessage?: string;
+  isPending?: boolean;
+};
 
 /**
  * 作成モード用のプロパティ
  * idValueは存在してはいけない
  */
 type CreateTodoFormProps = BaseTodoFormProps & {
-  mode: 'create'
-  idValue?: never
-}
+  mode: 'create';
+  idValue?: never;
+};
 
 /**
  * 更新モード用のプロパティ
  * idValueは必須
  */
 type UpdateTodoFormProps = BaseTodoFormProps & {
-  mode: 'update'
-  idValue: string
-}
+  mode: 'update';
+  idValue: string;
+};
 
 /**
  * 判別共用体による型定義
  * modeの値によってidValueの有無が決まる
  */
-type TodoFormComponentProps = CreateTodoFormProps | UpdateTodoFormProps
+type TodoFormComponentProps = CreateTodoFormProps | UpdateTodoFormProps;
 
 /**
  * Todo作成・更新用のフォームコンポーネント
@@ -55,8 +55,8 @@ export function TodoFormComponent(props: TodoFormComponentProps) {
     descriptionErrorMessage,
     completedErrorMessage,
     isPending,
-  } = props
-  const title = mode === 'create' ? '新規作成' : '編集画面'
+  } = props;
+  const title = mode === 'create' ? '新規作成' : '編集画面';
 
   return (
     <div className="mt-10">
@@ -106,5 +106,5 @@ export function TodoFormComponent(props: TodoFormComponentProps) {
         )}
       </form>
     </div>
-  )
+  );
 }

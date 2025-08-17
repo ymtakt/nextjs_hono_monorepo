@@ -1,37 +1,37 @@
-import { err, ok } from 'neverthrow'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { err, ok } from 'neverthrow';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createTodoAction,
   type DeleteTodoActionState,
   deleteTodoAction,
   type TodoFormActionState,
   updateTodoAction,
-} from '@/component/client-page/todo/action'
-import { ACTION_STATUS } from '@/util/server-actions'
+} from '@/component/client-page/todo/action';
+import { ACTION_STATUS } from '@/util/server-actions';
 
 // Next.js revalidatePathをモック
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
-}))
+}));
 
 // Domain layer use-casesをモック
 vi.mock('@/domain/logic/action/todo/create-todo', () => ({
   createTodo: vi.fn(),
-}))
+}));
 
 vi.mock('@/domain/logic/action/todo/update-todo', () => ({
   updateTodo: vi.fn(),
-}))
+}));
 
 vi.mock('@/domain/logic/action/todo/delete-todo', () => ({
   deleteTodo: vi.fn(),
-}))
+}));
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath } from 'next/cache';
 // モック関数のインポート
-import { createTodo } from '@/domain/logic/action/todo/create-todo'
-import { deleteTodo } from '@/domain/logic/action/todo/delete-todo'
-import { updateTodo } from '@/domain/logic/action/todo/update-todo'
+import { createTodo } from '@/domain/logic/action/todo/create-todo';
+import { deleteTodo } from '@/domain/logic/action/todo/delete-todo';
+import { updateTodo } from '@/domain/logic/action/todo/update-todo';
 
 // テスト用のモックEntity
 const mockTodoEntity = {
@@ -41,32 +41,32 @@ const mockTodoEntity = {
   isCompleted: false,
   createdDate: '2025-01-01T00:00:00Z',
   updatedDate: '2025-01-01T00:00:00Z',
-}
+};
 
 // FormData作成ヘルパー
 const createFormData = (data: Record<string, string | boolean>) => {
-  const formData = new FormData()
+  const formData = new FormData();
   Object.entries(data).forEach(([key, value]) => {
     if (typeof value === 'boolean') {
-      formData.append(key, value ? 'on' : 'off')
+      formData.append(key, value ? 'on' : 'off');
     } else {
-      formData.append(key, value)
+      formData.append(key, value);
     }
-  })
-  return formData
-}
+  });
+  return formData;
+};
 
 describe('Todo Server Actions', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
   describe('createTodoAction', () => {
     const initialState: TodoFormActionState = {
       status: ACTION_STATUS.IDLE,
       error: null,
       validationErrors: null,
-    }
+    };
 
     // 前提：有効なフォームデータが送信され、use-caseが成功する
     // 期待値：成功状態が返され、revalidatePathが呼ばれる
@@ -75,26 +75,26 @@ describe('Todo Server Actions', () => {
         title: '新しいTodo',
         description: '新しい説明',
         completed: false,
-      })
+      });
 
-      vi.mocked(createTodo).mockResolvedValue(ok(mockTodoEntity))
+      vi.mocked(createTodo).mockResolvedValue(ok(mockTodoEntity));
 
-      const result = await createTodoAction(initialState, formData)
+      const result = await createTodoAction(initialState, formData);
 
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
-      })
+      });
 
       expect(createTodo).toHaveBeenCalledWith({
         title: '新しいTodo',
         description: '新しい説明',
         completed: false,
-      })
+      });
 
-      expect(revalidatePath).toHaveBeenCalledWith('/')
-    })
+      expect(revalidatePath).toHaveBeenCalledWith('/');
+    });
 
     // 前提：titleが空のフォームデータが送信される
     // 期待値：バリデーションエラー状態が返され、入力値が保持される
@@ -103,36 +103,36 @@ describe('Todo Server Actions', () => {
         title: '',
         description: '説明',
         completed: false,
-      })
+      });
 
-      const result = await createTodoAction(initialState, formData)
+      const result = await createTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR)
-      expect(result.error).toBe('タイトルは必須です')
-      expect(result.validationErrors?.title).toEqual(['タイトルは必須です'])
-      expect(result.title).toBe('')
-      expect(result.description).toBe('説明')
+      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      expect(result.error).toBe('タイトルは必須です');
+      expect(result.validationErrors?.title).toEqual(['タイトルは必須です']);
+      expect(result.title).toBe('');
+      expect(result.description).toBe('説明');
 
-      expect(createTodo).not.toHaveBeenCalled()
-      expect(revalidatePath).not.toHaveBeenCalled()
-    })
+      expect(createTodo).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
 
     // 前提：titleが100文字を超えるフォームデータが送信される
     // 期待値：バリデーションエラー状態が返される
     it('titleが100文字を超える場合バリデーションエラーが返される', async () => {
-      const longTitle = 'a'.repeat(101)
+      const longTitle = 'a'.repeat(101);
       const formData = createFormData({
         title: longTitle,
         description: '説明',
         completed: false,
-      })
+      });
 
-      const result = await createTodoAction(initialState, formData)
+      const result = await createTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR)
-      expect(result.error).toBe('タイトルは100文字以内で入力してください')
-      expect(result.validationErrors?.title).toEqual(['タイトルは100文字以内で入力してください'])
-    })
+      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      expect(result.error).toBe('タイトルは100文字以内で入力してください');
+      expect(result.validationErrors?.title).toEqual(['タイトルは100文字以内で入力してください']);
+    });
 
     // 前提：descriptionが空のフォームデータが送信される
     // 期待値：バリデーションエラー状態が返される
@@ -141,14 +141,14 @@ describe('Todo Server Actions', () => {
         title: 'タイトル',
         description: '',
         completed: false,
-      })
+      });
 
-      const result = await createTodoAction(initialState, formData)
+      const result = await createTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR)
-      expect(result.error).toBe('説明を入力してください')
-      expect(result.validationErrors?.description).toEqual(['説明を入力してください'])
-    })
+      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      expect(result.error).toBe('説明を入力してください');
+      expect(result.validationErrors?.description).toEqual(['説明を入力してください']);
+    });
 
     // 前提：有効なデータだがuse-caseがエラーを返す
     // 期待値：サーバーエラー状態が返され、入力値が保持される
@@ -157,20 +157,20 @@ describe('Todo Server Actions', () => {
         title: 'タイトル',
         description: '説明',
         completed: false,
-      })
+      });
 
-      vi.mocked(createTodo).mockResolvedValue(err({ type: 'TODO_CREATE_FAILED' }))
+      vi.mocked(createTodo).mockResolvedValue(err({ type: 'TODO_CREATE_FAILED' }));
 
-      const result = await createTodoAction(initialState, formData)
+      const result = await createTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR)
-      expect(result.error).toBe('Todoの作成に失敗しました')
-      expect(result.validationErrors).toBe(null)
-      expect(result.title).toBe('タイトル')
-      expect(result.description).toBe('説明')
+      expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+      expect(result.error).toBe('Todoの作成に失敗しました');
+      expect(result.validationErrors).toBe(null);
+      expect(result.title).toBe('タイトル');
+      expect(result.description).toBe('説明');
 
-      expect(revalidatePath).not.toHaveBeenCalled()
-    })
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
 
     // 前提：completedがチェックされたフォームデータが送信される
     // 期待値：completedがtrueでuse-caseが呼ばれる
@@ -179,26 +179,26 @@ describe('Todo Server Actions', () => {
         title: 'タイトル',
         description: '説明',
         completed: true,
-      })
+      });
 
-      vi.mocked(createTodo).mockResolvedValue(ok(mockTodoEntity))
+      vi.mocked(createTodo).mockResolvedValue(ok(mockTodoEntity));
 
-      await createTodoAction(initialState, formData)
+      await createTodoAction(initialState, formData);
 
       expect(createTodo).toHaveBeenCalledWith({
         title: 'タイトル',
         description: '説明',
         completed: true,
-      })
-    })
-  })
+      });
+    });
+  });
 
   describe('updateTodoAction', () => {
     const initialState: TodoFormActionState = {
       status: ACTION_STATUS.IDLE,
       error: null,
       validationErrors: null,
-    }
+    };
 
     // 前提：有効なtodoIdと有効なフォームデータが送信される
     // 期待値：成功状態が返され、複数のrevalidatePathが呼ばれる
@@ -208,27 +208,27 @@ describe('Todo Server Actions', () => {
         title: '更新されたTodo',
         description: '更新された説明',
         completed: true,
-      })
+      });
 
-      vi.mocked(updateTodo).mockResolvedValue(ok(mockTodoEntity))
+      vi.mocked(updateTodo).mockResolvedValue(ok(mockTodoEntity));
 
-      const result = await updateTodoAction(initialState, formData)
+      const result = await updateTodoAction(initialState, formData);
 
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
-      })
+      });
 
       expect(updateTodo).toHaveBeenCalledWith(123, {
         title: '更新されたTodo',
         description: '更新された説明',
         completed: true,
-      })
+      });
 
-      expect(revalidatePath).toHaveBeenCalledWith('/')
-      expect(revalidatePath).toHaveBeenCalledWith('/edit/123')
-    })
+      expect(revalidatePath).toHaveBeenCalledWith('/');
+      expect(revalidatePath).toHaveBeenCalledWith('/edit/123');
+    });
 
     // 前提：todoIdが含まれていないフォームデータが送信される
     // 期待値：バリデーションエラー状態が返される
@@ -237,17 +237,17 @@ describe('Todo Server Actions', () => {
         title: 'タイトル',
         description: '説明',
         completed: false,
-      })
+      });
 
-      const result = await updateTodoAction(initialState, formData)
+      const result = await updateTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR)
-      expect(result.error).toBe('TodoIDが見つかりません')
-      expect(result.validationErrors).toBe(null)
+      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      expect(result.error).toBe('TodoIDが見つかりません');
+      expect(result.validationErrors).toBe(null);
 
-      expect(updateTodo).not.toHaveBeenCalled()
-      expect(revalidatePath).not.toHaveBeenCalled()
-    })
+      expect(updateTodo).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
 
     // 前提：有効なtodoIdだが無効なフォームデータが送信される
     // 期待値：バリデーションエラー状態が返される
@@ -257,16 +257,16 @@ describe('Todo Server Actions', () => {
         title: '',
         description: '説明',
         completed: false,
-      })
+      });
 
-      const result = await updateTodoAction(initialState, formData)
+      const result = await updateTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR)
-      expect(result.error).toBe('タイトルは必須です')
-      expect(result.validationErrors?.title).toEqual(['タイトルは必須です'])
+      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      expect(result.error).toBe('タイトルは必須です');
+      expect(result.validationErrors?.title).toEqual(['タイトルは必須です']);
 
-      expect(updateTodo).not.toHaveBeenCalled()
-    })
+      expect(updateTodo).not.toHaveBeenCalled();
+    });
 
     // 前提：有効なデータだがuse-caseがエラーを返す
     // 期待値：サーバーエラー状態が返される
@@ -276,79 +276,79 @@ describe('Todo Server Actions', () => {
         title: 'タイトル',
         description: '説明',
         completed: false,
-      })
+      });
 
-      vi.mocked(updateTodo).mockResolvedValue(err({ type: 'TODO_UPDATE_FAILED' }))
+      vi.mocked(updateTodo).mockResolvedValue(err({ type: 'TODO_UPDATE_FAILED' }));
 
-      const result = await updateTodoAction(initialState, formData)
+      const result = await updateTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR)
-      expect(result.error).toBe('Todoの更新に失敗しました')
-      expect(result.validationErrors).toBe(null)
+      expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+      expect(result.error).toBe('Todoの更新に失敗しました');
+      expect(result.validationErrors).toBe(null);
 
-      expect(revalidatePath).not.toHaveBeenCalled()
-    })
-  })
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
+  });
 
   describe('deleteTodoAction', () => {
     const initialState: DeleteTodoActionState = {
       status: ACTION_STATUS.IDLE,
       error: null,
       validationErrors: null,
-    }
+    };
 
     // 前提：有効なtodoIdが送信される
     // 期待値：成功状態が返され、revalidatePathが呼ばれる
     it('有効なtodoIdでTodo削除が成功する', async () => {
       const formData = createFormData({
         todoId: '123',
-      })
+      });
 
-      vi.mocked(deleteTodo).mockResolvedValue(ok(undefined))
+      vi.mocked(deleteTodo).mockResolvedValue(ok(undefined));
 
-      const result = await deleteTodoAction(initialState, formData)
+      const result = await deleteTodoAction(initialState, formData);
 
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
-      })
+      });
 
-      expect(deleteTodo).toHaveBeenCalledWith(123)
-      expect(revalidatePath).toHaveBeenCalledWith('/')
-    })
+      expect(deleteTodo).toHaveBeenCalledWith(123);
+      expect(revalidatePath).toHaveBeenCalledWith('/');
+    });
 
     // 前提：todoIdが含まれていないフォームデータが送信される
     // 期待値：サーバーエラー状態が返される
     it('todoIdが存在しない場合エラーが返される', async () => {
-      const formData = new FormData()
+      const formData = new FormData();
 
-      const result = await deleteTodoAction(initialState, formData)
+      const result = await deleteTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR)
-      expect(result.error).toBe('TodoIDが見つかりません')
-      expect(result.validationErrors).toBe(null)
+      expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+      expect(result.error).toBe('TodoIDが見つかりません');
+      expect(result.validationErrors).toBe(null);
 
-      expect(deleteTodo).not.toHaveBeenCalled()
-      expect(revalidatePath).not.toHaveBeenCalled()
-    })
+      expect(deleteTodo).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
 
     // 前提：有効なtodoIdだがuse-caseがエラーを返す
     // 期待値：サーバーエラー状態が返される
     it('use-caseでエラーが発生した場合サーバーエラーが返される', async () => {
       const formData = createFormData({
         todoId: '123',
-      })
+      });
 
-      vi.mocked(deleteTodo).mockResolvedValue(err({ type: 'TODO_DELETE_FAILED' }))
+      vi.mocked(deleteTodo).mockResolvedValue(err({ type: 'TODO_DELETE_FAILED' }));
 
-      const result = await deleteTodoAction(initialState, formData)
+      const result = await deleteTodoAction(initialState, formData);
 
-      expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR)
-      expect(result.error).toBe('Todoの削除に失敗しました')
-      expect(result.validationErrors).toBe(null)
+      expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+      expect(result.error).toBe('Todoの削除に失敗しました');
+      expect(result.validationErrors).toBe(null);
 
-      expect(revalidatePath).not.toHaveBeenCalled()
-    })
-  })
-})
+      expect(revalidatePath).not.toHaveBeenCalled();
+    });
+  });
+});

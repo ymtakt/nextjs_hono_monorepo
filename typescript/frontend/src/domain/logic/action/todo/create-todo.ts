@@ -1,13 +1,13 @@
-import type { CreateTodoRequest } from 'backend/schemas'
-import { err, ok, type Result } from 'neverthrow'
-import { apiClient } from '@/core/service/api.service'
-import type { TodoEntity } from '@/domain/data/todo.data'
-import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity'
+import type { CreateTodoRequest } from 'backend/schemas';
+import { err, ok, type Result } from 'neverthrow';
+import { apiClient } from '@/core/service/api.service';
+import type { TodoEntity } from '@/domain/data/todo.data';
+import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity';
 
 /** UseCase で発生するエラー型の定義。 */
 type UseCaseError = {
-  type: 'TODO_CREATE_FAILED'
-}
+  type: 'TODO_CREATE_FAILED';
+};
 
 /**
  * 新規Todoを作成する
@@ -27,17 +27,17 @@ export const createTodo = async (
   try {
     const res = await apiClient.api.todos.$post({
       json: todo,
-    })
+    });
 
     if (!res.ok) {
-      return err({ type: 'TODO_CREATE_FAILED' })
+      return err({ type: 'TODO_CREATE_FAILED' });
     }
 
-    const data = await res.json()
+    const data = await res.json();
 
-    const todoEntity = transformToTodoEntity(data.todo)
-    return ok(todoEntity)
+    const todoEntity = transformToTodoEntity(data.todo);
+    return ok(todoEntity);
   } catch {
-    return err({ type: 'TODO_CREATE_FAILED' })
+    return err({ type: 'TODO_CREATE_FAILED' });
   }
-}
+};

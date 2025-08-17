@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import type { TodoEntity } from '@/domain/data/todo.data'
+import Link from 'next/link';
+import type { TodoEntity } from '@/domain/data/todo.data';
 
 type TodoDetailProps = {
-  todo: TodoEntity
-}
+  todo: TodoEntity;
+};
 
 /**
  * todoの詳細ページのコンポーネント
@@ -16,7 +16,7 @@ type TodoDetailProps = {
  * - React Hooksを使用することが可能
  */
 export function TodoDetailClientPage(props: TodoDetailProps) {
-  const { todo } = props
+  const { todo } = props;
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -110,5 +110,5 @@ export function TodoDetailClientPage(props: TodoDetailProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

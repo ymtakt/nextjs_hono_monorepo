@@ -1,4 +1,4 @@
-import type { TodoEntity } from '@/domain/data/todo.data'
+import type { TodoEntity } from '@/domain/data/todo.data';
 
 /**
  * 外部APIから取得したデータをTodoEntityに変換する
@@ -7,12 +7,12 @@ import type { TodoEntity } from '@/domain/data/todo.data'
  * @returns TodoEntity
  */
 export const transformToTodoEntity = (todoObject: {
-  title: string
-  description: string
-  completed: boolean
-  id: number
-  createdAt: string
-  updatedAt: string
+  title: string;
+  description: string;
+  completed: boolean;
+  id: number;
+  createdAt: string;
+  updatedAt: string;
 }): TodoEntity => ({
   // IDをそのまま設定
   id: todoObject.id,
@@ -26,4 +26,4 @@ export const transformToTodoEntity = (todoObject: {
   createdDate: todoObject.createdAt,
   // updatedAtがない場合はcreatedAtを使用
   updatedDate: todoObject.updatedAt || todoObject.createdAt,
-})
+});

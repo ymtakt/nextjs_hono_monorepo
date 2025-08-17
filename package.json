@@ -11,9 +11,12 @@
     "test": "cd typescript/frontend && bun run test",
     "test:ui": "cd typescript/frontend && bun run test:ui",
     "test:run": "cd typescript/frontend && bun run test:run",
-    "format": "bunx @biomejs/biome format --write . --files-ignore-unknown=true",
-    "lint": "bunx @biomejs/biome lint . --files-ignore-unknown=true",
-    "check": "bunx @biomejs/biome check --apply . --files-ignore-unknown=true"
+    "format": "bunx @biomejs/biome format --write .",
+    "format:check": "bunx @biomejs/biome format .",
+    "lint": "bunx @biomejs/biome lint .",
+    "lint:fix": "bunx @biomejs/biome lint --write .",
+    "check": "bunx @biomejs/biome check --write .",
+    "check:ci": "bunx @biomejs/biome ci ."
   },
   "workspaces": [
     "typescript/*"

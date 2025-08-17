@@ -1,14 +1,14 @@
-import { InputText } from './form/InputText'
+import { InputText } from './form/InputText';
 
 type SearchBoxProps = {
-  search: string
-  setSearch: (search: string) => void
-  handleSearch: (payload: FormData) => void
-  searchErrorMessage?: string
-}
+  search: string;
+  setSearch: (search: string) => void;
+  handleSearch: (payload: FormData) => void;
+  searchErrorMessage?: string;
+};
 
 export function SearchBox(props: SearchBoxProps) {
-  const { search, setSearch, handleSearch, searchErrorMessage } = props
+  const { search, setSearch, handleSearch, searchErrorMessage } = props;
 
   return (
     <div className="flex items-center gap-2">
@@ -27,5 +27,5 @@ export function SearchBox(props: SearchBoxProps) {
         </button>
       </form>
     </div>
-  )
+  );
 }

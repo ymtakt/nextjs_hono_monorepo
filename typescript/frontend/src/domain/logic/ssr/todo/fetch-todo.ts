@@ -1,12 +1,12 @@
-import { err, ok, type Result } from 'neverthrow'
-import { apiClient } from '@/core/service/api.service'
-import type { TodoEntity } from '@/domain/data/todo.data'
-import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity'
+import { err, ok, type Result } from 'neverthrow';
+import { apiClient } from '@/core/service/api.service';
+import type { TodoEntity } from '@/domain/data/todo.data';
+import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity';
 
 /** UseCase で発生するエラー型の定義。 */
 type UseCaseError = {
-  type: 'TODO_FETCH_FAILED'
-}
+  type: 'TODO_FETCH_FAILED';
+};
 
 /**
  * 特定のTodoを取得する
@@ -24,20 +24,20 @@ export const fetchTodo = async (todoId: number): Promise<Result<TodoEntity, UseC
   try {
     const res = await apiClient.api.todos[':todoId'].$get({
       param: { todoId: todoId.toString() },
-    })
+    });
 
     // テスト用に1秒待つ
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     if (!res.ok) {
-      return err({ type: 'TODO_FETCH_FAILED' })
+      return err({ type: 'TODO_FETCH_FAILED' });
     }
 
-    const data = await res.json()
+    const data = await res.json();
 
-    const todoEntity = transformToTodoEntity(data.todo)
-    return ok(todoEntity)
+    const todoEntity = transformToTodoEntity(data.todo);
+    return ok(todoEntity);
   } catch {
-    return err({ type: 'TODO_FETCH_FAILED' })
+    return err({ type: 'TODO_FETCH_FAILED' });
   }
-}
+};

@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
+import Link from 'next/link';
 
 export default function ErrorPage({ error, reset }: { error: Error; reset: () => void }) {
   return (
@@ -13,5 +13,5 @@ export default function ErrorPage({ error, reset }: { error: Error; reset: () =>
         <button type="button">トップページへ戻る</button>
       </Link>
     </>
-  )
+  );
 }

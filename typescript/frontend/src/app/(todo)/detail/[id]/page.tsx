@@ -1,7 +1,7 @@
-import { TodoDetailClientPage } from '@/component/client-page/todo'
-import { fetchTodo } from '@/domain/logic/ssr/todo/fetch-todo'
-import { notFound } from 'next/navigation'
-import { match } from 'ts-pattern'
+import { TodoDetailClientPage } from '@/component/client-page/todo';
+import { fetchTodo } from '@/domain/logic/ssr/todo/fetch-todo';
+import { notFound } from 'next/navigation';
+import { match } from 'ts-pattern';
 
 /**
  * todoの詳細ページ
@@ -14,14 +14,14 @@ import { match } from 'ts-pattern'
  * - 取得の際のエラー、ローディングはerror.tsx,loading.tsxで表示する
  */
 export default async function DetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const result = await fetchTodo(Number(id))
+  const { id } = await params;
+  const result = await fetchTodo(Number(id));
 
   if (result.isErr()) {
-    notFound()
+    notFound();
   }
 
-  const todo = result.value
+  const todo = result.value;
 
-  return <TodoDetailClientPage todo={todo} />
+  return <TodoDetailClientPage todo={todo} />;
 }

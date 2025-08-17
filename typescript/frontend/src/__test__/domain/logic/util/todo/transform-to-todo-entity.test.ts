@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { transformToTodoEntity } from '@/domain/logic/utils/todo/transform-to-todo-entity'
+import { describe, expect, it } from 'vitest';
+import { transformToTodoEntity } from '@/domain/logic/utils/todo/transform-to-todo-entity';
 
 describe('transformToTodoEntity', () => {
   // 前提：完全なデータを持つTodoオブジェクトが渡される
@@ -12,9 +12,9 @@ describe('transformToTodoEntity', () => {
       completed: true,
       createdAt: '2024-01-15T10:00:00Z',
       updatedAt: '2024-01-16T10:00:00Z',
-    }
+    };
 
-    const result = transformToTodoEntity(todoObject)
+    const result = transformToTodoEntity(todoObject);
 
     expect(result).toEqual({
       id: 1,
@@ -23,8 +23,8 @@ describe('transformToTodoEntity', () => {
       isCompleted: true,
       createdDate: '2024-01-15T10:00:00Z',
       updatedDate: '2024-01-16T10:00:00Z',
-    })
-  })
+    });
+  });
 
   // 前提：descriptionが空文字のTodoオブジェクトが渡される
   // 期待値：descriptionが空文字として変換される
@@ -36,12 +36,12 @@ describe('transformToTodoEntity', () => {
       completed: false,
       createdAt: '2024-01-15T10:00:00Z',
       updatedAt: '2024-01-15T10:00:00Z',
-    }
+    };
 
-    const result = transformToTodoEntity(todoObject)
+    const result = transformToTodoEntity(todoObject);
 
-    expect(result.description).toBe('')
-  })
+    expect(result.description).toBe('');
+  });
 
   // 前提：updatedAtがないTodoオブジェクトが渡される
   // 期待値：updatedDateにcreatedAtの値が設定される
@@ -53,12 +53,12 @@ describe('transformToTodoEntity', () => {
       completed: false,
       createdAt: '2024-01-15T10:00:00Z',
       updatedAt: '',
-    }
+    };
 
-    const result = transformToTodoEntity(todoObject)
+    const result = transformToTodoEntity(todoObject);
 
-    expect(result.updatedDate).toBe('2024-01-15T10:00:00Z')
-  })
+    expect(result.updatedDate).toBe('2024-01-15T10:00:00Z');
+  });
 
   // 前提：completedがfalseのTodoオブジェクトが渡される
   // 期待値：isCompletedがfalseに変換される
@@ -70,12 +70,12 @@ describe('transformToTodoEntity', () => {
       completed: false,
       createdAt: '2024-01-15T10:00:00Z',
       updatedAt: '2024-01-15T10:00:00Z',
-    }
+    };
 
-    const result = transformToTodoEntity(todoObject)
+    const result = transformToTodoEntity(todoObject);
 
-    expect(result.isCompleted).toBe(false)
-  })
+    expect(result.isCompleted).toBe(false);
+  });
 
   // 前提：completedがtrueのTodoオブジェクトが渡される
   // 期待値：isCompletedがtrueに変換される
@@ -87,10 +87,10 @@ describe('transformToTodoEntity', () => {
       completed: true,
       createdAt: '2024-01-15T10:00:00Z',
       updatedAt: '2024-01-15T10:00:00Z',
-    }
+    };
 
-    const result = transformToTodoEntity(todoObject)
+    const result = transformToTodoEntity(todoObject);
 
-    expect(result.isCompleted).toBe(true)
-  })
-})
+    expect(result.isCompleted).toBe(true);
+  });
+});

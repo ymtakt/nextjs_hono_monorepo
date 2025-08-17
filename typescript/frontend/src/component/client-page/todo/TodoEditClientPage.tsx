@@ -1,17 +1,17 @@
-'use client'
+'use client';
 
-import { useRouter } from 'next/navigation'
-import type { TodoEntity } from '@/domain/data/todo.data'
-import { TodoFormComponent } from '@/component/functionless/todo'
-import { updateTodoAction, type TodoFormActionState } from '@/component/client-page/todo/action'
-import { useActionState } from 'react'
+import { useRouter } from 'next/navigation';
+import type { TodoEntity } from '@/domain/data/todo.data';
+import { TodoFormComponent } from '@/component/functionless/todo';
+import { updateTodoAction, type TodoFormActionState } from '@/component/client-page/todo/action';
+import { useActionState } from 'react';
 
-import { createInitialFormActionState } from '@/util/form-action-state'
-import { withServerActionHandling } from '@/util/server-actions'
+import { createInitialFormActionState } from '@/util/form-action-state';
+import { withServerActionHandling } from '@/util/server-actions';
 
 type TodoEditProps = {
-  todo: TodoEntity
-}
+  todo: TodoEntity;
+};
 
 /**
  * todoの編集ページのコンポーネント
@@ -24,21 +24,21 @@ type TodoEditProps = {
  * - 更新成功後は詳細画面に遷移する
  */
 export function TodoEditClientPage({ todo }: TodoEditProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   // 初期状態を作成
-  const initialState: TodoFormActionState = createInitialFormActionState()
-  initialState.title = todo.title
-  initialState.description = todo.description
-  initialState.completed = todo.isCompleted
+  const initialState: TodoFormActionState = createInitialFormActionState();
+  initialState.title = todo.title;
+  initialState.description = todo.description;
+  initialState.completed = todo.isCompleted;
   // Server Actionをラップ
   const wrappedAction = withServerActionHandling(updateTodoAction, {
     onSuccess: ({ success }) => {
-      success('更新しました')
-      router.push(`/`)
+      success('更新しました');
+      router.push(`/`);
     },
     initialState,
-  })
+  });
 
   /**
    * useActionStateフック
@@ -57,7 +57,7 @@ export function TodoEditClientPage({ todo }: TodoEditProps) {
   const [state, formAction, isPending] = useActionState<TodoFormActionState, FormData>(
     wrappedAction,
     initialState,
-  )
+  );
 
   return (
     <TodoFormComponent
@@ -80,5 +80,5 @@ export function TodoEditClientPage({ todo }: TodoEditProps) {
       }
       isPending={isPending}
     />
-  )
+  );
 }

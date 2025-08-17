@@ -1,88 +1,91 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { useModal } from '@/util/hook/useModal'
-import { formatDateToJapanese } from '@/util/date-format'
-import { ClientComponentLoading, Modal } from '@/component/functionless/general'
-import type { TodoEntity } from '@/domain/data/todo.data'
-import type { DeleteTodoActionState } from '@/component/client-page/todo/action'
-import { deleteTodoAction } from '@/component/client-page/todo/action'
-import { useActionState, useState, useTransition } from 'react'
+import Link from 'next/link';
+import { useModal } from '@/util/hook/useModal';
+import { formatDateToJapanese } from '@/util/date-format';
+import { ClientComponentLoading, Modal } from '@/component/functionless/general';
+import type { TodoEntity } from '@/domain/data/todo.data';
+import type { DeleteTodoActionState } from '@/component/client-page/todo/action';
+import { deleteTodoAction } from '@/component/client-page/todo/action';
+import { useActionState, useState, useTransition } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation'
-import { SearchBox } from '@/component/functionless/general/SearchBox'
-import z from 'zod'
-import { extractZodErrorMessage, withServerActionHandling } from '@/util/server-actions'
-import { useToast } from '@/util/hook/useToast'
-import { createInitialFormActionState } from '@/util/form-action-state'
+import { useRouter, useSearchParams } from 'next/navigation';
+import { SearchBox } from '@/component/functionless/general/SearchBox';
+import z from 'zod';
+import { extractZodErrorMessage, withServerActionHandling } from '@/util/server-actions';
+import { useToast } from '@/util/hook/useToast';
+import { createInitialFormActionState } from '@/util/form-action-state';
 
 // 検索バリデーションの識別子とメッセージ
 const SEARCH_VALIDATION_ERRORS = {
   SYMBOL_NOT_ALLOWED: 'SYMBOL_NOT_ALLOWED',
-} as const
+} as const;
 
 const SEARCH_ERROR_MESSAGES = {
   SYMBOL_NOT_ALLOWED: '検索に記号は使用できません',
-} as const
+} as const;
 
-type SearchValidationError = keyof typeof SEARCH_VALIDATION_ERRORS
+type SearchValidationError = keyof typeof SEARCH_VALIDATION_ERRORS;
 
 /**
  * Todo検索用のバリデーションスキーマ
  */
 const searchTodoFormSchema = z.object({
   search: z.string().regex(/^[a-zA-Z0-9]*$/, SEARCH_VALIDATION_ERRORS.SYMBOL_NOT_ALLOWED),
-})
+});
 
 type TodoListProps = {
-  todos: TodoEntity[]
-}
+  todos: TodoEntity[];
+};
 
 export function TodoListClientPage(props: TodoListProps) {
-  const { todos } = props
-  const router = useRouter()
-  const { error } = useToast()
-  const [isLoading, startTransition] = useTransition()
+  const { todos } = props;
+  const router = useRouter();
+  const { error } = useToast();
+  const [isLoading, startTransition] = useTransition();
   // URLクエリパラメータと連動するステート
-  const searchParams = useSearchParams()
-  const initialSearch = searchParams.get('search') || ''
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
 
   // 検索用のローカル状態
-  const [search, setSearch] = useState(initialSearch)
+  const [search, setSearch] = useState(initialSearch);
 
-  const deleteModal = useModal<{ id: number; title: string }>()
+  const deleteModal = useModal<{ id: number; title: string }>();
 
   // 初期状態を作成
-  const initialDeleteState: DeleteTodoActionState = createInitialFormActionState()
+  const initialDeleteState: DeleteTodoActionState = createInitialFormActionState();
   // Server Actionをラップ
   const wrappedDeleteAction = withServerActionHandling(deleteTodoAction, {
     onSuccess: ({ success }) => {
-      deleteModal.closeModal()
-      success('削除しました')
+      deleteModal.closeModal();
+      success('削除しました');
     },
     initialState: initialDeleteState,
-  })
+  });
 
-  const [_, deleteAction, isPendingDelete] = useActionState(wrappedDeleteAction, initialDeleteState)
+  const [_, deleteAction, isPendingDelete] = useActionState(
+    wrappedDeleteAction,
+    initialDeleteState,
+  );
 
   const handleSearch = (formData: FormData) => {
     startTransition(() => {
-      const searchValue = formData.get('search') as string
-      const validationResult = searchTodoFormSchema.safeParse({ search: searchValue })
+      const searchValue = formData.get('search') as string;
+      const validationResult = searchTodoFormSchema.safeParse({ search: searchValue });
 
       if (!validationResult.success) {
-        const errorCode = extractZodErrorMessage(validationResult.error) as SearchValidationError
-        const errorMessage = SEARCH_ERROR_MESSAGES[errorCode] || '検索でエラーが発生しました'
-        error(errorMessage)
-        return
+        const errorCode = extractZodErrorMessage(validationResult.error) as SearchValidationError;
+        const errorMessage = SEARCH_ERROR_MESSAGES[errorCode] || '検索でエラーが発生しました';
+        error(errorMessage);
+        return;
       }
-      const params = new URLSearchParams(validationResult.data.search)
+      const params = new URLSearchParams(validationResult.data.search);
       if (searchValue) {
-        params.set('search', searchValue)
+        params.set('search', searchValue);
       }
-      router.replace(`/?search=${searchValue}`)
-    })
-  }
+      router.replace(`/?search=${searchValue}`);
+    });
+  };
 
   return (
     <>
@@ -255,5 +258,5 @@ export function TodoListClientPage(props: TodoListProps) {
         </Modal>
       </div>
     </>
-  )
+  );
 }

@@ -4,8 +4,8 @@
     "": {
       "name": "sample-app",
       "devDependencies": {
-        "@biomejs/biome": "^2.1.2",
-      },
+        "@biomejs/biome": "^2.1.2"
+      }
     },
     "typescript/backend": {
       "name": "backend",

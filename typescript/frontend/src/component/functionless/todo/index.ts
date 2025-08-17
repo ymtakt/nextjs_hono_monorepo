@@ -1,1 +1,1 @@
-export * from './TodoFormComponent'
+export * from './TodoFormComponent';
