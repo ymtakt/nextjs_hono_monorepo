@@ -3,7 +3,6 @@
 ## 概要
 
 コンポーネントは、機能なしコンポーネントと機能ありコンポーネントの 2 種類に分類されます。
-両者の適切な使い分けにより、再利用性とテスタビリティを高めることができます。
 
 ## 基本方針
 
@@ -17,9 +16,7 @@
 ### 機能ありコンポーネント
 
 1. 複数の画面で共有される状態を管理
-2. 共通のイベントハンドラを実装
-3. 機能なしコンポーネントを組み合わせる
-4. 特定の機能に特化した再利用可能なコンポーネント
+2. 特定の機能に特化した再利用可能なコンポーネント
 
 ## ファイル構成
 
@@ -28,8 +25,6 @@ component/
 ├── functional/           # 機能ありコンポーネント
 │   └── todo/
 │       ├── TodoList.tsx      # 一覧/詳細/編集画面で使用
-│       ├── TodoFilter.tsx    # 一覧/検索画面で使用
-│       └── TodoStats.tsx     # 一覧/ダッシュボード画面で使用
 └── functionless/        # 機能なしコンポーネント
     ├── general/         # 汎用コンポーネント
     │   ├── form/
@@ -173,148 +168,10 @@ export function TodoFormComponent(props: TodoFormComponentProps) {
 
 ### 2. 機能ありコンポーネント
 
-```typescript
-// component/functional/todo/TodoFilter.tsx
-type Props = {
-  current: string;
-  onChange: (filter: string) => void;
-};
-
-export function TodoFilter({ current, onChange }: Props) {
-  return (
-    <div className="flex gap-2">
-      <button
-        onClick={() => onChange("all")}
-        className={`px-3 py-1.5 rounded-lg ${
-          current === "all"
-            ? "bg-primary text-white"
-            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-        }`}
-      >
-        すべて
-      </button>
-      <button
-        onClick={() => onChange("active")}
-        className={`px-3 py-1.5 rounded-lg ${
-          current === "active"
-            ? "bg-primary text-white"
-            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-        }`}
-      >
-        未完了
-      </button>
-      <button
-        onClick={() => onChange("completed")}
-        className={`px-3 py-1.5 rounded-lg ${
-          current === "completed"
-            ? "bg-primary text-white"
-            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-        }`}
-      >
-        完了済み
-      </button>
-    </div>
-  );
-}
-```
-
-### 3. バリアント対応
+現時点では利用することはないため、実装時に定義します
 
 ```typescript
-// component/functionless/general/form/SubmitButton.tsx
-type Props = {
-  variant?: "primary" | "secondary" | "danger";
-  size?: "sm" | "md" | "lg";
-  loading?: boolean;
-  disabled?: boolean;
-  children: React.ReactNode;
-};
 
-export function SubmitButton({
-  variant = "primary",
-  size = "md",
-  loading,
-  disabled,
-  children,
-}: Props) {
-  const baseStyle = "font-medium rounded-lg transition-colors";
-
-  const variantStyles = {
-    primary: "bg-primary text-white hover:bg-primary-dark",
-    secondary: "bg-gray-500 text-white hover:bg-gray-600",
-    danger: "bg-error text-white hover:bg-error-dark",
-  };
-
-  const sizeStyles = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-4 py-2 text-base",
-    lg: "px-6 py-3 text-lg",
-  };
-
-  return (
-    <button
-      type="submit"
-      disabled={disabled || loading}
-      className={`
-        ${baseStyle}
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        ${disabled || loading ? "opacity-50 cursor-not-allowed" : ""}
-      `}
-    >
-      {loading ? "処理中..." : children}
-    </button>
-  );
-}
-```
-
-### 4. アクセシビリティ対応
-
-```typescript
-// component/functionless/general/Modal.tsx
-type Props = {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-};
-
-export function Modal({ isOpen, onClose, title, children }: Props) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") onClose();
-      }}
-      tabIndex={-1}
-    >
-      <div
-        role="document"
-        className="w-full max-w-md bg-background rounded-lg p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="modal-title" className="text-xl font-bold mb-4">
-          {title}
-        </h2>
-        {children}
-      </div>
-    </div>
-  );
-}
 ```
 
 ## チェックリスト
@@ -325,18 +182,8 @@ export function Modal({ isOpen, onClose, title, children }: Props) {
 - [ ] 内部状態を持っていない
 - [ ] イベントハンドラを props で受け取っている
 - [ ] デザインシステムに準拠している
-- [ ] アクセシビリティに配慮している
 
 ### 機能ありコンポーネント
-
-- [ ] 複数画面での使用を考慮した設計になっている
-- [ ] 共有される状態管理が適切
-- [ ] 共有されるロジックが適切に実装されている
-- [ ] 画面に応じた表示の切り替えが可能
-- [ ] 画面に応じたイベントハンドリングが可能
-- [ ] メモ化を必要に応じて使用
-- [ ] 機能なしコンポーネントを適切に使用
-- [ ] エラー状態を適切に処理
 
 ### 共通
 

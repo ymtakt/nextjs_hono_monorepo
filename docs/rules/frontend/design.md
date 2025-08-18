@@ -47,17 +47,6 @@ CSS カスタムプロパティを使用して、色、タイポグラフィ、�
 }
 ```
 
-### 2. ダークモード
-
-```css
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--color-gray-900);
-    --color-foreground: var(--color-gray-50);
-  }
-}
-```
-
 ## タイポグラフィ
 
 ```css
@@ -136,81 +125,6 @@ CSS カスタムプロパティを使用して、色、タイポグラフィ、�
 }
 ```
 
-### 2. フォーム要素
-
-```css
-@layer components {
-  .input {
-    @apply w-full p-2;
-    @apply border border-gray-500 rounded-lg;
-    @apply bg-background text-foreground;
-    @apply focus:outline-none focus:ring-2 focus:ring-primary;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .input-error {
-    @apply border-error;
-    @apply focus:ring-error;
-  }
-
-  .label {
-    @apply block text-sm font-medium text-foreground;
-    @apply mb-1;
-  }
-
-  .error-message {
-    @apply text-sm text-error;
-    @apply mt-1;
-  }
-}
-```
-
-### 3. カード
-
-```css
-@layer components {
-  .card {
-    @apply bg-background;
-    @apply rounded-lg shadow-md;
-    @apply p-6;
-  }
-
-  .card-header {
-    @apply text-xl font-bold text-foreground;
-    @apply mb-4;
-  }
-
-  .card-body {
-    @apply text-base text-foreground;
-  }
-
-  .card-footer {
-    @apply mt-4;
-    @apply flex justify-end gap-2;
-  }
-}
-```
-
-## レスポンシブデザイン
-
-```css
-@layer utilities {
-  /* モバイルファースト */
-  .container {
-    @apply mx-auto px-4;
-    @apply sm:px-6 lg:px-8;
-    @apply max-w-7xl;
-  }
-
-  /* グリッドシステム */
-  .grid-cols-auto-fit {
-    @apply grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    @apply gap-4;
-  }
-}
-```
-
 ## チェックリスト
 
 ### カラー
@@ -218,7 +132,6 @@ CSS カスタムプロパティを使用して、色、タイポグラフィ、�
 - [ ] プライマリカラーが定義されている
 - [ ] グレースケールが定義されている
 - [ ] セマンティックカラーが定義されている
-- [ ] ダークモード対応が実装されている
 
 ### タイポグラフィ
 

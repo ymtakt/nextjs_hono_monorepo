@@ -1,14 +1,14 @@
-# API サービス実装ルール
+# 外界サービス実装ルール
 
 ## 概要
 
-API サービスは、外部 API との通信を担当する層です。
-Hono クライアントを使用して API リクエストを行い、Result 型でレスポンスを返します。
+core/service は、外界との通信を担当する層です。
+例：外部 API、データベース、ファイルシステム、S3、Firebase、Redis などとの通信を行い、エラーを適切にスローします。
 
 ## 基本方針
 
-1. Hono クライアントの設定
-2. エラーハンドリング
+1. 外界との通信インターフェース
+2. エラーハンドリング（例外スロー）
 3. レスポンス型の定義
 4. 環境変数の管理
 
@@ -17,147 +17,121 @@ Hono クライアントを使用して API リクエストを行い、Result 型
 ```
 core/
 └── service/
-    ├── api.service.ts   # APIクライアント設定
-    └── api.type.ts      # 型定義
+    ├── api/
+    │   ├── hono.service.ts     # Hono API クライアント
+    ├── storage/
+    │   ├── s3.service.ts       # AWS S3
+    ├── firebase/
+    │   ├── firestore.service.ts    # Firestore
 ```
 
 ## 実装ルール
 
-### 1. API クライアント設定
+### 1. 外部 API 通信
 
 ```typescript
-// core/service/api.service.ts
+// core/service/api/hono.service.ts
 import { hc } from "@hono/client";
 import type { ApiType } from "@backend/src/index";
 
-// ✅ 環境変数からベースURLを取得
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
 if (!baseUrl) {
   throw new Error("API_URLが設定されていません");
 }
 
-// ✅ Honoクライアントの初期化
-export const apiService = hc<ApiType>(baseUrl, {
+// ✅ クライアント設定のみ
+export const honoClient = hc<ApiType>(baseUrl, {
   headers: {
     "Content-Type": "application/json",
   },
 });
 ```
 
-### 2. エラーハンドリング
+### 3. ストレージ通信
 
 ```typescript
-// core/service/api.type.ts
-export class ApiError extends Error {
-  constructor(public status: number, public code: string, message: string) {
-    super(message);
-    this.name = "ApiError";
-  }
-}
+// core/service/storage/s3.service.ts
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
-// ✅ エラーハンドリング関数
-export async function handleApiError(error: unknown): Promise<never> {
-  if (error instanceof ApiError) {
-    switch (error.status) {
-      case 400:
-        throw new ApiError(400, "VALIDATION_ERROR", "バリデーションエラー");
-      case 401:
-        throw new ApiError(401, "UNAUTHORIZED", "認証エラー");
-      case 404:
-        throw new ApiError(404, "NOT_FOUND", "リソースが見つかりません");
-      default:
-        throw new ApiError(500, "INTERNAL_SERVER_ERROR", "サーバーエラー");
-    }
-  }
-  throw new ApiError(500, "UNKNOWN_ERROR", "予期せぬエラーが発生しました");
-}
-```
-
-### 3. レスポンス型の定義
-
-```typescript
-// core/service/api.type.ts
-export type ApiResponse<T> = {
-  data: T;
-  status: number;
-  message: string;
-};
-
-export type ErrorResponse = {
-  code: string;
-  message: string;
-  details?: Record<string, string[]>;
-};
-```
-
-### 4. インターセプター
-
-```typescript
-// core/service/api.service.ts
-import { Hono } from "hono";
-import { ApiError } from "./api.type";
-
-// ✅ リクエストインターセプター
-const requestInterceptor = (config: RequestInit) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers = {
-      ...config.headers,
-      Authorization: `Bearer ${token}`,
-    };
-  }
-  return config;
-};
-
-// ✅ レスポンスインターセプター
-const responseInterceptor = async (response: Response) => {
-  if (!response.ok) {
-    const error = await response.json();
-    throw new ApiError(response.status, error.code, error.message);
-  }
-  return response;
-};
-
-// ✅ インターセプターの適用
-const app = new Hono();
-app.use("*", async (c, next) => {
-  try {
-    c.req.raw = new Request(c.req.url, requestInterceptor(c.req.raw));
-    const response = await next();
-    return responseInterceptor(response);
-  } catch (error) {
-    return handleApiError(error);
-  }
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION,
 });
+
+// ✅ S3の詳細は知らず、失敗したらエラー
+export async function downloadFile(key: string): Promise<Buffer> {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: process.env.S3_BUCKET,
+      Key: key,
+    });
+
+    const response = await s3Client.send(command);
+    // ... バッファ変換処理
+
+    return buffer;
+  } catch (error) {
+    // S3固有のエラーは関係なく、一律エラー
+    throw new Error("ファイル取得に失敗しました");
+  }
+}
+```
+
+### 4. Firebase 通信
+
+```typescript
+// core/service/firebase/firestore.service.ts
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
+
+const app = initializeApp({
+  // Firebase設定
+});
+const db = getFirestore(app);
+
+// ✅ Firestoreの詳細は知らず、問題があればエラー
+export async function fetchUsers(): Promise<UserData[]> {
+  try {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    const users: UserData[] = [];
+
+    querySnapshot.forEach((doc) => {
+      users.push({ id: doc.id, ...doc.data() } as UserData);
+    });
+
+    return users;
+  } catch (error) {
+    // Firebase固有のエラーは隠蔽し、一律でエラー
+    throw new Error("ユーザー取得に失敗しました");
+  }
+}
 ```
 
 ## チェックリスト
 
-### API クライアント
+### 外界通信
 
 - [ ] 環境変数が適切に設定されている
-- [ ] Hono クライアントが正しく初期化されている
-- [ ] 共通ヘッダーが設定されている
+- [ ] クライアントが正しく初期化されている
+- [ ] 共通設定が適用されている
 - [ ] 型定義が適切
 
 ### エラーハンドリング
 
-- [ ] エラー型が適切に定義されている
-- [ ] エラーコードが定義されている
+- [ ] 外界固有のエラーを隠蔽している
+- [ ] 一律でエラーをスローしている
 - [ ] エラーメッセージが適切
-- [ ] エラー変換が実装されている
+- [ ] 例外処理が実装されている
 
 ### レスポンス処理
 
-- [ ] レスポンス型が定義されている
-- [ ] 正常系のレスポンス変換が実装されている
-- [ ] エラー系のレスポンス変換が実装されている
-- [ ] バリデーションエラーの処理が実装されている
+- [ ] 生データの型が定義されている
+- [ ] 正常系のデータ変換が実装されている
+- [ ] 異常系の処理が実装されている
+- [ ] バリデーションが必要に応じて実装されている
 
 ### セキュリティ
 
-- [ ] 認証トークンの管理が適切
+- [ ] 認証情報の管理が適切
 - [ ] 機密情報の扱いが適切
-- [ ] CORS 設定が適切
-- [ ] CSRF トークンの処理が実装されている
+- [ ] 接続設定が適切
+- [ ] タイムアウト設定が実装されている

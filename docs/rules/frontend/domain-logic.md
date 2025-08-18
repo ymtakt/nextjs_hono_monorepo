@@ -47,15 +47,6 @@ export type TodoEntity = {
   createdAt: Date;
   updatedAt: Date;
 };
-
-export type CreateTodoData = {
-  title: string;
-  description: string;
-};
-
-export type UpdateTodoData = Partial<CreateTodoData> & {
-  completed?: boolean;
-};
 ```
 
 ### 2. SSR ロジック

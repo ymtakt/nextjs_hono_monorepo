@@ -22,18 +22,22 @@
 
 実装を始める前に、関連するアーキテクチャルールを確認してください。
 
+- **全体のアーキテクチャ**: [architecture.md](./architecture.md)のルールに従ってください
 - **ページコンポーネントの実装**: [app-router.md](./app-router.md) のルールに従ってください
 - **クライアントページの実装**: [client-page.md](./client-page.md) のルールに従ってください
 - **コンポーネントの実装**: [component.md](./component.md) のルールに従ってください
 - **Server Action の実装**: [server-action.md](./server-action.md) のルールに従ってください
 - **ドメインロジックの実装**: [domain-logic.md](./domain-logic.md) のルールに従ってください
 - **API サービスの実装**: [core-service.md](./core-service.md) のルールに従ってください
+- **テスト実装**: [test.md](./test.md) のルールに従ってください
+- **デザインルール**: [デザイン 実装ルール](./design.md) のルールに従ってください
 
 ### 3.2 エラーハンドリングルール
 
 - **ドメインロジック層**: Result 型でエラーを返却し、HTTP エラーの詳細を隠蔽します。
 - **Server Action**: エラーメッセージを設定して ActionState で返却します。
 - **クライアント側**: toast でエラーメッセージを表示し、一貫した UI 表現を提供します。
+- **サーバーコンポーネント側** Result 型でエラーを受け取った場合、notfound 画面を表示します。
 
 ### 3.3 バリデーションルール
 

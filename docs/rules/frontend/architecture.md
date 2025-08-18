@@ -95,8 +95,6 @@ graph TD
 4. **機能ありコンポーネント層** (`component/functional/`)
 
    - 複数の画面で共有される状態を管理
-   - 共通のイベントハンドラを実装
-   - 機能なしコンポーネントを組み合わせる
    - 特定の機能に特化した再利用可能なコンポーネント
 
 5. **ドメインロジック層** (`domain/logic/`)
@@ -104,14 +102,13 @@ graph TD
    - アプリケーションのビジネスロジック
    - `ssr/`: SSR 用のデータ取得ロジック
    - `action/`: ServerAction 用のデータ操作ロジック
-   - `util/`: 共通のドメインロジック
+   - `util/`: ドメイン内で使用される汎用的なロジック
    - Result 型でのエラーハンドリング
 
 6. **API サービス層** (`core/service/`)
    - 外部 API との通信
    - API クライアントの設定
-   - エラーハンドリング
-   - Result 型でのレスポンス返却
+   - 外部の詳細は知らず、異常時は単純にエラーをスローする
 
 ## ディレクトリ構造
 
@@ -136,8 +133,6 @@ src/
 │   ├── functional/        # 機能ありコンポーネント
 │   │   └── todo/
 │   │       ├── TodoList.tsx      # 一覧/詳細/編集画面で使用
-│   │       ├── TodoFilter.tsx    # 一覧/検索画面で使用
-│   │       └── TodoStats.tsx     # 一覧/ダッシュボード画面で使用
 │   └── functionless/      # 機能なしコンポーネント
 │       ├── general/       # 汎用コンポーネント
 │       │   ├── form/
@@ -175,8 +170,8 @@ sequenceDiagram
     Logic->>Service: API呼び出し
     Service->>API: リクエスト
     API-->>Service: レスポンス
-    Service-->>Logic: Result型
-    Logic-->>Page: Entity
+    Service-->>Logic: データ or Error
+    Logic-->>Page: Entity (Result型)
 ```
 
 ### 2. Server Action フロー
@@ -195,7 +190,7 @@ sequenceDiagram
     Logic->>Service: リクエスト
     Service->>API: API呼び出し
     API-->>Service: レスポンス
-    Service-->>Logic: Result型
+    Service-->>Logic: データ or Error
     Logic-->>Action: Result型
     Action-->>Page: ActionState
 ```
@@ -417,170 +412,6 @@ function convertValidationErrors(zodError: z.ZodError): TodoValidationErrors {
   - 個別フィールドのバリデーション
   - リアルタイムフィードバック
 
-## テスト戦略
-
-### テストの分類と責務
-
-#### 1. core/service テスト
-
-- API クライアントの設定テスト
-- エラーハンドリングのテスト
-- インターセプターのテスト
-- モックサーバーを使用した統合テスト
-
-```typescript
-// __test__/core/service/api.service.test.ts
-describe("apiService", () => {
-  it("正常系: リクエストヘッダーが正しく設定される", async () => {
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({}),
-    });
-    global.fetch = mockFetch;
-
-    await apiService.api.todo.$get();
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          "Content-Type": "application/json",
-        }),
-      })
-    );
-  });
-});
-```
-
-#### 2. domain/logic テスト
-
-- ビジネスロジックのユニットテスト
-- Result 型の戻り値テスト
-- エラーケースのテスト
-- モック可能な設計の確認
-
-```typescript
-// __test__/domain/logic/action/todo/create-todo.test.ts
-describe("createTodoLogic", () => {
-  it("正常系: Todoが作成できる", async () => {
-    const result = await createTodoLogic({
-      title: "テストTodo",
-      description: "説明",
-    });
-
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toEqual({
-        id: expect.any(String),
-        title: "テストTodo",
-        description: "説明",
-        completed: false,
-      });
-    }
-  });
-
-  it("異常系: バリデーションエラー", async () => {
-    const result = await createTodoLogic({
-      title: "", // 空文字
-      description: "説明",
-    });
-
-    expect(result.isErr()).toBe(true);
-    if (result.isErr()) {
-      expect(result.error).toEqual({
-        type: "VALIDATION_ERROR",
-        message: "タイトルは必須です",
-      });
-    }
-  });
-});
-```
-
-#### 3. client-page/action テスト
-
-- フォームバリデーションのテスト
-- ActionState の状態遷移テスト
-- エラーメッセージの変換テスト
-- ドメインロジックとの統合テスト
-
-```typescript
-// __test__/component/client-page/todo/action.test.ts
-describe("createTodoAction", () => {
-  it("正常系: フォームデータからTodoを作成できる", async () => {
-    const formData = new FormData();
-    formData.append("title", "テストTodo");
-    formData.append("description", "説明");
-
-    const result = await createTodoAction(null, formData);
-
-    expect(result.status).toBe(ACTION_STATUS.SUCCESS);
-    expect(result.data).toBeDefined();
-    expect(result.error).toBeNull();
-  });
-
-  it("異常系: バリデーションエラー", async () => {
-    const formData = new FormData();
-    formData.append("title", ""); // 空文字
-
-    const result = await createTodoAction(null, formData);
-
-    expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
-    expect(result.validationErrors?.title).toContain("タイトルは必須です");
-  });
-});
-```
-
-### テストの観点
-
-1. 基本機能
-
-   - 正常系: 作成・取得が成功する
-   - 異常系: バリデーションエラーが適切に返される
-
-2. バリデーション
-
-   - 必須項目: 空文字でエラーになる
-   - 文字数制限: 上限を超えるとエラーになる
-
-3. セキュリティ
-
-   - データ分離: 他ユーザーのデータは取得できない
-   - 認証: 認証済みユーザーのみアクセス可能
-
-4. エッジケース
-
-   - 空データ: Todo が 0 件の場合も正常に動作する
-   - 境界値: 文字数制限の境界値でのテスト
-
-5. データ整合性
-   - DB 確認: API と DB の状態が一致している
-   - キャッシュ: revalidatePath が適切に呼ばれている
-
-### テストファイル構成
-
-```
-__test__/
-├── component/
-│   └── client-page/
-│       └── todo/
-│           └── action.test.ts
-├── core/
-│   └── service/
-│       └── api.service.test.ts
-├── domain/
-│   └── logic/
-│       ├── action/
-│       │   └── todo/
-│       │       ├── create-todo.test.ts
-│       │       └── update-todo.test.ts
-│       └── ssr/
-│           └── todo/
-│               └── fetch-todos.test.ts
-└── util/
-    └── hook/
-        └── useActionState.test.ts
-```
-
 ## 実装ガイドライン
 
 各レイヤーの詳細な実装ルールは以下のドキュメントを参照：
@@ -591,3 +422,5 @@ __test__/
 - [ServerAction 実装ルール](./server-action.md)
 - [ドメインロジック実装ルール](./domain-logic.md)
 - [core サービス実装ルール](./core-service.md)
+- [デザイン 実装ルール](./design.md)
+- [テスト 実装ルール](./test.md)

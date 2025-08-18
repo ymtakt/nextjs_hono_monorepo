@@ -80,30 +80,6 @@ export async function createTodoAction(formData: FormData) {
 }
 ```
 
-## データフロー
-
-```mermaid
-sequenceDiagram
-    participant ユーザー
-    participant クライアントページ
-    participant サーバーアクション
-    participant ドメインロジック
-    participant APIサービス
-    participant 外部API
-
-    ユーザー->>クライアントページ: フォーム入力
-    クライアントページ->>サーバーアクション: フォームデータ
-    サーバーアクション->>サーバーアクション: バリデーション
-    サーバーアクション->>ドメインロジック: 検証済みデータ
-    ドメインロジック->>APIサービス: リクエスト
-    APIサービス->>外部API: HTTPリクエスト
-    外部API-->>APIサービス: レスポンス
-    APIサービス-->>ドメインロジック: Result型
-    ドメインロジック-->>サーバーアクション: Result型
-    サーバーアクション-->>クライアントページ: ActionState
-    クライアントページ->>ユーザー: 処理結果表示
-```
-
 ## 実装ルール
 
 ### 1. 基本構造

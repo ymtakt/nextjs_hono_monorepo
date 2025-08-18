@@ -33,26 +33,6 @@ app/
             └── page.tsx
 ```
 
-## データフロー
-
-```mermaid
-sequenceDiagram
-    participant ブラウザ
-    participant ページ as ページコンポーネント
-    participant ロジック as ドメインロジック
-    participant サービス as APIサービス
-    participant API as 外部API
-
-    ブラウザ->>ページ: アクセス
-    ページ->>ロジック: データ取得要求
-    ロジック->>サービス: API呼び出し
-    サービス->>API: HTTPリクエスト
-    API-->>サービス: レスポンス
-    サービス-->>ロジック: Result型
-    ロジック-->>ページ: Entity
-    ページ-->>ブラウザ: HTML
-```
-
 ## 実装ルール
 
 ### 1. ページコンポーネント
@@ -77,6 +57,8 @@ export default async function TodoListPage() {
 
 ```typescript
 // app/layout.tsx
+import { Providers } from "@/components/provider/Providers";
+
 export default function RootLayout({
   children,
 }: {
@@ -85,9 +67,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <header>...</header>
-        <main>{children}</main>
-        <footer>...</footer>
+        <Providers>
+          <header>...</header>
+          <main>{children}</main>
+          <footer>...</footer>
+        </Providers>
       </body>
     </html>
   );
@@ -179,7 +163,7 @@ export async function generateMetadata({
 
 ## 動的ルーティング
 
-### 1. パラメータの型定義
+### 1. 単一パラメータ
 
 ```typescript
 // app/todo/[id]/page.tsx
@@ -188,21 +172,47 @@ type Props = {
     id: string;
   };
 };
+
+export default async function TodoDetailPage({ params }: Props) {
+  const result = await fetchTodoLogic(params.id);
+  // ...
+}
 ```
 
-### 2. 静的生成
+### 2. 複数パラメータ
 
 ```typescript
-export async function generateStaticParams() {
-  const result = await fetchTodosLogic();
+// app/category/[slug]/todo/[id]/page.tsx
+type Props = {
+  params: {
+    slug: string;
+    id: string;
+  };
+};
 
-  if (result.isErr()) {
-    return [];
-  }
+export default async function CategoryTodoPage({ params }: Props) {
+  const result = await fetchCategoryTodoLogic(params.slug, params.id);
+  // ...
+}
+```
 
-  return result.value.map((todo) => ({
-    id: todo.id,
-  }));
+3. クエリパラメータ
+
+```typescript
+// app/todos/page.tsx
+type Props = {
+  searchParams: {
+    page?: string;
+    search?: string;
+    status?: string;
+  };
+};
+
+export default async function TodosPage({ searchParams }: Props) {
+  const page = searchParams.page || "1";
+  const search = searchParams.search || "";
+  const result = await fetchTodosLogic({ page, search });
+  // ...
 }
 ```
 
