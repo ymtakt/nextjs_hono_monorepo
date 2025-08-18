@@ -47,10 +47,14 @@ describe('createTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await createTodo(createRequest);
 
+    // 期待値の確認
     expect(result.isOk()).toBe(true);
+    // 成功時のデータの確認
     if (result.isOk()) {
+      // データの確認
       expect(result.value).toEqual({
         id: 1,
         title: '新しいTodo',
@@ -60,6 +64,7 @@ describe('createTodo', () => {
         updatedDate: '2025-01-01T00:00:00Z',
       });
     }
+    // モックの呼び出し確認
     expect(apiClient.api.todos.$post).toHaveBeenCalledWith({
       json: createRequest,
     });
@@ -91,8 +96,10 @@ describe('createTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     await createTodo(createRequest);
 
+    // モックの呼び出し確認
     expect(apiClient.api.todos.$post).toHaveBeenCalledWith({
       json: {
         title: 'テストタイトル',
@@ -118,10 +125,14 @@ describe('createTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await createTodo(createRequest);
 
+    // 期待値の確認
     expect(result.isErr()).toBe(true);
+    // エラー時のデータの確認
     if (result.isErr()) {
+      // エラーの内容が正しいか確認
       expect(result.error).toEqual({ type: 'TODO_CREATE_FAILED' });
     }
   });
@@ -135,12 +146,17 @@ describe('createTodo', () => {
       completed: false,
     };
 
+    // モックを設定
     vi.mocked(apiClient.api.todos.$post).mockRejectedValue(new Error('Network Error'));
 
+    // テスト対象の関数を実行
     const result = await createTodo(createRequest);
 
+    // 期待値の確認
     expect(result.isErr()).toBe(true);
+    // エラー時のデータの確認
     if (result.isErr()) {
+      // エラーの内容が正しいか確認
       expect(result.error).toEqual({ type: 'TODO_CREATE_FAILED' });
     }
   });
@@ -173,10 +189,14 @@ describe('createTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await createTodo(createRequest);
 
+    // 期待値の確認
     expect(result.isOk()).toBe(true);
+    // 成功時のデータの確認
     if (result.isOk()) {
+      // データの確認
       expect(result.value.description).toBe('');
     }
   });

@@ -22,6 +22,7 @@ vi.mock('timers', () => ({
 
 describe('fetchTodo', () => {
   beforeEach(() => {
+    // モックをリセット
     vi.clearAllMocks();
     // setTimeoutをモック化
     vi.spyOn(global, 'setTimeout').mockImplementation((callback) => {
@@ -52,10 +53,14 @@ describe('fetchTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await fetchTodo(1);
 
+    // 期待値の確認
     expect(result.isOk()).toBe(true);
+    // 成功時のデータの確認
     if (result.isOk()) {
+      // モックのデータが正しく返されているか確認
       expect(result.value).toEqual({
         id: 1,
         title: 'テストTodo',
@@ -65,6 +70,7 @@ describe('fetchTodo', () => {
         updatedDate: '2025-01-02T00:00:00Z',
       });
     }
+    // モックの呼び出し確認
     expect(apiClient.api.todos[':todoId'].$get).toHaveBeenCalledWith({
       param: { todoId: '1' },
     });
@@ -80,10 +86,15 @@ describe('fetchTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await fetchTodo(999);
 
+    // 期待値の確認
     expect(result.isErr()).toBe(true);
+
+    // エラー時のデータの確認
     if (result.isErr()) {
+      // エラーの内容が正しいか確認
       expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' });
     }
   });
@@ -93,10 +104,15 @@ describe('fetchTodo', () => {
   it('API呼び出しでエラーが発生した場合エラーが返される', async () => {
     vi.mocked(apiClient.api.todos[':todoId'].$get).mockRejectedValue(new Error('Network Error'));
 
+    // テスト対象の関数を実行
     const result = await fetchTodo(1);
 
+    // 期待値の確認
     expect(result.isErr()).toBe(true);
+
+    // エラー時のデータの確認
     if (result.isErr()) {
+      // エラーの内容が正しいか確認
       expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' });
     }
   });
@@ -121,8 +137,10 @@ describe('fetchTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     await fetchTodo(123);
 
+    // モックの呼び出し確認
     expect(apiClient.api.todos[':todoId'].$get).toHaveBeenCalledWith({
       param: { todoId: '123' },
     });

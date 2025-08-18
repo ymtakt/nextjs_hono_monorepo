@@ -6,18 +6,12 @@
 
 このプロジェクトでは、以下の 4 つの層をテスト対象とします：
 
-1. **Core/Service 層**: 外界との通信設定（API、S3、Firebase 等のクライアント初期化）
+1. **Core/Service 層**: 外界との通信設定と提供関数（API、S3、Firebase 等のクライアント初期化と操作関数）
 2. **Domain Logic 層**: ビジネスロジック（SSR 用データ取得、Action 用データ操作、共通変換処理）
 3. **Server Action 層**: フォーム処理とバリデーション（Client Page から Domain Logic を呼び出す）
 4. **Utility 層**: 汎用的なヘルパー関数（日付フォーマット、バリデーション変換等）
 
 ### 依存関係とテスト戦略
-
-**依存の流れ：**
-
-```
-Client Page → Server Action → Domain Logic → Core/Service → 外界
-```
 
 **テストでの依存関係の扱い：**
 
@@ -31,9 +25,10 @@ Client Page → Server Action → Domain Logic → Core/Service → 外界
 #### Core/Service 層
 
 - **設定テスト**: API クライアントの初期化、環境変数チェック
+- **提供関数**: 外部ライブラリをモック化した上で、操作関数（`downloadFile`、`fetchUsers`等）のエラーハンドリングと戻り値の確認
 - **エラーハンドリング**: 外界固有エラーの統一的な変換
 - **通信テスト**: リクエストヘッダー、レスポンス処理の確認
-- **統合テスト**: モックサーバーを使用した実際の通信フロー
+- **ライブラリ統合**: 外部 SDK（AWS SDK、Firebase SDK 等）の適切なモック化
 
 #### Domain Logic 層
 
@@ -65,7 +60,7 @@ Domain Logic 層では、外界からのエラーを全て Result 型（`ok()`/`
 Server Action 層では、フォームの状態を`ActionState`で管理し、バリデーションエラー時は入力値を保持してユーザビリティを向上させます。テストでは、この状態遷移と入力値保持機能を重点的に検証します。
 
 **外界の抽象化：**
-Core/Service 層では、外界の詳細（AWS 固有のエラーコード等）を隠蔽し、アプリケーション固有のエラーメッセージに変換します。テストでは、この変換機能が適切に動作することを確認します。
+Core/Service 層では、外界の詳細（AWS 固有のエラーコード等）を隠蔽し、一律で`throw new Error`によりアプリケーション固有のエラーメッセージをスローします。テストでは、外界でのエラーが適切に統一されたエラーメッセージに変換されることを確認します。
 
 ### テストの重要な観点
 
@@ -91,16 +86,20 @@ Vitest を使用し、各レイヤーに応じたテスト戦略を採用して�
 
 ```typescript
 // __test__/core/service/api/hono.service.test.ts
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { honoClient } from "@/core/service/api/hono.service";
 
 describe("honoClient", () => {
+  // 前提：honoClientが正しく設定されている
+  // 期待値：APIクライアントとその構造が定義されている
   it("APIクライアントが正しく初期化される", () => {
     expect(honoClient).toBeDefined();
     expect(honoClient.api).toBeDefined();
     expect(honoClient.api.todos).toBeDefined();
   });
 
+  // 前提：fetchをモック化し、honoClientでAPIを呼び出す
+  // 期待値：正しいヘッダー（Content-Type）が設定されてリクエストされる
   it("正常系: リクエストヘッダーが正しく設定される", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -143,6 +142,8 @@ describe("s3Service", () => {
     vi.mocked(S3Client).mockImplementation(() => mockS3Client as any);
   });
 
+  // 前提：S3Clientをモック化し、正常なレスポンスを返すよう設定
+  // 期待値：ファイル内容がBufferで返され、正しいパラメータでS3が呼ばれる
   it("正常系: ファイルを正常に取得できる", async () => {
     const mockBody = Buffer.from("test file content");
 
@@ -165,6 +166,8 @@ describe("s3Service", () => {
     );
   });
 
+  // 前提：S3Clientをモック化し、エラーを発生させる
+  // 期待値：S3固有のエラーが隠蔽され、統一されたエラーメッセージがスローされる
   it("異常系: S3エラー時に一律エラーをスローする", async () => {
     mockS3Client.send.mockRejectedValue(new Error("S3 Access Denied"));
 
@@ -310,6 +313,8 @@ describe("fetchTodo", () => {
     vi.clearAllMocks();
   });
 
+  // 前提：APIクライアントをモック化し、正常なTodoレスポンスを返すよう設定
+  // 期待値：APIレスポンスがTodoEntityに変換され、Result型のok()で返される
   it("正常系: Todoを取得して変換される", async () => {
     const mockTodo = {
       todo: {
@@ -347,6 +352,8 @@ describe("fetchTodo", () => {
     }
   });
 
+  // 前提：APIクライアントをモック化し、ok: falseのレスポンスを返すよう設定
+  // 期待値：TODO_FETCH_FAILEDエラーがResult型のerr()で返される
   it("異常系: APIレスポンスが正常でない場合", async () => {
     const mockResponse = { ok: false };
 
@@ -388,6 +395,8 @@ describe("createTodo", () => {
     vi.clearAllMocks();
   });
 
+  // 前提：APIクライアントをモック化し、正常なTodo作成レスポンスを返すよう設定
+  // 期待値：作成されたTodoがEntityに変換され、Result型のok()で返される
   it("正常系: Todoが作成できる", async () => {
     const mockCreatedTodo = {
       todo: {
@@ -426,6 +435,8 @@ describe("createTodo", () => {
     }
   });
 
+  // 前提：APIクライアントをモック化し、ネットワークエラーを発生させる
+  // 期待値：TODO_CREATE_FAILEDエラーがResult型のerr()で返される
   it("異常系: API呼び出しが失敗する", async () => {
     vi.mocked(apiClient.api.todos.$post).mockRejectedValue(
       new Error("Network Error")
@@ -452,6 +463,8 @@ import { describe, expect, it } from "vitest";
 import { transformToTodoEntity } from "@/domain/logic/util/todo/transform-to-todo-entity";
 
 describe("transformToTodoEntity", () => {
+  // 前提：完全なプロパティを持つTodoオブジェクトが渡される
+  // 期待値：すべてのフィールドが正しくTodoEntityにマッピングされる
   it("正常系: 完全なデータが正しく変換される", () => {
     const todoObject = {
       id: 1,
@@ -474,6 +487,8 @@ describe("transformToTodoEntity", () => {
     });
   });
 
+  // 前提：updatedAtが空文字のTodoオブジェクトが渡される
+  // 期待値：updatedDateにcreatedAtの値が設定される
   it("エッジケース: updatedAtがない場合はcreatedAtが使用される", () => {
     const todoObject = {
       id: 3,
@@ -489,6 +504,8 @@ describe("transformToTodoEntity", () => {
     expect(result.updatedDate).toBe("2024-01-15T10:00:00Z");
   });
 
+  // 前提：descriptionが空文字のTodoオブジェクトが渡される
+  // 期待値：descriptionが空文字として正しく変換される
   it("エッジケース: descriptionが空文字の場合", () => {
     const todoObject = {
       id: 2,
@@ -517,6 +534,8 @@ import {
 } from "@/util/server-actions";
 
 describe("convertValidationErrors", () => {
+  // 前提：zodのfieldErrorsと表示用メッセージマッピングが渡される
+  // 期待値：エラーコードが表示用メッセージに正しく変換される
   it("正常系: バリデーションエラーを正しく変換する", () => {
     const fieldErrors = {
       title: ["REQUIRED_TITLE"],
@@ -542,6 +561,8 @@ describe("convertValidationErrors", () => {
     });
   });
 
+  // 前提：存在しないエラーコードを含むfieldErrorsが渡される
+  // 期待値：存在しないエラーコードは無視され、空配列が設定される
   it("エッジケース: 存在しないエラーコードは無視される", () => {
     const fieldErrors = {
       title: ["UNKNOWN_ERROR"],
@@ -566,6 +587,8 @@ describe("convertValidationErrors", () => {
 });
 
 describe("getFirstValidationErrorMessage", () => {
+  // 前提：複数フィールドにエラーがあり、フィールド順序が指定される
+  // 期待値：フィールド順序に基づいて最初のエラーメッセージが返される
   it("正常系: フィールド順序に基づいて最初のエラーを取得する", () => {
     const validationErrors = {
       title: ["タイトルエラー"],
@@ -579,6 +602,8 @@ describe("getFirstValidationErrorMessage", () => {
     expect(result).toBe("説明エラー");
   });
 
+  // 前提：エラーメッセージが存在しないvalidationErrorsが渡される
+  // 期待値：nullが返される
   it("エッジケース: エラーがない場合はnullを返す", () => {
     const validationErrors = {
       title: [],
@@ -595,44 +620,96 @@ describe("getFirstValidationErrorMessage", () => {
 ```
 
 ```typescript
-// __test__/util/date-format.test.ts
+// __test__/util/hook/useModal.test.ts
+import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { formatDateToJapanese } from "@/util/date-format";
+import { useModal } from "@/util/hook/useModal";
 
-describe("formatDateToJapanese関数のテスト", () => {
-  // 前提：有効なISO形式の日付文字列が渡される
-  // 期待値：日本語ロケールでフォーマットされた日付文字列が返される
-  it("有効なISO日付文字列が正しくフォーマットされる", () => {
-    const dateString = "2024-01-15T00:00:00Z";
-    const result = formatDateToJapanese(dateString);
+describe("useModal", () => {
+  // 前提：初期状態でuseModalが呼び出される
+  // 期待値：isOpenがfalse、dataがnullで初期化される
+  it("初期状態が正しく設定される", () => {
+    const { result } = renderHook(() => useModal());
 
-    expect(result).toBe("2024/1/15");
+    expect(result.current.isOpen).toBe(false);
+    expect(result.current.data).toBe(null);
+    expect(typeof result.current.openModal).toBe("function");
+    expect(typeof result.current.closeModal).toBe("function");
   });
 
-  // 前提：yyyy-mm-dd形式の日付文字列が渡される
-  // 期待値：正しく日本語形式（yyyy/m/d）に変換される
-  it("yyyy-mm-dd形式の日付文字列が正しくフォーマットされる", () => {
-    const dateString = "2024-12-25";
-    const result = formatDateToJapanese(dateString);
+  // 前提：initialOpenにtrueを指定してuseModalが呼び出される
+  // 期待値：isOpenがtrueで初期化される
+  it("初期状態をtrueに設定できる", () => {
+    const { result } = renderHook(() => useModal(true));
 
-    expect(result).toBe("2024/12/25");
+    expect(result.current.isOpen).toBe(true);
+    expect(result.current.data).toBe(null);
   });
 
-  // 前提：無効な日付文字列が渡される
-  // 期待値：「日付不明」が返される
-  it("無効な日付文字列の場合エラーハンドリングされる", () => {
-    const dateString = "invalid";
-    const result = formatDateToJapanese(dateString);
+  // 前提：openModal関数がデータなしで呼び出される
+  // 期待値：isOpenがtrueになり、dataがnullのまま
+  it("データなしでモーダルを開ける", () => {
+    const { result } = renderHook(() => useModal());
 
-    expect(result).toBe("日付不明");
+    act(() => {
+      result.current.openModal();
+    });
+
+    expect(result.current.isOpen).toBe(true);
+    expect(result.current.data).toBe(null);
   });
 
-  // 前提：空文字が渡される
-  // 期待値：「日付不明」が返される
-  it("空文字の場合エラーハンドリングされる", () => {
-    const result = formatDateToJapanese("");
+  // 前提：openModal関数がデータ付きで呼び出される
+  // 期待値：isOpenがtrueになり、渡されたデータが設定される
+  it("データ付きでモーダルを開ける", () => {
+    const { result } = renderHook(() =>
+      useModal<{ id: number; name: string }>()
+    );
+    const testData = { id: 1, name: "テスト" };
 
-    expect(result).toBe("日付不明");
+    act(() => {
+      result.current.openModal(testData);
+    });
+
+    expect(result.current.isOpen).toBe(true);
+    expect(result.current.data).toEqual(testData);
+  });
+
+  // 前提：モーダルが開いた状態でcloseModal関数が呼び出される
+  // 期待値：isOpenがfalseになり、dataがnullにリセットされる
+  it("モーダルを閉じると状態がリセットされる", () => {
+    const { result } = renderHook(() => useModal<string>());
+    const testData = "テストデータ";
+
+    // モーダルを開く
+    act(() => {
+      result.current.openModal(testData);
+    });
+
+    // モーダルを閉じる
+    act(() => {
+      result.current.closeModal();
+    });
+
+    expect(result.current.isOpen).toBe(false);
+    expect(result.current.data).toBe(null);
+  });
+
+  // 前提：openModal関数が複数回連続で呼び出される
+  // 期待値：最後に渡されたデータが設定される
+  it("複数回開くと最後のデータが保持される", () => {
+    const { result } = renderHook(() => useModal<number>());
+
+    act(() => {
+      result.current.openModal(1);
+    });
+
+    act(() => {
+      result.current.openModal(2);
+    });
+
+    expect(result.current.isOpen).toBe(true);
+    expect(result.current.data).toBe(2);
   });
 });
 ```
@@ -734,26 +811,44 @@ bun run test __test__/util/
 
 ```typescript
 // Next.js機能のモック
+// revalidatePathはServer Actionでキャッシュを無効化する際に使用
+// テストでは実際のキャッシュ操作は不要なので、関数の呼び出し確認のみ行う
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
 // Domain Layer use-casesのモック
+// Server ActionテストでDomain Logicの実装詳細をテストから分離
+// 成功・失敗のパターンをResult型で制御可能
 vi.mock("@/domain/logic/action/todo/create-todo", () => ({
   createTodo: vi.fn(),
 }));
 
-// 外部サービスのモック
+// 外部サービス（Core/Service層）のモック
+// Domain LogicテストでAPIクライアントの実装詳細をテストから分離
+// Hono RPCクライアントの構造に合わせてメソッドをモック化
 vi.mock("@/core/service/api.service", () => ({
   apiClient: {
     api: {
       todos: {
-        $get: vi.fn(),
-        $post: vi.fn(),
-        ":todoId": { $get: vi.fn(), $put: vi.fn(), $delete: vi.fn() },
+        $get: vi.fn(), // GET /todos（一覧取得）
+        $post: vi.fn(), // POST /todos（作成）
+        ":todoId": {
+          // 動的ルート /todos/:todoId
+          $get: vi.fn(), // GET /todos/:todoId（詳細取得）
+          $put: vi.fn(), // PUT /todos/:todoId（更新）
+          $delete: vi.fn(), // DELETE /todos/:todoId（削除）
+        },
       },
     },
   },
+}));
+
+// 外部SDK（AWS、Firebase等）のモック例
+// Core/Serviceテストで外部ライブラリの実装詳細をテストから分離
+vi.mock("@aws-sdk/client-s3", () => ({
+  S3Client: vi.fn(), // S3クライアントのコンストラクタ
+  GetObjectCommand: vi.fn(), // S3からファイル取得用のコマンド
 }));
 ```
 
@@ -762,42 +857,82 @@ vi.mock("@/core/service/api.service", () => ({
 ```typescript
 import { ok, err } from "neverthrow";
 
-// 成功時のモック
+// 成功時のモック設定
+// Domain Logicが正常に動作した場合のレスポンスを模倣
+// ok()でラップされたデータが返される
 vi.mocked(createTodo).mockResolvedValue(ok(mockTodoEntity));
 
-// エラー時のモック
+// エラー時のモック設定
+// Domain Logicでエラーが発生した場合のレスポンスを模倣
+// err()でラップされたエラーオブジェクトが返される
 vi.mocked(createTodo).mockResolvedValue(err({ type: "TODO_CREATE_FAILED" }));
+
+// 使用例：Server Actionテストでの成功パターン
+it("成功パターンのテスト", async () => {
+  // createTodoが成功するようモック設定
+  vi.mocked(createTodo).mockResolvedValue(
+    ok({
+      id: 1,
+      title: "新しいTodo",
+      description: "説明",
+      isCompleted: false,
+    })
+  );
+
+  const result = await createTodoAction({}, formData);
+  expect(result.status).toBe(ACTION_STATUS.SUCCESS);
+});
+
+// 使用例：Server Actionテストでのエラーパターン
+it("エラーパターンのテスト", async () => {
+  // createTodoがエラーを返すようモック設定
+  vi.mocked(createTodo).mockResolvedValue(
+    err({
+      type: "TODO_CREATE_FAILED",
+    })
+  );
+
+  const result = await createTodoAction({}, formData);
+  expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+});
 ```
 
-### 3. FormData テストヘルパー
+### 3. モック使用時の注意点
 
 ```typescript
-// FormData作成ヘルパー
-const createFormData = (data: Record<string, string | boolean>) => {
-  const formData = new FormData();
-  Object.entries(data).forEach(([key, value]) => {
-    if (typeof value === "boolean") {
-      formData.append(key, value ? "on" : "off");
-    } else {
-      formData.append(key, value);
-    }
+describe("テストスイート", () => {
+  beforeEach(() => {
+    // 各テストケース実行前に全モックをリセット
+    // 前のテストの設定が後続のテストに影響しないようにする
+    vi.clearAllMocks();
   });
-  return formData;
-};
-```
 
-### 4. モックデータ定義
+  it("モック呼び出し確認の例", async () => {
+    // モックの戻り値を設定
+    vi.mocked(createTodo).mockResolvedValue(ok(mockData));
 
-```typescript
-// 再利用可能なモックEntity
-const mockTodoEntity = {
-  id: 1,
-  title: "テストTodo",
-  description: "テストの説明",
-  isCompleted: false,
-  createdDate: "2025-01-01T00:00:00Z",
-  updatedDate: "2025-01-01T00:00:00Z",
-};
+    // テスト対象の関数を実行
+    await createTodoAction({}, formData);
+
+    // モックが期待する引数で呼び出されたか確認
+    expect(createTodo).toHaveBeenCalledWith({
+      title: "テスト",
+      description: "説明",
+    });
+
+    // モックが1回だけ呼び出されたか確認
+    expect(createTodo).toHaveBeenCalledTimes(1);
+
+    // モックが呼び出されなかったことを確認
+    expect(someOtherFunction).not.toHaveBeenCalled();
+  });
+});
+
+// @ts-expect-error の使用について
+// TypeScriptの型チェックでエラーになるモック設定で使用
+// テスト専用のモックなので型安全性よりもテストの実行を優先
+// @ts-expect-error テスト用のmockなので型チェックをスキップ
+vi.mocked(apiClient.api.todos[":todoId"].$get).mockResolvedValue(mockResponse);
 ```
 
 ## テストのベストプラクティス

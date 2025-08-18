@@ -50,10 +50,13 @@ describe('updateTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
+    // 期待値の確認
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
+      // データの確認
       expect(result.value).toEqual({
         id: 1,
         title: '更新されたTodo',
@@ -92,8 +95,10 @@ describe('updateTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     await updateTodo(todoId, updateRequest);
 
+    // モックの呼び出し確認
     expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
       param: { todoId: '123' },
       json: {
@@ -133,12 +138,16 @@ describe('updateTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
+    // 期待値の確認
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
+      // データの確認
       expect(result.value.isCompleted).toBe(true);
     }
+    // モックの呼び出し確認
     expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
       param: { todoId: '1' },
       json: {
@@ -176,8 +185,10 @@ describe('updateTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     await updateTodo(todoId, updateRequest);
 
+    // モックの呼び出し確認
     expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
       param: { todoId: '456' },
       json: {
@@ -205,8 +216,10 @@ describe('updateTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
+    // 期待値の確認
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error).toEqual({ type: 'TODO_UPDATE_FAILED' });
@@ -225,8 +238,10 @@ describe('updateTodo', () => {
 
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockRejectedValue(new Error('Network Error'));
 
+    // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
+    // 期待値の確認
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
       expect(result.error).toEqual({ type: 'TODO_UPDATE_FAILED' });

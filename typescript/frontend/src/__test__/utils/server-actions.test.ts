@@ -42,15 +42,21 @@ describe('withServerActionHandling', () => {
       validationErrors: null,
     });
 
+    // テスト対象の関数を定義
     const wrappedAction = withServerActionHandling(mockServerAction, {
       onSuccess: mockOnSuccess,
       initialState,
     });
 
+    // テスト対象の関数を実行
     const formData = new FormData();
+
+    // テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
+    // モックの呼び出し確認
     expect(mockOnSuccess).toHaveBeenCalledWith({ success: mockSuccess });
+    // 成功時のデータの確認
     expect(result).toEqual(initialState);
   });
 
@@ -63,18 +69,26 @@ describe('withServerActionHandling', () => {
       validationErrors: { title: ['タイトルは必須です'] },
     };
 
+    // モックを定義
     const mockServerAction = vi.fn().mockResolvedValue(errorState);
 
+    // テスト対象の関数を定義
     const wrappedAction = withServerActionHandling(mockServerAction, {
       onSuccess: mockOnSuccess,
       initialState,
     });
 
+    // テスト対象の関数を実行
     const formData = new FormData();
+
+    // テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
+    // モックの呼び出し確認
     expect(mockError).toHaveBeenCalledWith('バリデーションエラーが発生しました');
+    // 成功時のデータの確認
     expect(result).toEqual(errorState);
+    // モックの呼び出し確認
     expect(mockOnSuccess).not.toHaveBeenCalled();
   });
 
@@ -87,18 +101,26 @@ describe('withServerActionHandling', () => {
       validationErrors: null,
     };
 
+    // モックを定義
     const mockServerAction = vi.fn().mockResolvedValue(errorState);
 
+    // テスト対象の関数を定義
     const wrappedAction = withServerActionHandling(mockServerAction, {
       onSuccess: mockOnSuccess,
       initialState,
     });
 
+    // テスト対象の関数を実行
     const formData = new FormData();
+
+    // テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
+    // モックの呼び出し確認
     expect(mockError).toHaveBeenCalledWith('サーバーエラーが発生しました');
+    // 成功時のデータの確認
     expect(result).toEqual(errorState);
+    // モックの呼び出し確認
     expect(mockOnSuccess).not.toHaveBeenCalled();
   });
 
@@ -111,19 +133,28 @@ describe('withServerActionHandling', () => {
       validationErrors: null,
     };
 
+    // モックを定義
     const mockServerAction = vi.fn().mockResolvedValue(unknownState);
 
+    // テスト対象の関数を定義
     const wrappedAction = withServerActionHandling(mockServerAction, {
       onSuccess: mockOnSuccess,
       initialState,
     });
 
+    // テスト対象の関数を実行
     const formData = new FormData();
+
+    // テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
+    // 期待値の確認
     expect(result).toEqual(unknownState);
+    // モックの呼び出し確認
     expect(mockError).not.toHaveBeenCalled();
+    // モックの呼び出し確認
     expect(mockSuccess).not.toHaveBeenCalled();
+    // モックの呼び出し確認
     expect(mockOnSuccess).not.toHaveBeenCalled();
   });
 });
@@ -143,13 +174,18 @@ describe('extractZodErrorMessage関数のテスト', () => {
         path: ['description'],
       },
     ]);
+
+    // テスト対象の関数を実行
     expect(extractZodErrorMessage(error)).toBe('titleエラーが発生しました');
   });
 
   // 前提：エラーメッセージが空のZodErrorが渡される
   // 期待値：デフォルトメッセージ「バリデーションエラー」が返される
   it('エラーメッセージが空のZodErrorが渡される', () => {
+    // モックを定義
     const error = new ZodError([]);
+
+    // テスト対象の関数を実行
     expect(extractZodErrorMessage(error)).toBe('バリデーションエラー');
   });
 
@@ -168,6 +204,8 @@ describe('extractZodErrorMessage関数のテスト', () => {
         path: ['title'], // 同じフィールド
       },
     ]);
+
+    // テスト対象の関数を実行
     expect(extractZodErrorMessage(error)).toBe('最初のエラー');
   });
 });
@@ -185,6 +223,8 @@ describe('convertValidationErrors関数のテスト', () => {
       REQUIRED_DESCRIPTION: '説明は必須です',
     };
     const validFields = ['title', 'description'] as const;
+
+    // テスト対象の関数を実行
     expect(convertValidationErrors(fieldErrors, messageMap, validFields)).toEqual({
       title: ['タイトルは必須です'],
       description: ['説明は必須です'],
@@ -201,6 +241,8 @@ describe('convertValidationErrors関数のテスト', () => {
       REQUIRED_TITLE: 'タイトルは必須です', // UNKNOWN_ERRORは定義されていない
     };
     const validFields = ['title'] as const;
+
+    // テスト対象の関数を実行
     expect(convertValidationErrors(fieldErrors, messageMap, validFields)).toEqual({
       title: ['エラーが発生しました'], // デフォルトメッセージが使用される
     });
@@ -215,6 +257,8 @@ describe('convertValidationErrors関数のテスト', () => {
       REQUIRED_DESCRIPTION: '説明は必須です',
     };
     const validFields = ['title', 'description'] as const;
+
+    // テスト対象の関数を実行
     expect(convertValidationErrors(fieldErrors, messageMap, validFields)).toEqual({});
   });
 });
@@ -229,6 +273,7 @@ describe('getFirstValidationErrorMessage関数のテスト', () => {
     };
     const fieldOrder = ['description', 'title'] as const; // descriptionを先にチェック
 
+    // テスト対象の関数を実行
     expect(getFirstValidationErrorMessage(validationErrors, fieldOrder)).toBe('説明は必須です');
   });
 
@@ -238,6 +283,7 @@ describe('getFirstValidationErrorMessage関数のテスト', () => {
     const validationErrors = {} as Record<string, string[]>;
     const fieldOrder = ['title', 'description'] as const;
 
+    // テスト対象の関数を実行
     expect(getFirstValidationErrorMessage(validationErrors, fieldOrder)).toBe(
       '入力内容を確認してください',
     );
@@ -252,6 +298,7 @@ describe('getFirstValidationErrorMessage関数のテスト', () => {
     };
     const fieldOrder = ['title', 'description'] as const;
 
+    // テスト対象の関数を実行
     expect(getFirstValidationErrorMessage(validationErrors, fieldOrder)).toBe('説明は必須です');
   });
 });

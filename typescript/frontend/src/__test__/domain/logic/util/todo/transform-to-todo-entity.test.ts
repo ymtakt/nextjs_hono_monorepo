@@ -14,8 +14,10 @@ describe('transformToTodoEntity', () => {
       updatedAt: '2024-01-16T10:00:00Z',
     };
 
+    // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
+    // 期待値の確認
     expect(result).toEqual({
       id: 1,
       title: 'テストタスク',
@@ -38,8 +40,10 @@ describe('transformToTodoEntity', () => {
       updatedAt: '2024-01-15T10:00:00Z',
     };
 
+    // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
+    // 期待値の確認
     expect(result.description).toBe('');
   });
 
@@ -55,8 +59,10 @@ describe('transformToTodoEntity', () => {
       updatedAt: '',
     };
 
+    // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
+    // 期待値の確認
     expect(result.updatedDate).toBe('2024-01-15T10:00:00Z');
   });
 
@@ -72,8 +78,10 @@ describe('transformToTodoEntity', () => {
       updatedAt: '2024-01-15T10:00:00Z',
     };
 
+    // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
+    // 期待値の確認
     expect(result.isCompleted).toBe(false);
   });
 
@@ -89,8 +97,10 @@ describe('transformToTodoEntity', () => {
       updatedAt: '2024-01-15T10:00:00Z',
     };
 
+    // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
+    // 期待値の確認
     expect(result.isCompleted).toBe(true);
   });
 });

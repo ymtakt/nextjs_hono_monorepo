@@ -32,12 +32,17 @@ describe('deleteTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await deleteTodo(todoId);
 
+    // 期待値の確認
     expect(result.isOk()).toBe(true);
+    // 成功時のデータの確認
     if (result.isOk()) {
+      // データの確認
       expect(result.value).toBeUndefined(); // voidなのでundefined
     }
+    // モックの呼び出し確認
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenCalledWith({
       param: { todoId: '1' },
     });
@@ -54,8 +59,10 @@ describe('deleteTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     await deleteTodo(todoId);
 
+    // モックの呼び出し確認
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenCalledWith({
       param: { todoId: '123' },
     });
@@ -73,10 +80,14 @@ describe('deleteTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result = await deleteTodo(todoId);
 
+    // 期待値の確認
     expect(result.isErr()).toBe(true);
+    // エラー時のデータの確認
     if (result.isErr()) {
+      // エラーの内容が正しいか確認
       expect(result.error).toEqual({ type: 'TODO_DELETE_FAILED' });
     }
   });
@@ -88,10 +99,14 @@ describe('deleteTodo', () => {
 
     vi.mocked(apiClient.api.todos[':todoId'].$delete).mockRejectedValue(new Error('Network Error'));
 
+    // テスト対象の関数を実行
     const result = await deleteTodo(todoId);
 
+    // 期待値の確認
     expect(result.isErr()).toBe(true);
+    // エラー時のデータの確認
     if (result.isErr()) {
+      // エラーの内容が正しいか確認
       expect(result.error).toEqual({ type: 'TODO_DELETE_FAILED' });
     }
   });
@@ -106,12 +121,15 @@ describe('deleteTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$delete).mockResolvedValue(mockResponse);
 
+    // テスト対象の関数を実行
     const result1 = await deleteTodo(1);
     const result2 = await deleteTodo(2);
 
+    // 期待値の確認
     expect(result1.isOk()).toBe(true);
     expect(result2.isOk()).toBe(true);
 
+    // モックの呼び出し確認
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenCalledTimes(2);
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenNthCalledWith(1, {
       param: { todoId: '1' },
