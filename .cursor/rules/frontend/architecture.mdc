@@ -1,0 +1,10 @@
+---
+description: フロントエンドアーキテクチャルール
+globs: typescript/frontend/src/**
+alwaysApply: false
+redirect: docs/rules/frontend/architecture.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/architecture.md](../../../docs/rules/frontend/architecture.md) に従います。

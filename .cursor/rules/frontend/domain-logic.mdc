@@ -1,0 +1,10 @@
+---
+description: ドメインロジックのルール
+globs: typescript/frontend/src/domain/logic/**
+alwaysApply: false
+redirect: docs/rules/frontend/domain-logic.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/domain-logic.md](../../../docs/rules/frontend/domain-logic.md) に従います。

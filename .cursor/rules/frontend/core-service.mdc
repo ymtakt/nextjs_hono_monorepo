@@ -1,0 +1,10 @@
+---
+description: コアサービスのルール
+globs: typescript/frontend/src/core/service/**
+alwaysApply: false
+redirect: docs/rules/frontend/core-service.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/core-service.md](../../../docs/rules/frontend/core-service.md) に従います。

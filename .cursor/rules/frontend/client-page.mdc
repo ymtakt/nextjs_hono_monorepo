@@ -1,0 +1,10 @@
+---
+description: クライアントページコンポーネントのルール
+globs: typescript/frontend/src/component/client-page/**
+alwaysApply: false
+redirect: docs/rules/frontend/client-page.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/client-page.md](../../../docs/rules/frontend/client-page.md) に従います。

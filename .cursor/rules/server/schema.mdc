@@ -1,0 +1,10 @@
+---
+description: スキーマ定義およびシードデータ
+globs: backend/src/schema/**
+alwaysApply: false
+redirect: docs/rules/server/schema.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/server/schema.md](../../../docs/rules/server/schema.md) に従います。

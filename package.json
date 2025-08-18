@@ -1,0 +1,24 @@
+{
+  "name": "sample-app",
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.2"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "bun run dev:api & bun run dev:web",
+    "dev:web": "cd typescript/frontend && bun run dev",
+    "dev:api": "cd typescript/backend && bun run dev",
+    "test": "cd typescript/frontend && bun run test",
+    "test:ui": "cd typescript/frontend && bun run test:ui",
+    "test:run": "cd typescript/frontend && bun run test:run",
+    "format": "bunx @biomejs/biome format --write .",
+    "format:check": "bunx @biomejs/biome format .",
+    "lint": "bunx @biomejs/biome lint .",
+    "lint:fix": "bunx @biomejs/biome lint --write .",
+    "check": "bunx @biomejs/biome check --write .",
+    "check:ci": "bunx @biomejs/biome ci ."
+  },
+  "workspaces": [
+    "typescript/*"
+  ]
+}

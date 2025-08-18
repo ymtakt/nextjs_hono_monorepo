@@ -1,0 +1,10 @@
+---
+description: フロントエンド全体に常に適用されるルール
+globs: typescript/frontend/**
+alwaysApply: true
+redirect: docs/rules/frontend/always-applied-rules.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/always-applied-rules.md](../../../docs/rules/frontend/always-applied-rules.md) に従います。

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
+  "root": false,
+  "extends": "//",
+  "javascript": {
+    "formatter": {
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "linter": {
+    "rules": {
+      "correctness": {
+        "noUnusedVariables": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
+      },
+      "style": {
+        "useImportType": "error"
+      },
+      "a11y": {
+        "useSemanticElements": "off"
+      }
+    }
+  }
+}

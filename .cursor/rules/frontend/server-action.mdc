@@ -1,0 +1,10 @@
+---
+description: Server Actionのルール
+globs: typescript/frontend/src/domain/logic/action/**
+alwaysApply: false
+redirect: docs/rules/frontend/server-action.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/server-action.md](../../../docs/rules/frontend/server-action.md) に従います。

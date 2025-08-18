@@ -1,0 +1,12 @@
+---
+description: フロントエンドテストのルール
+globs:
+  - typescript/frontend/src/**/*.test.*
+  - typescript/frontend/src/__test__/**
+alwaysApply: false
+redirect: docs/rules/frontend/test.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/test.md](../../../docs/rules/frontend/test.md) に従います。

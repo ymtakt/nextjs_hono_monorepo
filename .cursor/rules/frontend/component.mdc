@@ -1,0 +1,10 @@
+---
+description: コンポーネント設計ルール
+globs: typescript/frontend/src/component/**
+alwaysApply: false
+redirect: docs/rules/frontend/component.md
+---
+
+# ルールの内容
+
+ルールの内容は [docs/rules/frontend/component.md](../../../docs/rules/frontend/component.md) に従います。
