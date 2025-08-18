@@ -7,6 +7,8 @@ Next.js と Hono を使用したモノレポプロジェクトです。
 - Node.js: v22.7.0 以上
 - npm: v10.8.2 以上
 - Next.js: v15.2.4
+- Bun: 最新版
+- PostgreSQL: 15 以上
 
 ## モノレポツール
 
@@ -18,6 +20,11 @@ bun workspace
 # パッケージインストール
 bun install
 
+# データベースセットアップ
+cd typescript/backend
+bun run db:push
+bun run db:seed
+
 # 開発サーバー起動
 bun run dev
 ```
@@ -27,6 +34,26 @@ bun run dev
 | コマンド      | 説明                                              |
 | ------------- | ------------------------------------------------- |
 | `bun run dev` | 開発サーバーを起動します（http://localhost:3000） |
+
+### フロントエンド（typescript/frontend）
+
+| コマンド             | 説明                           |
+| -------------------- | ------------------------------ |
+| `bun run dev`        | フロントエンド開発サーバー起動 |
+| `bun run build`      | プロダクションビルド           |
+| `bun run test`       | テスト実行                     |
+| `bun run test:watch` | テスト監視モード               |
+
+### バックエンド（typescript/backend）
+
+| コマンド            | 説明                                  |
+| ------------------- | ------------------------------------- |
+| `bun run dev`       | バックエンド開発サーバー起動（:8080） |
+| `bun run test`      | テスト実行                            |
+| `bun run test:ui`   | テスト UI 起動                        |
+| `bun run db:push`   | データベーススキーマ適用              |
+| `bun run db:seed`   | シードデータ投入                      |
+| `bun run db:studio` | Prisma Studio 起動                    |
 
 ## フォルダ構成
 
@@ -106,10 +133,68 @@ Hono を採用し、以下の設計原則に基づいています：
    - Repository（データアクセス）
 
 2. **データベース**
+
    - Prisma ORM
    - PostgreSQL
 
+3. **API 仕様**
+
+   - OpenAPI 3.0 準拠
+   - 型安全なスキーマ定義（Zod）
+   - 自動生成ドキュメント
+
+4. **エラーハンドリング**
+   - Result 型による統一的なエラー処理
+   - 構造化されたエラーレスポンス
+
 詳細な実装ルールは [バックエンドドキュメント](./docs/rules/server/architecture.md) を参照してください。
+
+## API ドキュメント
+
+バックエンドサーバー起動後、以下の URL で API 仕様を確認できます：
+
+- **API ドキュメント**: http://localhost:8080/development/docs
+- **OpenAPI 仕様書**: http://localhost:8080/development/spec
+
+## テスト
+
+### フロントエンド
+
+- **テストフレームワーク**: Vitest + React Testing Library
+- **カバレッジ**: ドメインロジック、コンポーネント、hooks
+
+### バックエンド
+
+- **テストフレームワーク**: Vitest
+- **テスト方針**: エンドツーエンドテスト（UseCase をモックしない）
+- **データベース**: テスト用データベースを使用
+
+## 技術スタック
+
+### フロントエンド
+
+- Next.js 15 (App Router)
+- React 19
+- TypeScript
+- TailwindCSS
+- Zod (バリデーション)
+- neverthrow (Result 型)
+
+### バックエンド
+
+- Hono 4
+- TypeScript
+- Prisma ORM
+- PostgreSQL
+- Zod (スキーマ定義)
+- OpenAPI 3.0
+- neverthrow (Result 型)
+
+### 開発ツール
+
+- Bun (パッケージマネージャー・ランタイム)
+- Biome (リンター・フォーマッター)
+- Vitest (テストフレームワーク)
 
 ## 開発フロー
 
