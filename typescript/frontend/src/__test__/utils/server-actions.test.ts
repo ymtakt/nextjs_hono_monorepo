@@ -54,9 +54,9 @@ describe('withServerActionHandling', () => {
     // テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
-    // モックの呼び出し確認
+    // onSuccessコールバックが正しいパラメータで呼び出されたかどうか
     expect(mockOnSuccess).toHaveBeenCalledWith({ success: mockSuccess });
-    // 成功時のデータの確認
+    // 初期状態が返されているかどうか
     expect(result).toEqual(initialState);
   });
 
@@ -84,11 +84,11 @@ describe('withServerActionHandling', () => {
     // テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
-    // モックの呼び出し確認
+    // エラートーストが正しいメッセージで表示されたかどうか
     expect(mockError).toHaveBeenCalledWith('バリデーションエラーが発生しました');
-    // 成功時のデータの確認
+    // エラー状態が返されているかどうか
     expect(result).toEqual(errorState);
-    // モックの呼び出し確認
+    // onSuccessコールバックが呼び出されていないかどうか
     expect(mockOnSuccess).not.toHaveBeenCalled();
   });
 
@@ -116,11 +116,11 @@ describe('withServerActionHandling', () => {
     // テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
-    // モックの呼び出し確認
+    // エラートーストが正しいメッセージで表示されたかどうか
     expect(mockError).toHaveBeenCalledWith('サーバーエラーが発生しました');
-    // 成功時のデータの確認
+    // エラー状態が返されているかどうか
     expect(result).toEqual(errorState);
-    // モックの呼び出し確認
+    // onSuccessコールバックが呼び出されていないかどうか
     expect(mockOnSuccess).not.toHaveBeenCalled();
   });
 
@@ -148,13 +148,13 @@ describe('withServerActionHandling', () => {
     // テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
-    // 期待値の確認
+    // 予期しない状態がそのまま返されているかどうか
     expect(result).toEqual(unknownState);
-    // モックの呼び出し確認
+    // エラートーストが呼び出されていないかどうか
     expect(mockError).not.toHaveBeenCalled();
-    // モックの呼び出し確認
+    // 成功トーストが呼び出されていないかどうか
     expect(mockSuccess).not.toHaveBeenCalled();
-    // モックの呼び出し確認
+    // onSuccessコールバックが呼び出されていないかどうか
     expect(mockOnSuccess).not.toHaveBeenCalled();
   });
 });
@@ -176,6 +176,7 @@ describe('extractZodErrorMessage関数のテスト', () => {
     ]);
 
     // テスト対象の関数を実行
+    // 最初のエラーメッセージが返されているかどうか
     expect(extractZodErrorMessage(error)).toBe('titleエラーが発生しました');
   });
 
@@ -186,6 +187,7 @@ describe('extractZodErrorMessage関数のテスト', () => {
     const error = new ZodError([]);
 
     // テスト対象の関数を実行
+    // デフォルトメッセージが返されているかどうか
     expect(extractZodErrorMessage(error)).toBe('バリデーションエラー');
   });
 
@@ -206,6 +208,7 @@ describe('extractZodErrorMessage関数のテスト', () => {
     ]);
 
     // テスト対象の関数を実行
+    // 最初のエラーメッセージが返されているかどうか
     expect(extractZodErrorMessage(error)).toBe('最初のエラー');
   });
 });
@@ -225,6 +228,7 @@ describe('convertValidationErrors関数のテスト', () => {
     const validFields = ['title', 'description'] as const;
 
     // テスト対象の関数を実行
+    // エラーコードが表示用メッセージに変換されているかどうか
     expect(convertValidationErrors(fieldErrors, messageMap, validFields)).toEqual({
       title: ['タイトルは必須です'],
       description: ['説明は必須です'],
@@ -243,6 +247,7 @@ describe('convertValidationErrors関数のテスト', () => {
     const validFields = ['title'] as const;
 
     // テスト対象の関数を実行
+    // 未知のエラーコードがデフォルトメッセージに変換されているかどうか
     expect(convertValidationErrors(fieldErrors, messageMap, validFields)).toEqual({
       title: ['エラーが発生しました'], // デフォルトメッセージが使用される
     });
@@ -259,6 +264,7 @@ describe('convertValidationErrors関数のテスト', () => {
     const validFields = ['title', 'description'] as const;
 
     // テスト対象の関数を実行
+    // 空のオブジェクトが返されているかどうか
     expect(convertValidationErrors(fieldErrors, messageMap, validFields)).toEqual({});
   });
 });
@@ -274,6 +280,7 @@ describe('getFirstValidationErrorMessage関数のテスト', () => {
     const fieldOrder = ['description', 'title'] as const; // descriptionを先にチェック
 
     // テスト対象の関数を実行
+    // 指定順序の最初のフィールドのエラーメッセージが返されているかどうか
     expect(getFirstValidationErrorMessage(validationErrors, fieldOrder)).toBe('説明は必須です');
   });
 
@@ -284,6 +291,7 @@ describe('getFirstValidationErrorMessage関数のテスト', () => {
     const fieldOrder = ['title', 'description'] as const;
 
     // テスト対象の関数を実行
+    // デフォルトメッセージが返されているかどうか
     expect(getFirstValidationErrorMessage(validationErrors, fieldOrder)).toBe(
       '入力内容を確認してください',
     );
@@ -299,6 +307,7 @@ describe('getFirstValidationErrorMessage関数のテスト', () => {
     const fieldOrder = ['title', 'description'] as const;
 
     // テスト対象の関数を実行
+    // 空配列のフィールドがスキップされて次のフィールドのメッセージが返されているかどうか
     expect(getFirstValidationErrorMessage(validationErrors, fieldOrder)).toBe('説明は必須です');
   });
 });

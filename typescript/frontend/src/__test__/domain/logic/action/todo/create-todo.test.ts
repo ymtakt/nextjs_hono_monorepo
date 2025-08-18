@@ -50,11 +50,11 @@ describe('createTodo', () => {
     // テスト対象の関数を実行
     const result = await createTodo(createRequest);
 
-    // 期待値の確認
+    // 結果が成功状態であるかどうか
     expect(result.isOk()).toBe(true);
     // 成功時のデータの確認
     if (result.isOk()) {
-      // データの確認
+      // 作成されたTodoエンティティが期待値と一致するかどうか
       expect(result.value).toEqual({
         id: 1,
         title: '新しいTodo',
@@ -64,7 +64,7 @@ describe('createTodo', () => {
         updatedDate: '2025-01-01T00:00:00Z',
       });
     }
-    // モックの呼び出し確認
+    // APIが正しいJSONで呼び出されたかどうか
     expect(apiClient.api.todos.$post).toHaveBeenCalledWith({
       json: createRequest,
     });
@@ -99,7 +99,7 @@ describe('createTodo', () => {
     // テスト対象の関数を実行
     await createTodo(createRequest);
 
-    // モックの呼び出し確認
+    // APIが正しいリクエストボディで呼び出されたかどうか
     expect(apiClient.api.todos.$post).toHaveBeenCalledWith({
       json: {
         title: 'テストタイトル',
@@ -128,11 +128,11 @@ describe('createTodo', () => {
     // テスト対象の関数を実行
     const result = await createTodo(createRequest);
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
     // エラー時のデータの確認
     if (result.isErr()) {
-      // エラーの内容が正しいか確認
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_CREATE_FAILED' });
     }
   });
@@ -152,11 +152,11 @@ describe('createTodo', () => {
     // テスト対象の関数を実行
     const result = await createTodo(createRequest);
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
     // エラー時のデータの確認
     if (result.isErr()) {
-      // エラーの内容が正しいか確認
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_CREATE_FAILED' });
     }
   });
@@ -192,11 +192,11 @@ describe('createTodo', () => {
     // テスト対象の関数を実行
     const result = await createTodo(createRequest);
 
-    // 期待値の確認
+    // 結果が成功状態であるかどうか
     expect(result.isOk()).toBe(true);
     // 成功時のデータの確認
     if (result.isOk()) {
-      // データの確認
+      // 空のdescriptionが正しく設定されているかどうか
       expect(result.value.description).toBe('');
     }
   });

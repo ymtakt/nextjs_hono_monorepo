@@ -53,10 +53,10 @@ describe('updateTodo', () => {
     // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
-    // 期待値の確認
+    // 結果が成功状態であるかどうか
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
-      // データの確認
+      // 更新されたTodoエンティティが期待値と一致するかどうか
       expect(result.value).toEqual({
         id: 1,
         title: '更新されたTodo',
@@ -98,7 +98,7 @@ describe('updateTodo', () => {
     // テスト対象の関数を実行
     await updateTodo(todoId, updateRequest);
 
-    // モックの呼び出し確認
+    // APIが正しいパラメータとJSONで呼び出されたかどうか
     expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
       param: { todoId: '123' },
       json: {
@@ -141,13 +141,13 @@ describe('updateTodo', () => {
     // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
-    // 期待値の確認
+    // 結果が成功状態であるかどうか
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
-      // データの確認
+      // completedフィールドが正しく更新されているかどうか
       expect(result.value.isCompleted).toBe(true);
     }
-    // モックの呼び出し確認
+    // APIが正しいパラメータで呼び出されたかどうか
     expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
       param: { todoId: '1' },
       json: {
@@ -188,7 +188,7 @@ describe('updateTodo', () => {
     // テスト対象の関数を実行
     await updateTodo(todoId, updateRequest);
 
-    // モックの呼び出し確認
+    // APIが数値のIDを文字列に変換して呼び出されたかどうか
     expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
       param: { todoId: '456' },
       json: {
@@ -219,9 +219,10 @@ describe('updateTodo', () => {
     // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_UPDATE_FAILED' });
     }
   });
@@ -241,9 +242,10 @@ describe('updateTodo', () => {
     // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
     if (result.isErr()) {
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_UPDATE_FAILED' });
     }
   });

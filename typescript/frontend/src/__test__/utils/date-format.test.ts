@@ -10,7 +10,7 @@ describe('formatDateToJapanese関数のテスト', () => {
     // テスト対象の関数を実行
     const result = formatDateToJapanese(dateString);
 
-    // 期待値の確認
+    // 日本語形式の日付文字列に変換されているかどうか
     expect(result).toBe('2024/1/15');
   });
 
@@ -22,7 +22,7 @@ describe('formatDateToJapanese関数のテスト', () => {
     // テスト対象の関数を実行
     const result = formatDateToJapanese(dateString);
 
-    // 期待値の確認
+    // 日本語形式の日付文字列に変換されているかどうか
     expect(result).toBe('2024/12/25');
   });
 
@@ -34,7 +34,7 @@ describe('formatDateToJapanese関数のテスト', () => {
     // テスト対象の関数を実行
     const result = formatDateToJapanese(dateString);
 
-    // 期待値の確認
+    // エラー時のフォールバック文字列が返されているかどうか
     expect(result).toBe('日付不明');
   });
 });

@@ -8,9 +8,13 @@ describe('useModal', () => {
   it('初期状態が正しく設定される', () => {
     const { result } = renderHook(() => useModal());
 
+    // モーダルが閉じた状態で初期化されているかどうか
     expect(result.current.isOpen).toBe(false);
+    // データがnullで初期化されているかどうか
     expect(result.current.data).toBe(null);
+    // openModal関数が提供されているかどうか
     expect(typeof result.current.openModal).toBe('function');
+    // closeModal関数が提供されているかどうか
     expect(typeof result.current.closeModal).toBe('function');
   });
 
@@ -19,7 +23,9 @@ describe('useModal', () => {
   it('初期状態をtrueに設定できる', () => {
     const { result } = renderHook(() => useModal(true));
 
+    // モーダルが開いた状態で初期化されているかどうか
     expect(result.current.isOpen).toBe(true);
+    // データがnullで初期化されているかどうか
     expect(result.current.data).toBe(null);
   });
 
@@ -32,7 +38,9 @@ describe('useModal', () => {
       result.current.openModal();
     });
 
+    // モーダルが開いた状態になっているかどうか
     expect(result.current.isOpen).toBe(true);
+    // データがnullのまま保持されているかどうか
     expect(result.current.data).toBe(null);
   });
 
@@ -46,7 +54,9 @@ describe('useModal', () => {
       result.current.openModal(testData);
     });
 
+    // モーダルが開いた状態になっているかどうか
     expect(result.current.isOpen).toBe(true);
+    // 渡されたデータが正しく設定されているかどうか
     expect(result.current.data).toEqual(testData);
   });
 
@@ -66,7 +76,9 @@ describe('useModal', () => {
       result.current.closeModal();
     });
 
+    // モーダルが閉じた状態になっているかどうか
     expect(result.current.isOpen).toBe(false);
+    // データがnullにリセットされているかどうか
     expect(result.current.data).toBe(null);
   });
 
@@ -83,7 +95,9 @@ describe('useModal', () => {
       result.current.openModal(2);
     });
 
+    // モーダルが開いた状態を保持しているかどうか
     expect(result.current.isOpen).toBe(true);
+    // 最後に渡されたデータが保持されているかどうか
     expect(result.current.data).toBe(2);
   });
 });

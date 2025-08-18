@@ -56,11 +56,11 @@ describe('fetchTodo', () => {
     // テスト対象の関数を実行
     const result = await fetchTodo(1);
 
-    // 期待値の確認
+    // 結果が成功状態であるかどうか
     expect(result.isOk()).toBe(true);
     // 成功時のデータの確認
     if (result.isOk()) {
-      // モックのデータが正しく返されているか確認
+      // 返されたTodoエンティティが期待値と一致するかどうか
       expect(result.value).toEqual({
         id: 1,
         title: 'テストTodo',
@@ -70,7 +70,7 @@ describe('fetchTodo', () => {
         updatedDate: '2025-01-02T00:00:00Z',
       });
     }
-    // モックの呼び出し確認
+    // APIが正しいパラメータで呼び出されたかどうか
     expect(apiClient.api.todos[':todoId'].$get).toHaveBeenCalledWith({
       param: { todoId: '1' },
     });
@@ -89,12 +89,12 @@ describe('fetchTodo', () => {
     // テスト対象の関数を実行
     const result = await fetchTodo(999);
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
 
     // エラー時のデータの確認
     if (result.isErr()) {
-      // エラーの内容が正しいか確認
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' });
     }
   });
@@ -107,12 +107,12 @@ describe('fetchTodo', () => {
     // テスト対象の関数を実行
     const result = await fetchTodo(1);
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
 
     // エラー時のデータの確認
     if (result.isErr()) {
-      // エラーの内容が正しいか確認
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' });
     }
   });
@@ -140,7 +140,7 @@ describe('fetchTodo', () => {
     // テスト対象の関数を実行
     await fetchTodo(123);
 
-    // モックの呼び出し確認
+    // APIが数値のIDを文字列に変換して呼び出されたかどうか
     expect(apiClient.api.todos[':todoId'].$get).toHaveBeenCalledWith({
       param: { todoId: '123' },
     });

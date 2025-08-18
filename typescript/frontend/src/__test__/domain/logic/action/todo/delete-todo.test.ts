@@ -35,14 +35,14 @@ describe('deleteTodo', () => {
     // テスト対象の関数を実行
     const result = await deleteTodo(todoId);
 
-    // 期待値の確認
+    // 結果が成功状態であるかどうか
     expect(result.isOk()).toBe(true);
     // 成功時のデータの確認
     if (result.isOk()) {
-      // データの確認
+      // 戻り値がundefined（void）であるかどうか
       expect(result.value).toBeUndefined(); // voidなのでundefined
     }
-    // モックの呼び出し確認
+    // APIが正しいパラメータで呼び出されたかどうか
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenCalledWith({
       param: { todoId: '1' },
     });
@@ -62,7 +62,7 @@ describe('deleteTodo', () => {
     // テスト対象の関数を実行
     await deleteTodo(todoId);
 
-    // モックの呼び出し確認
+    // APIが数値のIDを文字列に変換して呼び出されたかどうか
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenCalledWith({
       param: { todoId: '123' },
     });
@@ -83,11 +83,11 @@ describe('deleteTodo', () => {
     // テスト対象の関数を実行
     const result = await deleteTodo(todoId);
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
     // エラー時のデータの確認
     if (result.isErr()) {
-      // エラーの内容が正しいか確認
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_DELETE_FAILED' });
     }
   });
@@ -102,11 +102,11 @@ describe('deleteTodo', () => {
     // テスト対象の関数を実行
     const result = await deleteTodo(todoId);
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
     // エラー時のデータの確認
     if (result.isErr()) {
-      // エラーの内容が正しいか確認
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_DELETE_FAILED' });
     }
   });
@@ -125,15 +125,18 @@ describe('deleteTodo', () => {
     const result1 = await deleteTodo(1);
     const result2 = await deleteTodo(2);
 
-    // 期待値の確認
+    // 1回目の削除が成功状態であるかどうか
     expect(result1.isOk()).toBe(true);
+    // 2回目の削除が成功状態であるかどうか
     expect(result2.isOk()).toBe(true);
 
-    // モックの呼び出し確認
+    // APIが2回呼び出されたかどうか
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenCalledTimes(2);
+    // 1回目のAPI呼び出しが正しいパラメータで行われたかどうか
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenNthCalledWith(1, {
       param: { todoId: '1' },
     });
+    // 2回目のAPI呼び出しが正しいパラメータで行われたかどうか
     expect(apiClient.api.todos[':todoId'].$delete).toHaveBeenNthCalledWith(2, {
       param: { todoId: '2' },
     });

@@ -17,7 +17,7 @@ describe('transformToTodoEntity', () => {
     // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
-    // 期待値の確認
+    // 変換されたTodoエンティティが期待値と一致するかどうか
     expect(result).toEqual({
       id: 1,
       title: 'テストタスク',
@@ -43,7 +43,7 @@ describe('transformToTodoEntity', () => {
     // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
-    // 期待値の確認
+    // descriptionが空文字のまま保持されているかどうか
     expect(result.description).toBe('');
   });
 
@@ -62,7 +62,7 @@ describe('transformToTodoEntity', () => {
     // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
-    // 期待値の確認
+    // updatedDateにcreatedAtの値が設定されているかどうか
     expect(result.updatedDate).toBe('2024-01-15T10:00:00Z');
   });
 
@@ -81,7 +81,7 @@ describe('transformToTodoEntity', () => {
     // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
-    // 期待値の確認
+    // isCompletedがfalseに変換されているかどうか
     expect(result.isCompleted).toBe(false);
   });
 
@@ -100,7 +100,7 @@ describe('transformToTodoEntity', () => {
     // テスト対象の関数を実行
     const result = transformToTodoEntity(todoObject);
 
-    // 期待値の確認
+    // isCompletedがtrueに変換されているかどうか
     expect(result.isCompleted).toBe(true);
   });
 });

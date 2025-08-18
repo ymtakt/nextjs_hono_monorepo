@@ -18,6 +18,7 @@ describe('useToast', () => {
   it('Provider外で使用するとエラーが発生する', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
+    // 期待されるエラーメッセージでエラーがthrowされるかどうか
     expect(() => {
       renderHook(() => useToast());
     }).toThrow('useToast must be used within ToastProvider');
@@ -32,7 +33,9 @@ describe('useToast', () => {
       wrapper: createWrapper(),
     });
 
+    // success関数が提供されているかどうか
     expect(typeof result.current.success).toBe('function');
+    // error関数が提供されているかどうか
     expect(typeof result.current.error).toBe('function');
   });
 
@@ -43,6 +46,7 @@ describe('useToast', () => {
       wrapper: createWrapper(),
     });
 
+    // success関数とerror関数の呼び出しでエラーが発生しないかどうか
     expect(() => {
       act(() => {
         result.current.success('成功メッセージ');

@@ -58,12 +58,12 @@ describe('fetchTodos', () => {
     // テスト対象の関数を実行
     const result = await fetchTodos();
 
-    // 期待値の確認
+    // 結果が成功状態であるかどうか
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
-      // データの確認
+      // 取得されたTodoの件数が期待値と一致するかどうか
       expect(result.value).toHaveLength(2);
-      // データの確認
+      // 1番目のTodoエンティティが期待値と一致するかどうか
       expect(result.value[0]).toEqual({
         id: 1,
         title: 'Todo1',
@@ -72,7 +72,7 @@ describe('fetchTodos', () => {
         createdDate: '2025-01-01T00:00:00Z',
         updatedDate: '2025-01-02T00:00:00Z',
       });
-      // データの確認
+      // 2番目のTodoエンティティが期待値と一致するかどうか
       expect(result.value[1]).toEqual({
         id: 2,
         title: 'Todo2',
@@ -98,11 +98,11 @@ describe('fetchTodos', () => {
     // テスト対象の関数を実行
     const result = await fetchTodos();
 
-    // 期待値の確認
+    // 結果が成功状態であるかどうか
     expect(result.isOk()).toBe(true);
     // 成功時のデータの確認
     if (result.isOk()) {
-      // データの確認
+      // 空配列が返されているかどうか
       expect(result.value).toEqual([]);
     }
   });
@@ -121,7 +121,7 @@ describe('fetchTodos', () => {
     // テスト対象の関数を実行
     await fetchTodos('test search');
 
-    // モックの呼び出し確認
+    // APIが正しいsearchクエリで呼び出されたかどうか
     expect(apiClient.api.todos.$get).toHaveBeenCalledWith({
       query: {
         search: 'test search',
@@ -143,7 +143,7 @@ describe('fetchTodos', () => {
     // テスト対象の関数を実行
     await fetchTodos();
 
-    // モックの呼び出し確認
+    // APIがsearchパラメータなしで呼び出されたかどうか
     expect(apiClient.api.todos.$get).toHaveBeenCalledWith({
       query: {
         search: undefined,
@@ -164,11 +164,11 @@ describe('fetchTodos', () => {
     // テスト対象の関数を実行
     const result = await fetchTodos();
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
     // エラー時のデータの確認
     if (result.isErr()) {
-      // エラーの内容が正しいか確認
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' });
     }
   });
@@ -181,11 +181,11 @@ describe('fetchTodos', () => {
     // テスト対象の関数を実行
     const result = await fetchTodos();
 
-    // 期待値の確認
+    // 結果がエラー状態であるかどうか
     expect(result.isErr()).toBe(true);
     // エラー時のデータの確認
     if (result.isErr()) {
-      // エラーの内容が正しいか確認
+      // エラータイプが期待値と一致するかどうか
       expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' });
     }
   });

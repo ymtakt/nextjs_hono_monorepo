@@ -81,18 +81,21 @@ describe('Todo Server Actions', () => {
 
       const result = await createTodoAction(initialState, formData);
 
+      // 結果が成功状態であるかどうか
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
       });
 
+      // createTodoが正しいパラメータで呼び出されたかどうか
       expect(createTodo).toHaveBeenCalledWith({
         title: '新しいTodo',
         description: '新しい説明',
         completed: false,
       });
 
+      // ルートパスがrevalidateされたかどうか
       expect(revalidatePath).toHaveBeenCalledWith('/');
     });
 
@@ -107,13 +110,20 @@ describe('Todo Server Actions', () => {
 
       const result = await createTodoAction(initialState, formData);
 
+      // ステータスがバリデーションエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('タイトルは必須です');
+      // titleのバリデーションエラーが設定されているかどうか
       expect(result.validationErrors?.title).toEqual(['タイトルは必須です']);
+      // 入力されたtitleが保持されているかどうか
       expect(result.title).toBe('');
+      // 入力されたdescriptionが保持されているかどうか
       expect(result.description).toBe('説明');
 
+      // createTodoが呼び出されていないかどうか
       expect(createTodo).not.toHaveBeenCalled();
+      // revalidatePathが呼び出されていないかどうか
       expect(revalidatePath).not.toHaveBeenCalled();
     });
 
@@ -129,8 +139,11 @@ describe('Todo Server Actions', () => {
 
       const result = await createTodoAction(initialState, formData);
 
+      // ステータスがバリデーションエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('タイトルは100文字以内で入力してください');
+      // titleのバリデーションエラーが設定されているかどうか
       expect(result.validationErrors?.title).toEqual(['タイトルは100文字以内で入力してください']);
     });
 
@@ -145,8 +158,11 @@ describe('Todo Server Actions', () => {
 
       const result = await createTodoAction(initialState, formData);
 
+      // ステータスがバリデーションエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('説明を入力してください');
+      // descriptionのバリデーションエラーが設定されているかどうか
       expect(result.validationErrors?.description).toEqual(['説明を入力してください']);
     });
 
@@ -163,12 +179,18 @@ describe('Todo Server Actions', () => {
 
       const result = await createTodoAction(initialState, formData);
 
+      // ステータスがサーバーエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('Todoの作成に失敗しました');
+      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
+      // 入力されたtitleが保持されているかどうか
       expect(result.title).toBe('タイトル');
+      // 入力されたdescriptionが保持されているかどうか
       expect(result.description).toBe('説明');
 
+      // revalidatePathが呼び出されていないかどうか
       expect(revalidatePath).not.toHaveBeenCalled();
     });
 
@@ -185,6 +207,7 @@ describe('Todo Server Actions', () => {
 
       await createTodoAction(initialState, formData);
 
+      // createTodoがcompletedをtrueで呼び出されたかどうか
       expect(createTodo).toHaveBeenCalledWith({
         title: 'タイトル',
         description: '説明',
@@ -214,19 +237,23 @@ describe('Todo Server Actions', () => {
 
       const result = await updateTodoAction(initialState, formData);
 
+      // 結果が成功状態であるかどうか
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
       });
 
+      // updateTodoが正しいパラメータで呼び出されたかどうか
       expect(updateTodo).toHaveBeenCalledWith(123, {
         title: '更新されたTodo',
         description: '更新された説明',
         completed: true,
       });
 
+      // ルートパスがrevalidateされたかどうか
       expect(revalidatePath).toHaveBeenCalledWith('/');
+      // 編集ページのパスがrevalidateされたかどうか
       expect(revalidatePath).toHaveBeenCalledWith('/edit/123');
     });
 
@@ -241,11 +268,16 @@ describe('Todo Server Actions', () => {
 
       const result = await updateTodoAction(initialState, formData);
 
+      // ステータスがバリデーションエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('TodoIDが見つかりません');
+      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
 
+      // updateTodoが呼び出されていないかどうか
       expect(updateTodo).not.toHaveBeenCalled();
+      // revalidatePathが呼び出されていないかどうか
       expect(revalidatePath).not.toHaveBeenCalled();
     });
 
@@ -261,10 +293,14 @@ describe('Todo Server Actions', () => {
 
       const result = await updateTodoAction(initialState, formData);
 
+      // ステータスがバリデーションエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('タイトルは必須です');
+      // titleのバリデーションエラーが設定されているかどうか
       expect(result.validationErrors?.title).toEqual(['タイトルは必須です']);
 
+      // updateTodoが呼び出されていないかどうか
       expect(updateTodo).not.toHaveBeenCalled();
     });
 
@@ -282,10 +318,14 @@ describe('Todo Server Actions', () => {
 
       const result = await updateTodoAction(initialState, formData);
 
+      // ステータスがサーバーエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('Todoの更新に失敗しました');
+      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
 
+      // revalidatePathが呼び出されていないかどうか
       expect(revalidatePath).not.toHaveBeenCalled();
     });
   });
@@ -308,13 +348,16 @@ describe('Todo Server Actions', () => {
 
       const result = await deleteTodoAction(initialState, formData);
 
+      // 結果が成功状態であるかどうか
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
       });
 
+      // deleteTodoが正しいIDで呼び出されたかどうか
       expect(deleteTodo).toHaveBeenCalledWith(123);
+      // ルートパスがrevalidateされたかどうか
       expect(revalidatePath).toHaveBeenCalledWith('/');
     });
 
@@ -325,11 +368,16 @@ describe('Todo Server Actions', () => {
 
       const result = await deleteTodoAction(initialState, formData);
 
+      // ステータスがサーバーエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('TodoIDが見つかりません');
+      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
 
+      // deleteTodoが呼び出されていないかどうか
       expect(deleteTodo).not.toHaveBeenCalled();
+      // revalidatePathが呼び出されていないかどうか
       expect(revalidatePath).not.toHaveBeenCalled();
     });
 
@@ -344,10 +392,14 @@ describe('Todo Server Actions', () => {
 
       const result = await deleteTodoAction(initialState, formData);
 
+      // ステータスがサーバーエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
+      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('Todoの削除に失敗しました');
+      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
 
+      // revalidatePathが呼び出されていないかどうか
       expect(revalidatePath).not.toHaveBeenCalled();
     });
   });
