@@ -23,6 +23,41 @@
   --color-warning: #ea580c;
 }
 
+@theme inline {
+  /* CP Primary Colors */
+  --color-cp-sky-blue: #6ec3ee;
+
+  /* CP Secondary Colors */
+  --color-cp-pink: #f19ed7;
+  --color-cp-light-red: #fae0e0;
+  --color-cp-red: #e76266;
+  --color-cp-orange: #eea351;
+  --color-cp-green: #77c691;
+  --color-cp-teal-blue: #2e84b0;
+  --color-cp-navy-blue: #4e59af;
+  --color-cp-turquoise-blue: #20bbc6;
+  --color-cp-blue: #37a7e1;
+  --color-cp-deep-blue: #00527b;
+
+  /* CP Neutral */
+  --color-cp-white: #ffffff;
+  --color-cp-ghost-white: #f8f8f8;
+  --color-cp-light-gray: #eeeeee;
+  --color-cp-soft-gray: #c1c1c1;
+  --color-cp-gray: #969696;
+  --color-cp-slate-gray: #6b7280;
+  --color-cp-black: #323232;
+  --color-cp-dark-blue: #0f4bc5;
+
+  /* CP Toast */
+  --color-cp-toast-success-main: #edf9ff;
+  --color-cp-toast-success-sub: #6ec3ee;
+  --color-cp-toast-warning-main: #fffeed;
+  --color-cp-toast-warning-sub: #bf6a02;
+  --color-cp-toast-error-main: #ffeded;
+  --color-cp-toast-error-sub: #ec221f;
+}
+
 @layer components {
   /* Text Colors */
   .text-primary {
