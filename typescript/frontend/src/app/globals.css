@@ -1,29 +1,10 @@
 @import "tailwindcss";
 
-:root {
-  /* Primary Colors */
-  --color-primary-50: #fefce8;
-  --color-primary-100: #fef3c7;
-  --color-primary-500: #ffd700;
-  --color-primary-600: #e6c200;
-  --color-primary-900: #713f12;
-
-  /* Gray Colors */
-  --color-gray-50: #fafaf9;
-  --color-gray-100: #f5f5f4;
-  --color-gray-500: #71717a;
-  --color-gray-800: #27272a;
-  --color-gray-900: #18181b;
-
-  /* Semantic Colors */
-  --color-background: #fffffe;
-  --color-foreground: #18181b;
-  --color-success: #16a34a;
-  --color-error: #dc2626;
-  --color-warning: #ea580c;
-}
-
 @theme inline {
+  /* Base */
+  --color-background: #eeeeee;
+  --color-foreground: #323232;
+  
   /* CP Primary Colors */
   --color-cp-sky-blue: #6ec3ee;
 
@@ -56,130 +37,57 @@
   --color-cp-toast-warning-sub: #bf6a02;
   --color-cp-toast-error-main: #ffeded;
   --color-cp-toast-error-sub: #ec221f;
+
+  /* Font Families */
+  --font-noto: "Noto Sans JP", sans-serif;
+
+  /* Text styles */
+  --headline-cp-l: 700 20px / normal var(--font-noto);
+  --headline-cp-m: 700 16px / normal var(--font-noto);
+  --headline-cp-s: 400 16px / normal var(--font-noto);
+
+  --title-cp-l: 700 16px / normal var(--font-noto);
+  --title-cp-s: 700 14px / normal var(--font-noto);
+
+  --body-cp-l: 700 16px / normal var(--font-noto);
+  --body-cp-m: 400 16px / normal var(--font-noto);
+  --body-cp-s: 400 14px / normal var(--font-noto);
+
+  --label-cp-l: 700 16px/16px var(--font-noto);
+  --label-cp-m: 400 12px / normal var(--font-noto);
 }
 
 @layer components {
-  /* Text Colors */
-  .text-primary {
-    color: var(--color-primary-500);
-  }
-  .text-primary-600 {
-    color: var(--color-primary-600);
-  }
-  .text-foreground {
-    color: var(--color-foreground);
-  }
-  .text-gray-500 {
-    color: var(--color-gray-500);
-  }
-  .text-success {
-    color: var(--color-success);
-  }
-  .text-error {
-    color: var(--color-error);
-  }
+  /* Text styles headline */
+  .headline-cp-l  { font: var(--headline-cp-l); }
+  .headline-cp-m { font: var(--headline-cp-m); }
+  .headline-cp-s  { font: var(--headline-cp-s); }
 
-  /* Background Colors */
-  .bg-primary {
-    background-color: var(--color-primary-500);
-  }
-  .bg-primary-50 {
-    background-color: var(--color-primary-50);
-  }
-  .bg-background {
-    background-color: var(--color-background);
-  }
-  .bg-gray-100 {
-    background-color: var(--color-gray-100);
-  }
+  /* Text styles title */
+  .title-cp-l { font: var(--title-cp-l); }
+  .title-cp-s { font: var(--title-cp-s); }
 
-  /* Border Colors */
-  .border-primary {
-    border-color: var(--color-primary-500);
-  }
-  .border-gray-500 {
-    border-color: var(--color-gray-500);
-  }
+  /* Text styles body */
+  .body-cp-l  { font: var(--body-cp-l); }
+  .body-cp-m { font: var(--body-cp-m); }
+  .body-cp-s  { font: var(--body-cp-s); }
 
-  /* Typography */
-  .text-xs {
-    font-size: 12px;
-    line-height: 16px;
-  }
-  .text-sm {
-    font-size: 14px;
-    line-height: 20px;
-  }
-  .text-base {
-    font-size: 16px;
-    line-height: 24px;
-  }
-  .text-lg {
-    font-size: 18px;
-    line-height: 28px;
-  }
-  .text-xl {
-    font-size: 20px;
-    line-height: 28px;
-  }
-  .text-2xl {
-    font-size: 24px;
-    line-height: 32px;
-  }
-  .text-3xl {
-    font-size: 30px;
-    line-height: 36px;
-  }
+  /* Text styles label */
+  .label-cp-l  { font: var(--label-cp-l); }
+  .label-cp-m { font: var(--label-cp-m); }
 
-  /* Font Weights */
-  .font-normal {
-    font-weight: 400;
+  /* Search area padding */
+  .search-p {
+    @apply px-5;
   }
-  .font-medium {
-    font-weight: 500;
+  /* Table area padding */
+  .table-p {
+    @apply px-5;
   }
-  .font-semibold {
-    font-weight: 600;
-  }
-  .font-bold {
-    font-weight: 700;
-  }
-
-  /* Icon Sizes */
-  .icon-xs {
-    width: 12px;
-    height: 12px;
-  }
-  .icon-sm {
-    width: 16px;
-    height: 16px;
-  }
-  .icon-base {
-    width: 20px;
-    height: 20px;
-  }
-  .icon-lg {
-    width: 24px;
-    height: 24px;
-  }
-  .icon-xl {
-    width: 32px;
-    height: 32px;
-  }
-
-  /* Spacing (4の倍数を基本とし、8の倍数を推奨) */
-  .p-1 { padding: 4px; }
-  .p-2 { padding: 8px; }
-  .p-3 { padding: 12px; }
-  .p-4 { padding: 16px; }
-  .p-6 { padding: 24px; }
-  .p-8 { padding: 32px; }
-  .p-12 { padding: 48px; }
 }
 
-/* Dark Theme */
-[data-theme="dark"] {
-  --color-background: #18181b;
-  --color-foreground: #fafaf9;
-  --color-primary-500: #fbbf24;
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-noto);
 }
