@@ -22,7 +22,7 @@ export default defineConfig({
     },
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'json'],
+      reporter: ['text', 'html', 'json', 'cobertura'],
       reportsDirectory: './coverage',
       include: ['src/endpoint/handler/**/*.ts'],
       exclude: [

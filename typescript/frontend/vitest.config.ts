@@ -12,7 +12,7 @@ export default defineConfig({
     exclude: ['node_modules/**', '.next/**', 'e2e/**'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'json'],
+      reporter: ['text', 'html', 'json', 'cobertura'],
       reportsDirectory: './coverage',
       include: [
         'src/component/client-page/**/action.{ts,tsx}',

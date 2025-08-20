@@ -1,10 +1,13 @@
 {
   "name": "sample-app",
   "devDependencies": {
-    "@biomejs/biome": "^2.1.2"
+    "@biomejs/biome": "^2.1.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.10"
   },
   "private": true,
   "scripts": {
+    "prepare": "husky install",
     "dev": "bun run dev:api & bun run dev:web",
     "dev:web": "cd typescript/frontend && bun run dev",
     "dev:api": "cd typescript/backend && bun run dev",
@@ -22,5 +25,19 @@
   },
   "workspaces": [
     "typescript/*"
-  ]
+  ],
+  "lint-staged": {
+    "typescript/frontend/**/*.{ts,tsx,js,jsx}": [
+      "cd typescript/frontend && bunx @biomejs/biome format --write",
+      "cd typescript/frontend && bunx @biomejs/biome lint --write"
+    ],
+    "typescript/backend/**/*.{ts,js}": [
+      "cd typescript/backend && bunx @biomejs/biome format --write",
+      "cd typescript/backend && bunx @biomejs/biome lint --write"
+    ],
+    "*.{ts,tsx,js,jsx}": [
+      "bunx @biomejs/biome format --write",
+      "bunx @biomejs/biome lint --write"
+    ]
+  }
 }
