@@ -2,20 +2,15 @@ import { err, ok, type Result } from 'neverthrow';
 import { apiClient } from '@/core/service/api.service';
 import type { TodoEntity } from '@/domain/data/todo.data';
 import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity';
-
-/** UseCase で発生するエラー型の定義。 */
-type UseCaseError = {
-  type: 'TODO_FETCH_FAILED';
-};
+import { SsrFetchError } from '@/util/type';
 
 /**
  * 全てのTodoを取得する
  *
  */
-export const fetchTodos = async (search?: string): Promise<Result<TodoEntity[], UseCaseError>> => {
+export const fetchTodos = async (search?: string): Promise<Result<TodoEntity[], SsrFetchError>> => {
   try {
     // APIクライアントを使用してGETリクエストを実行
-    // テストで置き換え可能
     const res = await apiClient.api.todos.$get({
       query: {
         search,
@@ -26,13 +21,14 @@ export const fetchTodos = async (search?: string): Promise<Result<TodoEntity[], 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     if (!res.ok) {
-      return err({ type: 'TODO_FETCH_FAILED' });
+      return err('SSR_FETCH_ERROR');
     }
 
     // レスポンスボディをJSONとして解析
     const data = await res.json();
     return ok(data.todos.map((todo) => transformToTodoEntity(todo)));
   } catch {
-    return err({ type: 'TODO_FETCH_FAILED' });
+    // Note: SSRのフェッチエラーについては握りつぶしているので、エラーresultを返す設計である。
+    return err('SSR_FETCH_ERROR');
   }
 };

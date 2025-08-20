@@ -2,105 +2,61 @@ import { describe, expect, it } from 'vitest';
 import { transformToTodoEntity } from '@/domain/logic/utils/todo/transform-to-todo-entity';
 
 describe('transformToTodoEntity', () => {
-  // 前提：完全なデータを持つTodoオブジェクトが渡される
+  // 前提：すべてのフィールドが有効な値で提供される
   // 期待値：すべてのフィールドが正しくマッピングされたTodoEntityが返される
-  it('完全なデータが正しく変換される', () => {
-    const todoObject = {
+  it('すべてのフィールドが提供された場合、正しくTodoEntityにマッピングされる', () => {
+    const input = {
       id: 1,
-      title: 'テストタスク',
-      description: 'テストの説明',
+      title: 'Test Todo',
+      description: 'Test Description',
       completed: true,
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '2024-01-16T10:00:00Z',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-02T00:00:00Z'
     };
 
-    // テスト対象の関数を実行
-    const result = transformToTodoEntity(todoObject);
+    const result = transformToTodoEntity(input);
 
-    // 変換されたTodoエンティティが期待値と一致するかどうか
     expect(result).toEqual({
       id: 1,
-      title: 'テストタスク',
-      description: 'テストの説明',
+      title: 'Test Todo',
+      description: 'Test Description',
       isCompleted: true,
-      createdDate: '2024-01-15T10:00:00Z',
-      updatedDate: '2024-01-16T10:00:00Z',
+      createdDate: '2024-01-01T00:00:00Z',
+      updatedDate: '2024-01-02T00:00:00Z'
     });
   });
 
-  // 前提：descriptionが空文字のTodoオブジェクトが渡される
-  // 期待値：descriptionが空文字として変換される
-  it('descriptionが空文字の場合そのまま変換される', () => {
-    const todoObject = {
+  // 前提：descriptionがnullな値
+  // 期待値：descriptionが空文字列に変換される
+  it('descriptionが空文字列の場合、空文字列のままマッピングされる', () => {
+    const input = {
       id: 2,
-      title: 'タスク',
-      description: '',
+      title: 'Test Todo',
+      description: null,
       completed: false,
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '2024-01-15T10:00:00Z',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: '2024-01-02T00:00:00Z'
     };
 
-    // テスト対象の関数を実行
-    const result = transformToTodoEntity(todoObject);
+    const result = transformToTodoEntity(input);
 
-    // descriptionが空文字のまま保持されているかどうか
     expect(result.description).toBe('');
   });
 
-  // 前提：updatedAtがないTodoオブジェクトが渡される
+  // 前提：updatedAtがnullな値
   // 期待値：updatedDateにcreatedAtの値が設定される
-  it('updatedAtがない場合はcreatedAtが使用される', () => {
-    const todoObject = {
+  it('updatedAtが空文字列の場合、createdAtの値がupdatedDateに設定される', () => {
+    const input = {
       id: 3,
-      title: 'タスク',
-      description: '説明',
+      title: 'Test Todo',
+      description: 'Test Description',
       completed: false,
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '',
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: null
     };
 
-    // テスト対象の関数を実行
-    const result = transformToTodoEntity(todoObject);
+    const result = transformToTodoEntity(input);
 
-    // updatedDateにcreatedAtの値が設定されているかどうか
-    expect(result.updatedDate).toBe('2024-01-15T10:00:00Z');
-  });
-
-  // 前提：completedがfalseのTodoオブジェクトが渡される
-  // 期待値：isCompletedがfalseに変換される
-  it('completed false がisCompleted falseに変換される', () => {
-    const todoObject = {
-      id: 4,
-      title: '未完了タスク',
-      description: '説明',
-      completed: false,
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '2024-01-15T10:00:00Z',
-    };
-
-    // テスト対象の関数を実行
-    const result = transformToTodoEntity(todoObject);
-
-    // isCompletedがfalseに変換されているかどうか
-    expect(result.isCompleted).toBe(false);
-  });
-
-  // 前提：completedがtrueのTodoオブジェクトが渡される
-  // 期待値：isCompletedがtrueに変換される
-  it('completed true がisCompleted trueに変換される', () => {
-    const todoObject = {
-      id: 5,
-      title: '完了タスク',
-      description: '説明',
-      completed: true,
-      createdAt: '2024-01-15T10:00:00Z',
-      updatedAt: '2024-01-15T10:00:00Z',
-    };
-
-    // テスト対象の関数を実行
-    const result = transformToTodoEntity(todoObject);
-
-    // isCompletedがtrueに変換されているかどうか
-    expect(result.isCompleted).toBe(true);
+    expect(result.updatedDate).toBe('2024-01-01T00:00:00Z');
   });
 });

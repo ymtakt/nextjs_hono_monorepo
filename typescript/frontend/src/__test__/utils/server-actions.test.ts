@@ -1,3 +1,12 @@
+/**
+ * server-actions.ts のテスト
+ * 
+ * テスト観点（Utility層）:
+ * - withServerActionHandling: Server Actionの成功・エラー状態に応じてコールバック実行・トースト表示が正しく動作するか
+ * - extractZodErrorMessage: ZodErrorから最初のエラーメッセージを正しく抽出できるか
+ * - convertValidationErrors: エラーコードを表示用メッセージに変換し、存在しないコードには適切なフォールバックを提供するか
+ * - getFirstValidationErrorMessage: 複数フィールドのエラーから指定順序で最初のメッセージを取得できるか
+ */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ZodError } from 'zod';
 import type { ActionState } from '@/util/server-actions';
