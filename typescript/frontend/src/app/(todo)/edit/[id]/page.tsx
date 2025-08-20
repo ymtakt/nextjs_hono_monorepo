@@ -1,6 +1,6 @@
+import { notFound } from 'next/navigation';
 import { TodoEditClientPage } from '@/component/client-page/todo';
 import { fetchTodo } from '@/domain/logic/ssr/todo/fetch-todo';
-import { notFound } from 'next/navigation';
 
 /**
  * todoの編集ページ

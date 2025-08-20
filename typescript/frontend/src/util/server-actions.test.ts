@@ -1,6 +1,6 @@
 /**
  * server-actions.ts のテスト
- * 
+ *
  * テスト観点（Utility層）:
  * - withServerActionHandling: Server Actionの成功・エラー状態に応じてコールバック実行・トースト表示が正しく動作するか
  * - extractZodErrorMessage: ZodErrorから最初のエラーメッセージを正しく抽出できるか

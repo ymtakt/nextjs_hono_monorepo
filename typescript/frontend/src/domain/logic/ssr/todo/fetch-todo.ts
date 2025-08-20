@@ -1,9 +1,8 @@
 import { err, ok, type Result } from 'neverthrow';
 import { apiClient } from '@/core/service/api.service';
 import type { TodoEntity } from '@/domain/data/todo.data';
+import type { SsrFetchError } from '@/util/type';
 import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity';
-import { SsrFetchError } from '@/util/type';
-
 
 /**
  * 特定のTodoを取得する

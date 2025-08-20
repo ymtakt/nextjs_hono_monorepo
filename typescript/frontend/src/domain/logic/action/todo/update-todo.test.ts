@@ -63,7 +63,6 @@ describe('updateTodo', () => {
         updatedDate: '2025-01-02T00:00:00Z',
       });
     }
-
   });
 
   // 前提：APIが正常でないレスポンス（ok: false）を返す

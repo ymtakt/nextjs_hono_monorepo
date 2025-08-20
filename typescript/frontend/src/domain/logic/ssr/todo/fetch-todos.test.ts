@@ -78,7 +78,7 @@ describe('fetchTodos', () => {
           completed: true,
           createdAt: '2025-01-02T00:00:00Z',
           updatedAt: '2025-01-02T00:00:00Z',
-        }
+        },
       ],
     };
 
@@ -110,7 +110,7 @@ describe('fetchTodos', () => {
           description: 'Reactの基礎を学ぶ',
           isCompleted: false,
           createdDate: '2025-01-01T00:00:00Z',
-          updatedDate: '2025-01-01T00:00:00Z'
+          updatedDate: '2025-01-01T00:00:00Z',
         },
         {
           id: 2,

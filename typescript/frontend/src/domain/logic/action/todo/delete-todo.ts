@@ -1,7 +1,6 @@
 import { err, ok, type Result } from 'neverthrow';
 import { apiClient } from '@/core/service/api.service';
-import { ServeActionError } from '@/util/type';
-
+import type { ServeActionError } from '@/util/type';
 
 export const deleteTodo = async (todoId: number): Promise<Result<void, ServeActionError>> => {
   try {

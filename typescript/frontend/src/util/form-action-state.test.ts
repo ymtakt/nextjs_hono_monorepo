@@ -1,4 +1,3 @@
-
 import { describe, expect, it } from 'vitest';
 import { createInitialFormActionState } from '@/util/form-action-state';
 import { ACTION_STATUS } from '@/util/server-actions';
@@ -13,5 +12,4 @@ describe('createInitialFormActionState', () => {
     expect(result.error).toBe(null);
     expect(result.validationErrors).toBe(null);
   });
-
-}); 
+});

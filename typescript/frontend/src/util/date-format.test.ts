@@ -1,5 +1,5 @@
-import { formatDateToJapanese } from '@/util/date-format';
 import { describe, expect, it } from 'vitest';
+import { formatDateToJapanese } from '@/util/date-format';
 
 describe('formatDateToJapanese関数のテスト', () => {
   // 前提：有効な日付文字列が渡される

@@ -40,7 +40,7 @@ describe('fetchTodo', () => {
     };
 
     // Note: テスト用のmockなので型チェックをスキップ
-    // @ts-expect-error 
+    // @ts-expect-error
     vi.mocked(apiClient.api.todos[':todoId'].$get).mockResolvedValue(mockResponse);
 
     const result = await fetchTodo(1);
