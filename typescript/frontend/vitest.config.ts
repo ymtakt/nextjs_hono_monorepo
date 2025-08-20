@@ -10,17 +10,42 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
     exclude: ['node_modules/**', '.next/**', 'e2e/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'json'],
+      reportsDirectory: './coverage',
+      include: [
+        'src/component/client-page/**/action.{ts,tsx}',
+        'src/core/**/*.{ts,tsx}',
+        'src/domain/logic/**/*.{ts,tsx}',
+        'src/util/**/*.{ts,tsx}',
+      ],
+      exclude: [
+        'src/**/*.d.ts',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.spec.{ts,tsx}',
+        'src/app/**/*',
+        'src/component/functionless/**/*',
+        'src/util/test-util/**/*',
+        'src/util/type.ts',
+        'src/domain/data/**/*',
+        'src/core/service/api.service.ts',
+        'src/util/hook/useToast.tsx',
+      ],
+      thresholds: {
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80,
+        },
+      },
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@/components': path.resolve(__dirname, './src/components'),
-      '@/use-case': path.resolve(__dirname, './src/use-case'),
-      '@/lib': path.resolve(__dirname, './src/lib'),
-      '@/utils': path.resolve(__dirname, './src/utils'),
-      // monorepo用 - package.jsonと一致させる
       backend: path.resolve(__dirname, '../backend/src'),
-      'backend/*': path.resolve(__dirname, '../backend/src/*'),
     },
   },
   css: {

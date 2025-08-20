@@ -11,6 +11,8 @@
     "test": "cd typescript/frontend && bun run test",
     "test:ui": "cd typescript/frontend && bun run test:ui",
     "test:run": "cd typescript/frontend && bun run test:run",
+    "test:coverage:web": "cd typescript/frontend && bun run test:coverage",
+    "test:coverage:api": "cd typescript/backend && bun run test:coverage",
     "format": "bunx @biomejs/biome format --write .",
     "format:check": "bunx @biomejs/biome format .",
     "lint": "bunx @biomejs/biome lint .",
