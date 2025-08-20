@@ -11,7 +11,7 @@ describe('transformToTodoEntity', () => {
       description: 'Test Description',
       completed: true,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-02T00:00:00Z'
+      updatedAt: '2024-01-02T00:00:00Z',
     };
 
     const result = transformToTodoEntity(input);
@@ -22,7 +22,7 @@ describe('transformToTodoEntity', () => {
       description: 'Test Description',
       isCompleted: true,
       createdDate: '2024-01-01T00:00:00Z',
-      updatedDate: '2024-01-02T00:00:00Z'
+      updatedDate: '2024-01-02T00:00:00Z',
     });
   });
 
@@ -35,7 +35,7 @@ describe('transformToTodoEntity', () => {
       description: null,
       completed: false,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: '2024-01-02T00:00:00Z'
+      updatedAt: '2024-01-02T00:00:00Z',
     };
 
     const result = transformToTodoEntity(input);
@@ -52,7 +52,7 @@ describe('transformToTodoEntity', () => {
       description: 'Test Description',
       completed: false,
       createdAt: '2024-01-01T00:00:00Z',
-      updatedAt: null
+      updatedAt: null,
     };
 
     const result = transformToTodoEntity(input);

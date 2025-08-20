@@ -82,7 +82,7 @@ Vitest を使用し、各レイヤーに応じたテスト戦略を採用して�
 #### 1. Core/Service テスト
 
 ```typescript
-// __test__/core/service/api/hono.service.test.ts
+// src/core/service/api/hono.service.test.ts
 import { describe, expect, it, vi } from "vitest";
 import { honoClient } from "@/core/service/api/hono.service";
 
@@ -119,7 +119,7 @@ describe("honoClient", () => {
 ```
 
 ```typescript
-// __test__/core/service/storage/s3.service.test.ts
+// src/core/service/storage/s3.service.test.ts
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { S3Client } from "@aws-sdk/client-s3";
 import { downloadFile } from "@/core/service/storage/s3.service";
@@ -178,7 +178,7 @@ describe("s3Service", () => {
 #### 2. Server Action テスト
 
 ```typescript
-// __test__/component/client-page/todo/action.test.ts
+// src/component/client-page/todo/action.test.ts
 import { err, ok } from "neverthrow";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTodoAction } from "@/component/client-page/todo/action";
@@ -283,7 +283,7 @@ describe("createTodoAction", () => {
 ##### 3-1. SSR（データ取得）テスト
 
 ```typescript
-// __test__/domain/logic/ssr/todo/fetch-todo.test.ts
+// src/domain/logic/ssr/todo/fetch-todo.test.ts
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { apiClient } from "@/core/service/api.service";
 import { fetchTodo } from "@/domain/logic/ssr/todo/fetch-todo";
@@ -367,7 +367,7 @@ describe("fetchTodo", () => {
 ##### 3-2. Action（データ操作）テスト
 
 ```typescript
-// __test__/domain/logic/action/todo/create-todo.test.ts
+// src/domain/logic/action/todo/create-todo.test.ts
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTodo } from "@/domain/logic/action/todo/create-todo";
 import { apiClient } from "@/core/service/api.service";
@@ -450,9 +450,9 @@ describe("createTodo", () => {
 ##### 3-3. Util（汎用ロジック）テスト
 
 ```typescript
-// __test__/domain/logic/util/todo/transform-to-todo-entity.test.ts
+// src/domain/logic/utils/todo/transform-to-todo-entity.test.ts
 import { describe, expect, it } from "vitest";
-import { transformToTodoEntity } from "@/domain/logic/util/todo/transform-to-todo-entity";
+import { transformToTodoEntity } from "@/domain/logic/utils/todo/transform-to-todo-entity";
 
 describe("transformToTodoEntity", () => {
   // 前提：完全なプロパティを持つTodoオブジェクトが渡される
@@ -518,7 +518,7 @@ describe("transformToTodoEntity", () => {
 #### 4. Utility 関数テスト
 
 ```typescript
-// __test__/util/server-actions.test.ts
+// src/util/server-actions.test.ts
 import { describe, expect, it } from "vitest";
 import {
   convertValidationErrors,
@@ -614,7 +614,7 @@ describe("getFirstValidationErrorMessage", () => {
 #### 5. Utility カスタムフックテスト
 
 ```typescript
-// __test__/util/hook/useModal.test.ts
+// src/util/hook/useModal.test.ts
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { useModal } from "@/util/hook/useModal";
@@ -710,37 +710,48 @@ describe("useModal", () => {
 
 ## テストファイル構成
 
+このプロジェクトでは、テストファイルを各モジュールと同じディレクトリに配置するコロケーション方式を採用しています。
+
 ```
-__test__/
+src/
 ├── component/
 │   └── client-page/
 │       └── todo/
-│           └── action.test.ts
+│           ├── action.test.ts
+│           └── action.ts
 ├── core/
 │   └── service/
-│       ├── api/
-│       │   └── hono.service.test.ts
-│       ├── storage/
-│       │   └── s3.service.test.ts
-│       └── firebase/
-│           └── firestore.service.test.ts
+│       └── api.service.ts (テスト未実装)
 ├── domain/
 │   └── logic/
 │       ├── action/
 │       │   └── todo/
 │       │       ├── create-todo.test.ts
-│       │       └── update-todo.test.ts
+│       │       ├── create-todo.ts
+│       │       ├── delete-todo.test.ts
+│       │       ├── delete-todo.ts
+│       │       ├── update-todo.test.ts
+│       │       └── update-todo.ts
 │       ├── ssr/
 │       │   └── todo/
-│       │       └── fetch-todo.test.ts
-│       └── util/
+│       │       ├── fetch-todo.test.ts
+│       │       ├── fetch-todo.ts
+│       │       ├── fetch-todos.test.ts
+│       │       └── fetch-todos.ts
+│       └── utils/
 │           └── todo/
-│               └── transform-to-todo-entity.test.ts
+│               ├── transform-to-todo-entity.test.ts
+│               └── transform-to-todo-entity.ts
 └── util/
-    ├── server-actions.test.ts
     ├── date-format.test.ts
+    ├── date-format.ts
+    ├── form-action-state.test.ts
+    ├── form-action-state.ts
+    ├── server-actions.test.ts
+    ├── server-actions.ts
     └── hook/
-        └── useActionState.test.ts
+        ├── useModal.test.ts
+        └── useModal.ts
 ```
 
 ## テスト実行環境
@@ -761,10 +772,10 @@ bun run test:watch
 bun run test:coverage
 
 # レイヤー別テスト実行
-bun run test __test__/core/
-bun run test __test__/domain/
-bun run test __test__/component/
-bun run test __test__/util/
+bun run test src/core/
+bun run test src/domain/
+bun run test src/component/
+bun run test src/util/
 ```
 
 ## モック戦略
