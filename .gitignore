@@ -3,8 +3,9 @@ node_modules/
 typescript/backend/generated/
 
 # testing
-/coverage
-
+coverage/
+typescript/frontend/coverage/
+typescript/backend/coverage/
 
 # env files (can opt-in for committing if needed)
 .env*
