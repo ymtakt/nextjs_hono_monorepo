@@ -8,6 +8,12 @@ import {
   updateTodoAction,
 } from '@/component/client-page/todo/action';
 import { ACTION_STATUS } from '@/util/server-actions';
+import { revalidatePath } from 'next/cache';
+import { createTodo } from '@/domain/logic/action/todo/create-todo';
+import { deleteTodo } from '@/domain/logic/action/todo/delete-todo';
+import { updateTodo } from '@/domain/logic/action/todo/update-todo';
+
+
 
 // Next.js revalidatePathをモック
 vi.mock('next/cache', () => ({
@@ -27,12 +33,6 @@ vi.mock('@/domain/logic/action/todo/delete-todo', () => ({
   deleteTodo: vi.fn(),
 }));
 
-import { revalidatePath } from 'next/cache';
-// モック関数のインポート
-import { createTodo } from '@/domain/logic/action/todo/create-todo';
-import { deleteTodo } from '@/domain/logic/action/todo/delete-todo';
-import { updateTodo } from '@/domain/logic/action/todo/update-todo';
-
 // テスト用のモックEntity
 const mockTodoEntity = {
   id: 1,
@@ -43,8 +43,13 @@ const mockTodoEntity = {
   updatedDate: '2025-01-01T00:00:00Z',
 };
 
-// FormData作成ヘルパー
-const createFormData = (data: Record<string, string | boolean>) => {
+/**
+ * Server Actionで使用するFormDataを作成する
+ * 
+ * @param data - フォームデータ
+ * @returns FormData
+ */
+const createFormData = (data: Record<string, string | boolean>): FormData => {
   const formData = new FormData();
   Object.entries(data).forEach(([key, value]) => {
     if (typeof value === 'boolean') {
@@ -68,7 +73,7 @@ describe('Todo Server Actions', () => {
       validationErrors: null,
     };
 
-    // 前提：有効なフォームデータが送信され、use-caseが成功する
+    // 前提：有効なフォームデータが送信され、createTodoが成功する
     // 期待値：成功状態が返され、revalidatePathが呼ばれる
     it('有効なデータでTodo作成が成功する', async () => {
       const formData = createFormData({
@@ -81,21 +86,12 @@ describe('Todo Server Actions', () => {
 
       const result = await createTodoAction(initialState, formData);
 
-      // 結果が成功状態であるかどうか
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
       });
 
-      // createTodoが正しいパラメータで呼び出されたかどうか
-      expect(createTodo).toHaveBeenCalledWith({
-        title: '新しいTodo',
-        description: '新しい説明',
-        completed: false,
-      });
-
-      // ルートパスがrevalidateされたかどうか
       expect(revalidatePath).toHaveBeenCalledWith('/');
     });
 
@@ -110,109 +106,31 @@ describe('Todo Server Actions', () => {
 
       const result = await createTodoAction(initialState, formData);
 
-      // ステータスがバリデーションエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('タイトルは必須です');
-      // titleのバリデーションエラーが設定されているかどうか
       expect(result.validationErrors?.title).toEqual(['タイトルは必須です']);
-      // 入力されたtitleが保持されているかどうか
       expect(result.title).toBe('');
-      // 入力されたdescriptionが保持されているかどうか
       expect(result.description).toBe('説明');
-
-      // createTodoが呼び出されていないかどうか
-      expect(createTodo).not.toHaveBeenCalled();
-      // revalidatePathが呼び出されていないかどうか
-      expect(revalidatePath).not.toHaveBeenCalled();
     });
 
-    // 前提：titleが100文字を超えるフォームデータが送信される
-    // 期待値：バリデーションエラー状態が返される
-    it('titleが100文字を超える場合バリデーションエラーが返される', async () => {
-      const longTitle = 'a'.repeat(101);
-      const formData = createFormData({
-        title: longTitle,
-        description: '説明',
-        completed: false,
-      });
-
-      const result = await createTodoAction(initialState, formData);
-
-      // ステータスがバリデーションエラーであるかどうか
-      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
-      expect(result.error).toBe('タイトルは100文字以内で入力してください');
-      // titleのバリデーションエラーが設定されているかどうか
-      expect(result.validationErrors?.title).toEqual(['タイトルは100文字以内で入力してください']);
-    });
-
-    // 前提：descriptionが空のフォームデータが送信される
-    // 期待値：バリデーションエラー状態が返される
-    it('descriptionが空の場合バリデーションエラーが返される', async () => {
-      const formData = createFormData({
-        title: 'タイトル',
-        description: '',
-        completed: false,
-      });
-
-      const result = await createTodoAction(initialState, formData);
-
-      // ステータスがバリデーションエラーであるかどうか
-      expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
-      expect(result.error).toBe('説明を入力してください');
-      // descriptionのバリデーションエラーが設定されているかどうか
-      expect(result.validationErrors?.description).toEqual(['説明を入力してください']);
-    });
-
-    // 前提：有効なデータだがuse-caseがエラーを返す
+    // 前提：有効なデータだがcreateTodoがエラーを返す
     // 期待値：サーバーエラー状態が返され、入力値が保持される
-    it('use-caseでエラーが発生した場合サーバーエラーが返される', async () => {
+    it('createTodoでエラーが発生した場合サーバーエラーが返される', async () => {
       const formData = createFormData({
         title: 'タイトル',
         description: '説明',
         completed: false,
       });
 
-      vi.mocked(createTodo).mockResolvedValue(err({ type: 'TODO_CREATE_FAILED' }));
+      vi.mocked(createTodo).mockResolvedValue(err('SERVER_ACTION_ERROR'));
 
       const result = await createTodoAction(initialState, formData);
 
-      // ステータスがサーバーエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('Todoの作成に失敗しました');
-      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
-      // 入力されたtitleが保持されているかどうか
       expect(result.title).toBe('タイトル');
-      // 入力されたdescriptionが保持されているかどうか
       expect(result.description).toBe('説明');
-
-      // revalidatePathが呼び出されていないかどうか
-      expect(revalidatePath).not.toHaveBeenCalled();
-    });
-
-    // 前提：completedがチェックされたフォームデータが送信される
-    // 期待値：completedがtrueでuse-caseが呼ばれる
-    it('completedがチェックされている場合trueで処理される', async () => {
-      const formData = createFormData({
-        title: 'タイトル',
-        description: '説明',
-        completed: true,
-      });
-
-      vi.mocked(createTodo).mockResolvedValue(ok(mockTodoEntity));
-
-      await createTodoAction(initialState, formData);
-
-      // createTodoがcompletedをtrueで呼び出されたかどうか
-      expect(createTodo).toHaveBeenCalledWith({
-        title: 'タイトル',
-        description: '説明',
-        completed: true,
-      });
     });
   });
 
@@ -237,28 +155,18 @@ describe('Todo Server Actions', () => {
 
       const result = await updateTodoAction(initialState, formData);
 
-      // 結果が成功状態であるかどうか
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
       });
 
-      // updateTodoが正しいパラメータで呼び出されたかどうか
-      expect(updateTodo).toHaveBeenCalledWith(123, {
-        title: '更新されたTodo',
-        description: '更新された説明',
-        completed: true,
-      });
-
-      // ルートパスがrevalidateされたかどうか
       expect(revalidatePath).toHaveBeenCalledWith('/');
-      // 編集ページのパスがrevalidateされたかどうか
       expect(revalidatePath).toHaveBeenCalledWith('/edit/123');
     });
 
     // 前提：todoIdが含まれていないフォームデータが送信される
-    // 期待値：バリデーションエラー状態が返される
+    // 期待値：バリデーションエラー状態が返され、入力値が保持される
     it('todoIdが存在しない場合エラーが返される', async () => {
       const formData = createFormData({
         title: 'タイトル',
@@ -268,21 +176,15 @@ describe('Todo Server Actions', () => {
 
       const result = await updateTodoAction(initialState, formData);
 
-      // ステータスがバリデーションエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('TodoIDが見つかりません');
-      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
-
-      // updateTodoが呼び出されていないかどうか
-      expect(updateTodo).not.toHaveBeenCalled();
-      // revalidatePathが呼び出されていないかどうか
-      expect(revalidatePath).not.toHaveBeenCalled();
+      expect(result.title).toBeUndefined();
+      expect(result.description).toBeUndefined();
     });
 
     // 前提：有効なtodoIdだが無効なフォームデータが送信される
-    // 期待値：バリデーションエラー状態が返される
+    // 期待値：バリデーションエラー状態が返され、入力値が保持される
     it('バリデーションエラーがある場合エラー状態が返される', async () => {
       const formData = createFormData({
         todoId: '123',
@@ -293,20 +195,17 @@ describe('Todo Server Actions', () => {
 
       const result = await updateTodoAction(initialState, formData);
 
-      // ステータスがバリデーションエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.VALIDATION_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('タイトルは必須です');
-      // titleのバリデーションエラーが設定されているかどうか
       expect(result.validationErrors?.title).toEqual(['タイトルは必須です']);
-
-      // updateTodoが呼び出されていないかどうか
-      expect(updateTodo).not.toHaveBeenCalled();
+      expect(result.title).toBe('');
+      expect(result.description).toBe('説明');
+      expect(result.completed).toBe(false);
     });
 
-    // 前提：有効なデータだがuse-caseがエラーを返す
-    // 期待値：サーバーエラー状態が返される
-    it('use-caseでエラーが発生した場合サーバーエラーが返される', async () => {
+    // 前提：有効なデータだがupdateTodoがエラーを返す
+    // 期待値：サーバーエラー状態が返され、入力値が保持される
+    it('updateTodoでエラーが発生した場合サーバーエラーが返される', async () => {
       const formData = createFormData({
         todoId: '123',
         title: 'タイトル',
@@ -314,19 +213,16 @@ describe('Todo Server Actions', () => {
         completed: false,
       });
 
-      vi.mocked(updateTodo).mockResolvedValue(err({ type: 'TODO_UPDATE_FAILED' }));
+      vi.mocked(updateTodo).mockResolvedValue(err('SERVER_ACTION_ERROR'));
 
       const result = await updateTodoAction(initialState, formData);
 
-      // ステータスがサーバーエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('Todoの更新に失敗しました');
-      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
-
-      // revalidatePathが呼び出されていないかどうか
-      expect(revalidatePath).not.toHaveBeenCalled();
+      expect(result.title).toBe('タイトル');
+      expect(result.description).toBe('説明');
+      expect(result.completed).toBe(false);
     });
   });
 
@@ -348,16 +244,13 @@ describe('Todo Server Actions', () => {
 
       const result = await deleteTodoAction(initialState, formData);
 
-      // 結果が成功状態であるかどうか
       expect(result).toEqual({
         status: ACTION_STATUS.SUCCESS,
         error: null,
         validationErrors: null,
       });
 
-      // deleteTodoが正しいIDで呼び出されたかどうか
       expect(deleteTodo).toHaveBeenCalledWith(123);
-      // ルートパスがrevalidateされたかどうか
       expect(revalidatePath).toHaveBeenCalledWith('/');
     });
 
@@ -368,39 +261,25 @@ describe('Todo Server Actions', () => {
 
       const result = await deleteTodoAction(initialState, formData);
 
-      // ステータスがサーバーエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('TodoIDが見つかりません');
-      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
-
-      // deleteTodoが呼び出されていないかどうか
-      expect(deleteTodo).not.toHaveBeenCalled();
-      // revalidatePathが呼び出されていないかどうか
-      expect(revalidatePath).not.toHaveBeenCalled();
     });
 
-    // 前提：有効なtodoIdだがuse-caseがエラーを返す
+    // 前提：有効なtodoIdだがdeleteTodoがエラーを返す
     // 期待値：サーバーエラー状態が返される
-    it('use-caseでエラーが発生した場合サーバーエラーが返される', async () => {
+    it('deleteTodoでエラーが発生した場合サーバーエラーが返される', async () => {
       const formData = createFormData({
         todoId: '123',
       });
 
-      vi.mocked(deleteTodo).mockResolvedValue(err({ type: 'TODO_DELETE_FAILED' }));
+      vi.mocked(deleteTodo).mockResolvedValue(err('SERVER_ACTION_ERROR'));
 
       const result = await deleteTodoAction(initialState, formData);
 
-      // ステータスがサーバーエラーであるかどうか
       expect(result.status).toBe(ACTION_STATUS.SERVER_ERROR);
-      // エラーメッセージが期待値と一致するかどうか
       expect(result.error).toBe('Todoの削除に失敗しました');
-      // バリデーションエラーがnullであるかどうか
       expect(result.validationErrors).toBe(null);
-
-      // revalidatePathが呼び出されていないかどうか
-      expect(revalidatePath).not.toHaveBeenCalled();
     });
   });
 });

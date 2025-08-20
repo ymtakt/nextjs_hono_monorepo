@@ -8,22 +8,22 @@ import type { TodoEntity } from '@/domain/data/todo.data';
  */
 export const transformToTodoEntity = (todoObject: {
   title: string;
-  description: string;
+  description: string | null;
   completed: boolean;
   id: number;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
 }): TodoEntity => ({
   // IDをそのまま設定
   id: todoObject.id,
   // タイトルをそのまま設定
   title: todoObject.title,
-  // descriptionがnullまたはundefinedの場合は空文字に変換
-  description: todoObject.description || '',
+  // descriptionがnullの場合は空文字に変換
+  description: todoObject.description ?? '',
   // completedフィールドをisCompletedにマッピング
   isCompleted: todoObject.completed,
   // createdAtをcreatedDateにマッピング
   createdDate: todoObject.createdAt,
   // updatedAtがない場合はcreatedAtを使用
-  updatedDate: todoObject.updatedAt || todoObject.createdAt,
+  updatedDate: todoObject.updatedAt ?? todoObject.createdAt,
 });

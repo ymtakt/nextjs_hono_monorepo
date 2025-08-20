@@ -1,12 +1,9 @@
 import { err, ok, type Result } from 'neverthrow';
 import { apiClient } from '@/core/service/api.service';
+import { ServeActionError } from '@/util/type';
 
-/** UseCase で発生するエラー型の定義。 */
-type UseCaseError = {
-  type: 'TODO_DELETE_FAILED';
-};
 
-export const deleteTodo = async (todoId: number): Promise<Result<void, UseCaseError>> => {
+export const deleteTodo = async (todoId: number): Promise<Result<void, ServeActionError>> => {
   try {
     // パスパラメータにTodoIDを設定してDELETEリクエストを実行
     const res = await apiClient.api.todos[':todoId'].$delete({
@@ -14,10 +11,10 @@ export const deleteTodo = async (todoId: number): Promise<Result<void, UseCaseEr
     });
 
     if (!res.ok) {
-      return err({ type: 'TODO_DELETE_FAILED' });
+      return err('SERVER_ACTION_ERROR');
     }
     return ok();
   } catch {
-    return err({ type: 'TODO_DELETE_FAILED' });
+    return err('SERVER_ACTION_ERROR');
   }
 };

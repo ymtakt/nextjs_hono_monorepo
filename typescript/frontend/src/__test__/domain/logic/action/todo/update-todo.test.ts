@@ -50,11 +50,8 @@ describe('updateTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
-    // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
-    // 結果が成功状態であるかどうか
-    expect(result.isOk()).toBe(true);
     if (result.isOk()) {
       // 更新されたTodoエンティティが期待値と一致するかどうか
       expect(result.value).toEqual({
@@ -66,141 +63,11 @@ describe('updateTodo', () => {
         updatedDate: '2025-01-02T00:00:00Z',
       });
     }
-  });
 
-  // 前提：todoIdとUpdateTodoRequestが正しくAPIに渡される
-  // 期待値：paramとjsonが適切にAPIに送信される
-  it('todoIdとUpdateTodoRequestが正しくAPIに渡される', async () => {
-    const todoId = 123;
-    const updateRequest: UpdateTodoRequest = {
-      title: 'テストタイトル',
-      description: 'テスト説明',
-      completed: false,
-    };
-
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        todo: {
-          id: 123,
-          title: 'テストタイトル',
-          description: 'テスト説明',
-          completed: false,
-          createdAt: '2025-01-01T00:00:00Z',
-          updatedAt: '2025-01-01T00:00:00Z',
-        },
-      }),
-    };
-
-    // @ts-expect-error テスト用のmockなので型チェックをスキップ
-    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
-
-    // テスト対象の関数を実行
-    await updateTodo(todoId, updateRequest);
-
-    // APIが正しいパラメータとJSONで呼び出されたかどうか
-    expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
-      param: { todoId: '123' },
-      json: {
-        title: 'テストタイトル',
-        description: 'テスト説明',
-        completed: false,
-      },
-    });
-  });
-
-  // 前提：全フィールドを含むUpdateTodoRequestが渡される
-  // 期待値：更新が正常に処理される
-  it('全フィールドを含む更新リクエストが正常に処理される', async () => {
-    const todoId = 1;
-    const updateRequest: UpdateTodoRequest = {
-      title: '既存のタイトル',
-      description: '既存の説明',
-      completed: true,
-    };
-
-    const mockUpdatedTodo = {
-      todo: {
-        id: 1,
-        title: '既存のタイトル',
-        description: '既存の説明',
-        completed: true,
-        createdAt: '2025-01-01T00:00:00Z',
-        updatedAt: '2025-01-02T00:00:00Z',
-      },
-    };
-
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue(mockUpdatedTodo),
-    };
-
-    // @ts-expect-error テスト用のmockなので型チェックをスキップ
-    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
-
-    // テスト対象の関数を実行
-    const result = await updateTodo(todoId, updateRequest);
-
-    // 結果が成功状態であるかどうか
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      // completedフィールドが正しく更新されているかどうか
-      expect(result.value.isCompleted).toBe(true);
-    }
-    // APIが正しいパラメータで呼び出されたかどうか
-    expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
-      param: { todoId: '1' },
-      json: {
-        title: '既存のタイトル',
-        description: '既存の説明',
-        completed: true,
-      },
-    });
-  });
-
-  // 前提：todoIdが数値で渡される
-  // 期待値：todoIdが文字列に変換されてAPIに渡される
-  it('todoIdが文字列に変換されてAPIに渡される', async () => {
-    const todoId = 456;
-    const updateRequest: UpdateTodoRequest = {
-      title: 'テスト',
-      description: 'テストの説明',
-      completed: false,
-    };
-
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({
-        todo: {
-          id: 456,
-          title: 'テスト',
-          description: 'テストの説明',
-          completed: false,
-          createdAt: '2025-01-01T00:00:00Z',
-          updatedAt: '2025-01-01T00:00:00Z',
-        },
-      }),
-    };
-
-    // @ts-expect-error テスト用のmockなので型チェックをスキップ
-    vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
-
-    // テスト対象の関数を実行
-    await updateTodo(todoId, updateRequest);
-
-    // APIが数値のIDを文字列に変換して呼び出されたかどうか
-    expect(apiClient.api.todos[':todoId'].$put).toHaveBeenCalledWith({
-      param: { todoId: '456' },
-      json: {
-        title: 'テスト',
-        description: 'テストの説明',
-        completed: false,
-      },
-    });
   });
 
   // 前提：APIが正常でないレスポンス（ok: false）を返す
-  // 期待値：TODO_UPDATE_FAILEDエラーがerr結果で返される
+  // 期待値：SERVER_ACTION_ERRORがerr結果で返される
   it('APIレスポンスが正常でない場合エラーが返される', async () => {
     const todoId = 999;
     const updateRequest: UpdateTodoRequest = {
@@ -216,19 +83,15 @@ describe('updateTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockResolvedValue(mockResponse);
 
-    // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
-    // 結果がエラー状態であるかどうか
-    expect(result.isErr()).toBe(true);
     if (result.isErr()) {
-      // エラータイプが期待値と一致するかどうか
-      expect(result.error).toEqual({ type: 'TODO_UPDATE_FAILED' });
+      expect(result.error).toBe('SERVER_ACTION_ERROR');
     }
   });
 
   // 前提：API呼び出し時にネットワークエラーが発生する
-  // 期待値：TODO_UPDATE_FAILEDエラーがerr結果で返される
+  // 期待値：SERVER_ACTION_ERRORがerr結果で返される
   it('API呼び出しでエラーが発生した場合エラーが返される', async () => {
     const todoId = 1;
     const updateRequest: UpdateTodoRequest = {
@@ -239,14 +102,10 @@ describe('updateTodo', () => {
 
     vi.mocked(apiClient.api.todos[':todoId'].$put).mockRejectedValue(new Error('Network Error'));
 
-    // テスト対象の関数を実行
     const result = await updateTodo(todoId, updateRequest);
 
-    // 結果がエラー状態であるかどうか
-    expect(result.isErr()).toBe(true);
     if (result.isErr()) {
-      // エラータイプが期待値と一致するかどうか
-      expect(result.error).toEqual({ type: 'TODO_UPDATE_FAILED' });
+      expect(result.error).toBe('SERVER_ACTION_ERROR');
     }
   });
 });

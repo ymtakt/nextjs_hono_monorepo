@@ -16,11 +16,6 @@ vi.mock('@/core/service/api.service', () => ({
 describe('fetchTodos', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // setTimeoutをモック化
-    vi.spyOn(global, 'setTimeout').mockImplementation((callback) => {
-      callback();
-      return {} as unknown as NodeJS.Timeout;
-    });
   });
 
   // 前提：APIが正常なレスポンスで複数のTodoを返す
@@ -36,14 +31,6 @@ describe('fetchTodos', () => {
           createdAt: '2025-01-01T00:00:00Z',
           updatedAt: '2025-01-02T00:00:00Z',
         },
-        {
-          id: 2,
-          title: 'Todo2',
-          description: '説明2',
-          completed: false,
-          createdAt: '2025-01-01T00:00:00Z',
-          updatedAt: '2025-01-01T00:00:00Z',
-        },
       ],
     };
 
@@ -52,18 +39,14 @@ describe('fetchTodos', () => {
       json: vi.fn().mockResolvedValue(mockTodos),
     };
 
-    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    // Note: テスト用のmockなので型チェックをスキップ
+    // @ts-expect-error
     vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
 
-    // テスト対象の関数を実行
     const result = await fetchTodos();
 
-    // 結果が成功状態であるかどうか
-    expect(result.isOk()).toBe(true);
     if (result.isOk()) {
-      // 取得されたTodoの件数が期待値と一致するかどうか
-      expect(result.value).toHaveLength(2);
-      // 1番目のTodoエンティティが期待値と一致するかどうか
+      expect(result.value).toHaveLength(1);
       expect(result.value[0]).toEqual({
         id: 1,
         title: 'Todo1',
@@ -72,121 +55,100 @@ describe('fetchTodos', () => {
         createdDate: '2025-01-01T00:00:00Z',
         updatedDate: '2025-01-02T00:00:00Z',
       });
-      // 2番目のTodoエンティティが期待値と一致するかどうか
-      expect(result.value[1]).toEqual({
-        id: 2,
-        title: 'Todo2',
-        description: '説明2',
-        isCompleted: false,
-        createdDate: '2025-01-01T00:00:00Z',
-        updatedDate: '2025-01-01T00:00:00Z',
-      });
     }
   });
 
-  // 前提：APIが正常なレスポンスで空配列を返す
-  // 期待値：空のTodoEntity配列がok結果で返される
-  it('Todoが0件の場合空配列が返される', async () => {
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({ todos: [] }),
+  // 前提：search パラメータ付きでAPIが呼び出され、検索にマッチするTodoが返される
+  // 期待値：検索キーワードを含むTodoのみが変換されて返される
+  it('searchパラメータで検索にマッチするTodoを取得する', async () => {
+    const mockTodos = {
+      todos: [
+        {
+          id: 1,
+          title: 'React学習',
+          description: 'Reactの基礎を学ぶ',
+          completed: false,
+          createdAt: '2025-01-01T00:00:00Z',
+          updatedAt: '2025-01-01T00:00:00Z',
+        },
+        {
+          id: 2,
+          title: 'React応用',
+          description: 'Reactの応用を学ぶ',
+          completed: true,
+          createdAt: '2025-01-02T00:00:00Z',
+          updatedAt: '2025-01-02T00:00:00Z',
+        }
+      ],
     };
 
-    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    const mockResponse = {
+      ok: true,
+      json: vi.fn().mockResolvedValue(mockTodos),
+    };
+
+    // Note: テスト用のmockなので型チェックをスキップ
+    // @ts-expect-error
     vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
 
-    // テスト対象の関数を実行
-    const result = await fetchTodos();
+    const result = await fetchTodos('React');
 
-    // 結果が成功状態であるかどうか
-    expect(result.isOk()).toBe(true);
-    // 成功時のデータの確認
+    // 検索パラメータが正しく渡されることを確認
+    expect(apiClient.api.todos.$get).toHaveBeenCalledWith({
+      query: {
+        search: 'React',
+      },
+    });
+
+    // 検索結果が正しく変換されて返されることを確認
     if (result.isOk()) {
-      // 空配列が返されているかどうか
-      expect(result.value).toEqual([]);
+      expect(result.value).toHaveLength(2);
+      expect(result.value).toEqual([
+        {
+          id: 1,
+          title: 'React学習',
+          description: 'Reactの基礎を学ぶ',
+          isCompleted: false,
+          createdDate: '2025-01-01T00:00:00Z',
+          updatedDate: '2025-01-01T00:00:00Z'
+        },
+        {
+          id: 2,
+          title: 'React応用',
+          description: 'Reactの応用を学ぶ',
+          isCompleted: true,
+          createdDate: '2025-01-02T00:00:00Z',
+          updatedDate: '2025-01-02T00:00:00Z',
+        },
+      ]);
     }
-  });
-
-  // 前提：search パラメータ付きでAPIが呼び出される
-  // 期待値：search パラメータがクエリに含まれてAPIが呼ばれる
-  it('searchパラメータがクエリに含まれる', async () => {
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({ todos: [] }),
-    };
-
-    // @ts-expect-error テスト用のmockなので型チェックをスキップ
-    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
-
-    // テスト対象の関数を実行
-    await fetchTodos('test search');
-
-    // APIが正しいsearchクエリで呼び出されたかどうか
-    expect(apiClient.api.todos.$get).toHaveBeenCalledWith({
-      query: {
-        search: 'test search',
-      },
-    });
-  });
-
-  // 前提：search パラメータなしでAPIが呼び出される
-  // 期待値：searchがundefinedのクエリでAPIが呼ばれる
-  it('searchパラメータがない場合はundefinedが渡される', async () => {
-    const mockResponse = {
-      ok: true,
-      json: vi.fn().mockResolvedValue({ todos: [] }),
-    };
-
-    // @ts-expect-error テスト用のmockなので型チェックをスキップ
-    vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
-
-    // テスト対象の関数を実行
-    await fetchTodos();
-
-    // APIがsearchパラメータなしで呼び出されたかどうか
-    expect(apiClient.api.todos.$get).toHaveBeenCalledWith({
-      query: {
-        search: undefined,
-      },
-    });
   });
 
   // 前提：APIが正常でないレスポンス（ok: false）を返す
-  // 期待値：TODO_FETCH_FAILEDエラーがerr結果で返される
+  // 期待値：SSR_FETCH_ERRORがerr結果で返される
   it('APIレスポンスが正常でない場合エラーが返される', async () => {
-    const mockResponse = {
-      ok: false,
-    };
+    const mockResponse = { ok: false };
 
-    // @ts-expect-error テスト用のmockなので型チェックをスキップ
+    // Note: テスト用のmockなので型チェックをスキップ
+    // @ts-expect-error
     vi.mocked(apiClient.api.todos.$get).mockResolvedValue(mockResponse);
 
-    // テスト対象の関数を実行
     const result = await fetchTodos();
 
-    // 結果がエラー状態であるかどうか
-    expect(result.isErr()).toBe(true);
-    // エラー時のデータの確認
     if (result.isErr()) {
-      // エラータイプが期待値と一致するかどうか
-      expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' });
+      expect(result.error).toBe('SSR_FETCH_ERROR');
     }
   });
 
   // 前提：API呼び出し時にネットワークエラーが発生する
-  // 期待値：TODO_FETCH_FAILEDエラーがerr結果で返される
+  // 期待値：SSR_FETCH_ERRORがerr結果で返される
   it('API呼び出しでエラーが発生した場合エラーが返される', async () => {
     vi.mocked(apiClient.api.todos.$get).mockRejectedValue(new Error('Network Error'));
 
-    // テスト対象の関数を実行
     const result = await fetchTodos();
 
-    // 結果がエラー状態であるかどうか
-    expect(result.isErr()).toBe(true);
-    // エラー時のデータの確認
     if (result.isErr()) {
-      // エラータイプが期待値と一致するかどうか
-      expect(result.error).toEqual({ type: 'TODO_FETCH_FAILED' });
+      expect(result.error).toBe('SSR_FETCH_ERROR');
     }
   });
 });

@@ -21,7 +21,7 @@ export const createApp = () => {
     .use(prettyJSON())
     .use(requestIdMiddleware)
 
-    // NOTE: サンプルコードのため、CORS を有効化している。
+    //  Note: サンプルコードのため、CORS を有効化している。
     .use('*', cors())
     .use(contextStorage())
 

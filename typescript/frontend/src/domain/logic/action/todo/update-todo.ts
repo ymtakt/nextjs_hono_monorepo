@@ -3,20 +3,11 @@ import { err, ok, type Result } from 'neverthrow';
 import { apiClient } from '@/core/service/api.service';
 import type { TodoEntity } from '@/domain/data/todo.data';
 import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity';
+import { ServeActionError } from '@/util/type';
 
-/** UseCase で発生するエラー型の定義。 */
-type UseCaseError = {
-  type: 'TODO_UPDATE_FAILED';
-};
 
 /**
  * 特定のTodoを更新する
- *
- * - APIクライアントを使用してリクエストを実行
- * - Hono RPCを使用してリクエストを実行
- * - レスポンスが正常でない場合はエラーを投げる
- * - レスポンスボディをアプリケーションのEntityオブジェクトに変換
- * - server actionで使用される
  *
  * @param todoId - 更新するTodoのID
  * @param todo - 更新するTodoのデータ
@@ -25,7 +16,7 @@ type UseCaseError = {
 export const updateTodo = async (
   todoId: number,
   todo: UpdateTodoRequest,
-): Promise<Result<TodoEntity, UseCaseError>> => {
+): Promise<Result<TodoEntity, ServeActionError>> => {
   try {
     const res = await apiClient.api.todos[':todoId'].$put({
       param: { todoId: todoId.toString() },
@@ -33,7 +24,7 @@ export const updateTodo = async (
     });
 
     if (!res.ok) {
-      return err({ type: 'TODO_UPDATE_FAILED' });
+      return err('SERVER_ACTION_ERROR');
     }
 
     // レスポンスボディをJSONとして解析
@@ -42,6 +33,6 @@ export const updateTodo = async (
     const todoEntity = transformToTodoEntity(data.todo);
     return ok(todoEntity);
   } catch {
-    return err({ type: 'TODO_UPDATE_FAILED' });
+    return err('SERVER_ACTION_ERROR');
   }
 };
