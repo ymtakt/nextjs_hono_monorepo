@@ -11,7 +11,6 @@ export default defineConfig({
     exclude: ['node_modules/**', 'dist/**'],
     env: {
       NODE_ENV: 'test',
-      DATABASE_URL: 'postgresql://testuser:testpass@localhost:54321/myapp_test',
     },
     testTimeout: 30000, // PostgreSQL接続のため長めに設定
     hookTimeout: 30000,
