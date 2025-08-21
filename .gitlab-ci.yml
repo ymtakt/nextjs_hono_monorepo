@@ -58,6 +58,9 @@ test:frontend:
   before_script:
     - bun install
     - *generate_prisma
+    - echo "🔗 Linking Prisma client for frontend build..."
+    - mkdir -p typescript/frontend/node_modules/backend/generated
+    - cp -r typescript/backend/generated/* typescript/frontend/node_modules/backend/generated/
   script:
     - echo "🧪 Running frontend tests with coverage..."
     - cd typescript/frontend
