@@ -4,56 +4,55 @@ Next.js と Hono を使用したモノレポプロジェクトです。
 
 ## 環境要件
 
-- Node.js: v22.7.0 以上
-- npm: v10.8.2 以上
+- Node.js: v20.0.0 以上
+- npm: v10.0.0 以上
 - Next.js: v15.2.4
-- Bun: 最新版
 - PostgreSQL: 15 以上
 
 ## モノレポツール
 
-bun workspace
+npm workspaces
 
 ## 環境構築
 
 ```bash
 # パッケージインストール
-bun install
+npm install
 
 # データベースセットアップ
 cd typescript/backend
-bun run db:push
-bun run db:seed
+npm run db:push
+npm run db:seed
 
 # 開発サーバー起動
-bun run dev
+npm run dev
 ```
 
 ## 主要コマンド
 
 | コマンド      | 説明                                              |
 | ------------- | ------------------------------------------------- |
-| `bun run dev` | 開発サーバーを起動します（http://localhost:3000） |
+| `npm run dev` | 開発サーバーを起動します（http://localhost:3000） |
 
 ### フロントエンド（typescript/frontend）
 
 | コマンド             | 説明                           |
 | -------------------- | ------------------------------ |
-| `bun run dev`        | フロントエンド開発サーバー起動 |
-| `bun run build`      | プロダクションビルド           |
-| `bun run test`       | テスト実行                     |
-| `bun run test:watch` | テスト監視モード               |
+| `npm run dev`        | フロントエンド開発サーバー起動 |
+| `npm run build`      | プロダクションビルド           |
+| `npm run test`       | テスト実行（Node.js）          |
+| `npm run test:watch` | テスト監視モード（Node.js）    |
 
 ### バックエンド（typescript/backend）
 
 | コマンド            | 説明                                  |
 | ------------------- | ------------------------------------- |
-| `bun run dev`       | バックエンド開発サーバー起動（:8080） |
-| `bun run test`      | テスト実行                            |
-| `bun run test:ui`   | テスト UI 起動                        |
-| `bun run db:push`   | データベーススキーマ適用              |
-| `bun run db:seed`   | シードデータ投入                      |
-| `bun run db:studio` | Prisma Studio 起動                    |
+| `npm run dev`       | バックエンド開発サーバー起動（:8080） |
+| `npm run test`      | テスト実行（Node.js）                 |
+| `npm run test:ui`   | テスト UI 起動（Node.js）             |
+| `npm run db:push`   | データベーススキーマ適用              |
+| `npm run db:seed`   | シードデータ投入                      |
+| `npm run db:studio` | Prisma Studio 起動                    |
 
 ## フォルダ構成
 
@@ -89,9 +88,9 @@ bun run dev
 
 #### 主要コマンド
 
-- `bun x @biomejs/biome format --write .`: フォーマット実行
-- `bun x @biomejs/biome lint .`: リントチェック
-- `bun x @biomejs/biome check --write .`: フォーマット＆リント実行
+- `npx @biomejs/biome format --write .`: フォーマット実行
+- `npx @biomejs/biome lint .`: リントチェック
+- `npx @biomejs/biome check --write .`: フォーマット＆リント実行
 
 ※ 特定のディレクトリのみを対象とする場合は、`.` の代わりにパスを指定（例：`typescript/frontend/`）
 
@@ -160,12 +159,14 @@ Hono を採用し、以下の設計原則に基づいています：
 
 ### フロントエンド
 
-- **テストフレームワーク**: Vitest + React Testing Library
+- **テストフレームワーク**: Vitest + React Testing Library（Node.js 実行）
+- **実行環境**: Node.js（CI/CD 統一）
 - **カバレッジ**: ドメインロジック、コンポーネント、hooks
 
 ### バックエンド
 
-- **テストフレームワーク**: Vitest
+- **テストフレームワーク**: Vitest（Node.js 実行）
+- **実行環境**: Node.js（CI/CD 統一）
 - **テスト方針**: エンドツーエンドテスト（UseCase をモックしない）
 - **データベース**: テスト用データベースを使用
 
@@ -192,7 +193,7 @@ Hono を採用し、以下の設計原則に基づいています：
 
 ### 開発ツール
 
-- Bun (パッケージマネージャー・ランタイム)
+- Node.js + npm (ランタイム・パッケージマネージャー)
 - Biome (リンター・フォーマッター)
 - Vitest (テストフレームワーク)
 

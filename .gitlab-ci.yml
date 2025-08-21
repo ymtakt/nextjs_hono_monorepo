@@ -17,8 +17,10 @@ variables:
   cache:
     key:
       files:
-        - bun.lock
+        - package-lock.json
         - package.json
+        - typescript/frontend/package-lock.json
+        - typescript/backend/package-lock.json
     paths:
       - node_modules/
       - typescript/frontend/node_modules/
@@ -35,45 +37,45 @@ variables:
 .generate_prisma: &generate_prisma
   - echo "🔧 Generating Prisma client..."
   - cd typescript/backend
-  - bun run db:generate
+  - npm run db:generate
   - cd ../..
 
 # Lintチェック（全体）
 lint:check:
   stage: lint
-  image: oven/bun:latest
+  image: node:${NODE_VERSION}
   <<: *cache_template
   before_script:
     - echo "📦 Installing dependencies..."
-    - bun install
+    - npm install
     - *generate_prisma
   script:
     - echo "🔍 Running lint checks..."
-    - bun run check:ci
+    - npm run check:ci
   <<: *common_rules
 
 # フロントエンドテスト（純粋なテスト実行）
 test:frontend:
   stage: test
-  image: oven/bun:latest
+  image: node:${NODE_VERSION}
   <<: *cache_template
   before_script:
-    - bun install
+    - npm install
     - *generate_prisma
     # フロントエンドでPrismaクライアントを使用するために、バックエンドのgeneratedフォルダをリンクする
     - echo "🔗 Linking Prisma client for frontend build..."
     - mkdir -p typescript/frontend/node_modules/backend/generated
     - cp -r typescript/backend/generated/* typescript/frontend/node_modules/backend/generated/
   script:
-    - echo "🧪 Running frontend tests..."
+    - echo "🧪 Running frontend tests with Node.js..."
     - cd typescript/frontend
-    - bun run test:run
+    - npm run test:run
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
         - typescript/frontend/**/*
         - package.json
-        - bun.lock
+        - package-lock.json
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # フロントエンドカバレッジ（Node.jsで計測）
@@ -82,8 +84,7 @@ coverage:frontend:
   image: node:${NODE_VERSION}
   <<: *cache_template
   before_script:
-    - npm install -g bun
-    - bun install
+    - npm install
     - *generate_prisma
     # フロントエンドでPrismaクライアントを使用するために、バックエンドのgeneratedフォルダをリンクする
     - echo "🔗 Linking Prisma client for frontend build..."
@@ -108,13 +109,13 @@ coverage:frontend:
       changes:
         - typescript/frontend/**/*
         - package.json
-        - bun.lock
+        - package-lock.json
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # バックエンドテスト（純粋なテスト実行）
 test:backend:
   stage: test
-  image: oven/bun:latest
+  image: node:${NODE_VERSION}
   services:
     - name: postgres:15
       alias: postgres
@@ -131,18 +132,18 @@ test:backend:
     # PostgreSQLの準備完了を待機
     - echo "⏳ PostgreSQLの準備完了を待機中..."
     - until pg_isready -h postgres -p 5432 -U testuser; do sleep 1; done
-    - bun install
+    - npm install
     - *generate_prisma
   script:
-    - echo "🧪 Running backend tests..."
+    - echo "🧪 Running backend tests with Node.js..."
     - cd typescript/backend
-    - bun run test
+    - npm run test
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
         - typescript/backend/**/*
         - package.json
-        - bun.lock
+        - package-lock.json
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # バックエンドカバレッジ（Node.jsで計測）
@@ -165,8 +166,7 @@ coverage:backend:
     # PostgreSQLの準備完了を待機
     - echo "⏳ PostgreSQLの準備完了を待機中..."
     - until pg_isready -h postgres -p 5432 -U testuser; do sleep 1; done
-    - npm install -g bun
-    - bun install
+    - npm install
     - *generate_prisma
   script:
     - echo "📊 Running backend coverage with Node.js..."
@@ -187,16 +187,16 @@ coverage:backend:
       changes:
         - typescript/backend/**/*
         - package.json
-        - bun.lock
+        - package-lock.json
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # フロントエンドビルド検証（MRのみ）
 build:frontend:
   stage: build
-  image: oven/bun:latest
+  image: node:${NODE_VERSION}
   <<: *cache_template
   before_script:
-    - bun install
+    - npm install
     - *generate_prisma
     # フロントエンドでPrismaクライアントを使用するために、バックエンドのgeneratedフォルダをリンクする
     - echo "🔗 Linking Prisma client for frontend build..."
@@ -205,7 +205,7 @@ build:frontend:
   script:
     - echo "🏗️ Building frontend for validation..."
     - cd typescript/frontend
-    - bun run build
+    - npm run build
   artifacts:
     paths:
       - typescript/frontend/.next/
@@ -216,4 +216,4 @@ build:frontend:
         - typescript/frontend/**/*
         - typescript/backend/**/* # backendの変更もfrontendビルドの対象にする
         - package.json
-        - bun.lock
+        - package-lock.json

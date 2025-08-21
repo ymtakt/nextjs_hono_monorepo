@@ -14,14 +14,16 @@
 ### 2.1 テストの実行方法
 
 ```sh
-bun run test
+npm run test
 ```
 
 で watch モードでテストを実行します。一度だけ実行する場合は：
 
 ```sh
-bun run test:run
+npm run test:run
 ```
+
+**注意**: テストは Node.js 環境で実行されます（CI/CD 環境との統一のため）。
 
 ### 2.2 テスト環境のセットアップ
 
@@ -41,7 +43,7 @@ docker compose -f compose.test.yml up -d
 2. テストを実行する
 
 ```bash
-bun run test
+npm run test
 ```
 
 3. テスト用データベースを停止する（任意）

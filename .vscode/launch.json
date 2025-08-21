@@ -5,7 +5,7 @@
       "name": "Frontend: Next.js",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "bun",
+      "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev:web"],
       "skipFiles": ["<node_internals>/**"],
       "serverReadyAction": {
@@ -18,7 +18,7 @@
       "name": "Backend: Hono",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "bun",
+      "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev:api"],
       "skipFiles": ["<node_internals>/**"]
     },
@@ -26,7 +26,7 @@
       "name": "Full Stack",
       "type": "node",
       "request": "launch",
-      "runtimeExecutable": "bun",
+      "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "skipFiles": ["<node_internals>/**"],
       "serverReadyAction": {

@@ -1,3 +1,4 @@
+import { serve } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
 import { openAPISpecs } from 'hono-openapi'
 import { getHealthCheckHandlers } from './endpoint/handler/getHealthCheckHandlers'
@@ -64,8 +65,9 @@ if (process.env.NODE_ENV !== 'test') {
   const port = parseInt(process.env.PORT || '8080', 10)
   console.log(`Server is running on port ${port}`)
 
-  Bun.serve({
-    port: port,
+  // Node.js環境でのHonoサーバー起動
+  serve({
     fetch: routes.fetch,
+    port: port,
   })
 }

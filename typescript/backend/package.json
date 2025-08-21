@@ -2,14 +2,14 @@
   "name": "backend",
   "version": "0.0.0",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
+    "dev": "npx tsx watch src/index.ts",
     "test": "dotenv -e .env.test -- vitest",
     "test:watch": "dotenv -e .env.test -- vitest --watch",
     "test:coverage": "dotenv -e .env.test -- vitest run --coverage",
     "test:ui": "dotenv -e .env.test -- vitest --ui",
-    "format": "bunx @biomejs/biome format --write .",
-    "lint": "bunx @biomejs/biome lint .",
-    "check": "bunx @biomejs/biome check --apply .",
+    "format": "npx @biomejs/biome format --write .",
+    "lint": "npx @biomejs/biome lint .",
+    "check": "npx @biomejs/biome check --apply .",
     "db:generate": "prisma generate --schema=prisma/schema.prisma",
     "db:push": "prisma db push --schema=prisma/schema.prisma",
     "db:pull": "prisma db pull --schema=prisma/schema.prisma",
@@ -18,6 +18,7 @@
     "db:studio": "prisma studio --schema=prisma/schema.prisma"
   },
   "dependencies": {
+    "@hono/node-server": "^1.19.0",
     "@hono/zod-validator": "^0.7.0",
     "@prisma/client": "^6.10.1",
     "@scalar/hono-api-reference": "^0.9.11",
@@ -32,11 +33,18 @@
   "devDependencies": {
     "@quramy/prisma-fabbrica": "^2.3.0",
     "@types/bun": "latest",
+    "@types/pino": "^7.0.4",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "dotenv-cli": "^8.0.0",
     "prisma": "^6.10.1",
+    "tsx": "^4.20.4",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
-  }
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
