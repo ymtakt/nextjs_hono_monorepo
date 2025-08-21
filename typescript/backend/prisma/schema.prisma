@@ -18,7 +18,7 @@ generator client {
  * 生成されたファクトリは"../generated/fabbrica"ディレクトリに出力されます。
  */
 generator fabbrica {
-  provider = "npx @quramy/prisma-fabbrica"
+  provider = "@quramy/prisma-fabbrica"
   output   = "../generated/fabbrica"
 }
 

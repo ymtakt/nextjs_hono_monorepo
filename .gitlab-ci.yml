@@ -29,14 +29,23 @@ variables:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+# 共通のPrisma生成処理
+.generate_prisma: &generate_prisma
+  - echo "🔧 Generating Prisma client..."
+  - cd typescript/backend
+  - bun run db:generate
+  - cd ../..
+
 # Lintチェック（全体）
 lint:check:
   stage: lint
   image: oven/bun:latest
   <<: *cache_template
-  script:
+  before_script:
     - echo "📦 Installing dependencies..."
     - bun install
+    - *generate_prisma
+  script:
     - echo "🔍 Running lint checks..."
     - bun run check:ci
   <<: *common_rules
@@ -46,6 +55,9 @@ test:frontend:
   stage: test
   image: oven/bun:latest
   <<: *cache_template
+  before_script:
+    - bun install
+    - *generate_prisma
   script:
     - echo "🧪 Running frontend tests with coverage..."
     - cd typescript/frontend
@@ -88,11 +100,11 @@ test:backend:
     # PostgreSQLの準備完了を待機
     - echo "⏳ PostgreSQLの準備完了を待機中..."
     - until pg_isready -h postgres -p 5432 -U testuser; do sleep 1; done
+    - bun install
+    - *generate_prisma
   script:
     - echo "🧪 Running backend tests with coverage..."
     - cd typescript/backend
-    - echo "🔧 Generating Prisma client..."
-    - bun run db:generate
     - echo "🚀 Running tests..."
     - bun run test:coverage
   coverage: '/Lines\s*:\s*(\d+\.\d+)%/'
@@ -118,6 +130,9 @@ build:frontend:
   stage: test
   image: oven/bun:latest
   <<: *cache_template
+  before_script:
+    - bun install
+    - *generate_prisma
   script:
     - echo "🏗️ Building frontend for validation..."
     - cd typescript/frontend
@@ -130,5 +145,6 @@ build:frontend:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
         - typescript/frontend/**/*
+        - typescript/backend/**/* # backendの変更もfrontendビルドの対象にする
         - package.json
         - bun.lock
