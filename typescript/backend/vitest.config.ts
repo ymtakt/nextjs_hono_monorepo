@@ -14,10 +14,10 @@ export default defineConfig({
     },
     testTimeout: 30000, // PostgreSQL接続のため長めに設定
     hookTimeout: 30000,
-    pool: 'threads',
+    pool: 'threads', // Worker Threadsを使用
     poolOptions: {
       threads: {
-        singleThread: true, // DBテストのため単一スレッド
+        singleThread: true, // でも1つだけで実行（DBの競合回避）
       },
     },
     coverage: {

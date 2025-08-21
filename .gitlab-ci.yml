@@ -4,6 +4,7 @@
 stages:
   - lint
   - test
+  - build
   - coverage
 
 variables:
@@ -191,7 +192,7 @@ coverage:backend:
 
 # フロントエンドビルド検証（MRのみ）
 build:frontend:
-  stage: test
+  stage: build
   image: oven/bun:latest
   <<: *cache_template
   before_script:
