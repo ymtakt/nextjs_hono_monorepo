@@ -19,12 +19,11 @@ variables:
       files:
         - package-lock.json
         - package.json
-        - typescript/frontend/package-lock.json
-        - typescript/backend/package-lock.json
     paths:
       - node_modules/
       - typescript/frontend/node_modules/
       - typescript/backend/node_modules/
+      - typescript/backend/generated/
     policy: pull-push
 
 # 共通ルール
