@@ -1,5 +1,2 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
 echo "🔍 Running lint-staged checks..."
-npm run lint-staged
+bun run lint-staged
