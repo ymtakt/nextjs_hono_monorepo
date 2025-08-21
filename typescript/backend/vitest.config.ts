@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     globals: true,
+    globalSetup: './src/util/test-util/globalSetup.ts', // 全体で1回だけ実行
     setupFiles: ['./src/util/test-util/setup.ts'],
     environment: 'node',
     include: ['src/**/*.{test,spec}.ts'],

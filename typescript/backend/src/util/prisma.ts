@@ -37,27 +37,3 @@ if (process.env.NODE_ENV !== 'production') {
 export const disconnectPrisma = async () => {
   await prisma.$disconnect()
 }
-
-// テスト用データリセット関数
-export const resetTestData = async () => {
-  if (process.env.NODE_ENV !== 'test') {
-    throw new Error('resetTestData can only be called in test environment')
-  }
-
-  // テスト時は新しいクライアントインスタンスを作成
-  const testPrisma = new PrismaClient({
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
-  })
-
-  try {
-    // 外部キー制約を考慮した順序で削除
-    await testPrisma.user.deleteMany()
-    await testPrisma.todo.deleteMany()
-  } finally {
-    await testPrisma.$disconnect()
-  }
-}

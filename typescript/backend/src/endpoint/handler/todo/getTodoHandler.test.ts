@@ -1,9 +1,14 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { prisma } from '../../../util/prisma'
 import { mockSetUserAuthMiddleware } from '../../../util/test-util/mockSetUserAuthMiddleware'
 import { client } from '../../../util/test-util/testClient'
 
 describe('getTodoHandler - 正常系', () => {
+  // 各テスト後にクリーンアップ
+  afterEach(async () => {
+    await prisma.todo.deleteMany()
+  })
+
   it('指定されたTodoを正常に取得できる', async () => {
     // ユーザー情報をセットする
     mockSetUserAuthMiddleware({ userId: 1 })
