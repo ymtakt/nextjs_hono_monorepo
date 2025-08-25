@@ -45,6 +45,7 @@ describe('withServerActionHandling', () => {
   // 前提：Server Actionが成功ステータスを返す
   // 期待値：onSuccessコールバックが呼ばれ、初期状態が返される
   it('成功時にコールバックが実行され初期状態が返される', async () => {
+    // Arrange: モックを定義
     const mockServerAction = vi.fn().mockResolvedValue({
       status: ACTION_STATUS.SUCCESS,
       error: null,
@@ -60,9 +61,10 @@ describe('withServerActionHandling', () => {
     // テスト対象の関数を実行
     const formData = new FormData();
 
-    // テスト対象の関数を実行
+    // Act: テスト対象の関数を実行
     const result = await wrappedAction(initialState, formData);
 
+    // Assert: 検証
     // onSuccessコールバックが正しいパラメータで呼び出されたかどうか
     expect(mockOnSuccess).toHaveBeenCalledWith({ success: mockSuccess });
     // 初期状態が返されているかどうか
