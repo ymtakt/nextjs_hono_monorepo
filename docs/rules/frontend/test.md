@@ -2,6 +2,8 @@
 
 ## 概要
 
+**実行環境**: テストは Node.js 環境で実行されます（CI/CD 環境との統一のため）。
+
 ### テストの対象と構造
 
 このプロジェクトでは、以下の 4 つの層をテスト対象とします：
@@ -760,23 +762,25 @@ src/
 
 ```bash
 # 全テストの実行
-bun run test
+npm run test
 
 # 特定のテストファイルの実行
-bun run test path/to/test.test.ts
+npm run test path/to/test.test.ts
 
 # ウォッチモードでの実行
-bun run test:watch
+npm run test:watch
 
 # カバレッジ付きで実行
-bun run test:coverage
+npm run test:coverage
 
 # レイヤー別テスト実行
-bun run test src/core/
-bun run test src/domain/
-bun run test src/component/
-bun run test src/util/
+npm run test src/core/
+npm run test src/domain/
+npm run test src/component/
+npm run test src/util/
 ```
+
+**注意**: テストは Node.js 環境で実行されます（CI/CD 環境との統一のため）。
 
 ## モック戦略
 

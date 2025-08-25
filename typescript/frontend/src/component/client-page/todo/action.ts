@@ -299,7 +299,6 @@ export async function deleteTodoAction(
   formData: FormData,
 ): Promise<DeleteTodoActionState> {
   const todoId = formData.get('todoId') as string;
-
   if (!todoId) {
     return {
       status: ACTION_STATUS.SERVER_ERROR,

@@ -1,11 +1,11 @@
-import { pino } from 'pino'
+import { type Logger, pino } from 'pino'
 
 /**
  * アプリケーション全体で使用するロガークラス。
  * 構造化ロギングを提供し、リクエスト ID などのコンテキスト情報を含めることができる。
  */
 export class AppLogger {
-  private logger: pino.Logger
+  private logger: Logger
   private requestId?: string
 
   // ログレベルごとの絵文字。
@@ -27,7 +27,7 @@ export class AppLogger {
     this.requestId = options?.requestId
     this.logger = pino({
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-      timestamp: pino.stdTimeFunctions.isoTime,
+      timestamp: () => `,"time":"${new Date().toISOString()}"`,
     })
   }
 

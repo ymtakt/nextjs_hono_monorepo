@@ -2,6 +2,7 @@ import type { CreateTodoRequest } from 'backend/schemas';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiClient } from '@/core/service/api.service';
 import { createTodo } from '@/domain/logic/action/todo/create-todo';
+import { expectErrValue, expectOkValue } from '@/util/test-util/except-value';
 
 // APIクライアントをモック化
 vi.mock('@/core/service/api.service', () => ({
@@ -22,6 +23,7 @@ describe('createTodo', () => {
   // 前提：有効なCreateTodoRequestでAPIが正常なレスポンスを返す
   // 期待値：作成されたTodoEntityがok結果で返される
   it('正常にTodoを作成して変換される', async () => {
+    // Arrange: 準備
     const createRequest: CreateTodoRequest = {
       title: '新しいTodo',
       description: '新しい説明',
@@ -48,25 +50,25 @@ describe('createTodo', () => {
     // @ts-expect-error
     vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
+    // Act: 呼び出し
     const result = await createTodo(createRequest);
 
-    if (result.isOk()) {
-      // 作成されたTodoエンティティが期待値と一致するかどうか
-      expect(result.value).toEqual({
-        id: 1,
-        title: '新しいTodo',
-        description: '新しい説明',
-        isCompleted: false,
-        createdDate: '2025-01-01T00:00:00Z',
-        updatedDate: '2025-01-01T00:00:00Z',
-      });
-    }
-
+    // Assert: 検証
+    const todoEntity = expectOkValue(result);
+    expect(todoEntity).toEqual({
+      id: 1,
+      title: '新しいTodo',
+      description: '新しい説明',
+      isCompleted: false,
+      createdDate: '2025-01-01T00:00:00Z',
+      updatedDate: '2025-01-01T00:00:00Z',
+    });
   });
 
   // 前提：APIが正常でないレスポンス（ok: false）を返す
   // 期待値：SERVER_ACTION_ERRORがerr結果で返される
   it('APIレスポンスが正常でない場合エラーが返される', async () => {
+    // Arrange: 準備
     const createRequest: CreateTodoRequest = {
       title: 'テストタイトル',
       description: 'テスト説明',
@@ -80,16 +82,18 @@ describe('createTodo', () => {
     // @ts-expect-error テスト用のmockなので型チェックをスキップ
     vi.mocked(apiClient.api.todos.$post).mockResolvedValue(mockResponse);
 
+    // Act: 呼び出し
     const result = await createTodo(createRequest);
 
-    if (result.isErr()) {
-      expect(result.error).toBe('SERVER_ACTION_ERROR');
-    }
+    // Assert: 検証
+    const error = expectErrValue(result);
+    expect(error).toBe('SERVER_ACTION_ERROR');
   });
 
   // 前提：API呼び出し時にネットワークエラーが発生する
   // 期待値：SERVER_ACTION_ERRORがerr結果で返される
   it('API呼び出しでエラーが発生した場合エラーが返される', async () => {
+    // Arrange: 準備
     const createRequest: CreateTodoRequest = {
       title: 'テストタイトル',
       description: 'テスト説明',
@@ -98,10 +102,11 @@ describe('createTodo', () => {
 
     vi.mocked(apiClient.api.todos.$post).mockRejectedValue(new Error('Network Error'));
 
+    // Act: 呼び出し
     const result = await createTodo(createRequest);
 
-    if (result.isErr()) {
-      expect(result.error).toBe('SERVER_ACTION_ERROR');
-    }
+    // Assert: 検証
+    const error = expectErrValue(result);
+    expect(error).toBe('SERVER_ACTION_ERROR');
   });
 });

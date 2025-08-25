@@ -4,25 +4,25 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     globals: true,
+    globalSetup: './src/util/test-util/globalSetup.ts', // 全体で1回だけ実行
     setupFiles: ['./src/util/test-util/setup.ts'],
     environment: 'node',
     include: ['src/**/*.{test,spec}.ts'],
     exclude: ['node_modules/**', 'dist/**'],
     env: {
       NODE_ENV: 'test',
-      DATABASE_URL: 'postgresql://testuser:testpass@localhost:54321/myapp_test',
     },
     testTimeout: 30000, // PostgreSQL接続のため長めに設定
     hookTimeout: 30000,
-    pool: 'threads',
+    pool: 'threads', // Worker Threadsを使用
     poolOptions: {
       threads: {
-        singleThread: true, // DBテストのため単一スレッド
+        singleThread: true, // でも1つだけで実行（DBの競合回避）
       },
     },
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'json'],
+      reporter: ['text', 'html', 'json', 'cobertura'],
       reportsDirectory: './coverage',
       include: ['src/endpoint/handler/**/*.ts'],
       exclude: [

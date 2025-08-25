@@ -2,9 +2,8 @@ import type { CreateTodoRequest } from 'backend/schemas';
 import { err, ok, type Result } from 'neverthrow';
 import { apiClient } from '@/core/service/api.service';
 import type { TodoEntity } from '@/domain/data/todo.data';
+import type { ServeActionError } from '@/util/type';
 import { transformToTodoEntity } from '../../utils/todo/transform-to-todo-entity';
-import { ServeActionError } from '@/util/type';
-
 
 /**
  * 新規Todoを作成する
